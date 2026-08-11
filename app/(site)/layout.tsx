@@ -3,7 +3,7 @@ import { Be_Vietnam_Pro } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/contexts/CartContext";
-import "./globals.css";
+import "../globals.css";
 
 // Font tiếng Việt theo mục 3 của brief thiết kế — hỗ trợ đầy đủ dấu thanh
 // điệu, dải weight rộng, dáng bo tròn hợp phong cách F&B.

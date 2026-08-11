@@ -1,0 +1,812 @@
+/* Phong cách Apple (macOS/iOS) — vật liệu kính mờ, bo góc liên tục, màu hệ
+   thống Apple cho các trạng thái ngữ nghĩa. Giữ nguyên --primary (teal
+   thương hiệu tiệm) làm màu nhấn — chỉ đổi chất liệu/hình khối/màu trạng
+   thái sang chuẩn Apple, không đổi màu nhận diện thương hiệu. Đã bỏ hẳn
+   --navy/--navy-ink (từng dùng riêng cho header bảng để khớp file Excel
+   MISA) — mọi nơi giờ dùng chung 1 màu nhấn --primary, không còn 2 màu
+   thương hiệu song song.
+*/
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-sunken: #ececee;
+  --sidebar-bg: rgba(246, 246, 248, 0.72);
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --faint: #98989d;
+  --border: #d2d2d7;
+  --border-strong: #c7c7cc;
+  --primary: #1d6e86;
+  --primary-ink: #0f4f62;
+  --primary-wash: #e4eff1;
+  /* Cam hệ thống Apple (System Orange) — thay cho tông cam tự chọn trước đó. */
+  --warm: #ff9500;
+  --warm-ink: #9a5c00;
+  --warm-wash: #fff2e0;
+  /* Xanh lá hệ thống Apple (System Green). */
+  --success: #34c759;
+  --success-ink: #1c7a34;
+  --success-wash: #e8f9ec;
+  /* Đỏ hệ thống Apple (System Red). */
+  --danger: #ff3b30;
+  --danger-ink: #b0221a;
+  --danger-wash: #ffece9;
+  --focus: #1d6e86;
+  /* Xanh đậm cố định cho header bảng — không đổi theo theme (giống cách 1
+     màu thương hiệu neo cố định), để header luôn nổi bật rõ trên cả nền
+     sáng lẫn tối, tách bạch hẳn với thân bảng. */
+  --header-bg: #0f4f62;
+  --radius-sm: 9px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  /* Bóng đổ 2 lớp (nét sát viền + lan tỏa mềm) thay vì 1 lớp mờ duy nhất —
+     tạo cảm giác mặt phẳng "nhấc lên" khỏi nền thay vì chỉ có viền kẻ. */
+  --shadow-1: 0 1px 1px rgba(20, 24, 30, 0.03), 0 4px 14px rgba(20, 24, 30, 0.06);
+  --shadow-2: 0 20px 50px rgba(20, 24, 30, 0.16), 0 2px 10px rgba(20, 24, 30, 0.08);
+  /* Type scale cho chữ nhỏ — gộp các mốc lẻ (11/12/13px) từng bị lệch rải
+     rác về đúng 3 bước rõ ràng, để không còn font-size tự chọn tùy chỗ. */
+  --text-micro: 11.5px;   /* nhãn viết hoa, mốc thời gian phụ */
+  --text-meta: 12.5px;    /* chữ phụ, pill, helper text */
+  --text-body-sm: 13.5px; /* chữ chính trong control/bảng (không đổi) */
+}
+
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-sunken: #2c2c2e;
+  --sidebar-bg: rgba(28, 28, 30, 0.72);
+  --ink: #f5f5f7;
+  --muted: #98989d;
+  --faint: #6e6e73;
+  --border: #38383a;
+  --border-strong: #48484a;
+  --primary: #5fb8ce;
+  --primary-ink: #8fd0e1;
+  --primary-wash: #1e2e33;
+  --warm: #ff9f0a;
+  --warm-ink: #ffbe5c;
+  --warm-wash: #2e2210;
+  --success: #30d158;
+  --success-ink: #7be396;
+  --success-wash: #10281a;
+  --danger: #ff453a;
+  --danger-ink: #ff9086;
+  --danger-wash: #2e1613;
+  --shadow-1: 0 1px 1px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-2: 0 20px 50px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-sunken: #2c2c2e;
+    --sidebar-bg: rgba(28, 28, 30, 0.72);
+    --ink: #f5f5f7;
+    --muted: #98989d;
+    --faint: #6e6e73;
+    --border: #38383a;
+    --border-strong: #48484a;
+    --primary: #5fb8ce;
+    --primary-ink: #8fd0e1;
+    --primary-wash: #1e2e33;
+    --warm: #ff9f0a;
+    --warm-ink: #ffbe5c;
+    --warm-wash: #2e2210;
+    --success: #30d158;
+    --success-ink: #7be396;
+    --success-wash: #10281a;
+    --danger: #ff453a;
+    --danger-ink: #ff9086;
+    --danger-wash: #2e1613;
+    --shadow-1: 0 1px 1px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.45);
+    --shadow-2: 0 20px 50px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { padding: 0; margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "Segoe UI", "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select { font: inherit; color: inherit; }
+
+/* ---- App shell (sidebar + content) ---- */
+/* Khung cố định đúng bằng màn hình (thay vì cả trang cuộn theo body) — để
+   các trang có bảng rộng (.table-page bên dưới) có thể giữ phần tiêu đề/
+   KPI/thanh công cụ đứng yên, chỉ vùng bảng cuộn riêng bên trong, thanh
+   cuộn ngang nhờ vậy luôn nằm trong tầm nhìn thay vì trôi xuống tận cuối
+   trang. Chỉ áp dụng ở màn hình rộng — xem @media 860px bên dưới, nơi mọi
+   quy tắc height/overflow ở đây được trả về cách cuộn cả trang bình thường
+   cho di động. */
+.shell { display: flex; height: 100vh; }
+
+.sidebar {
+  width: 240px; flex: 0 0 240px;
+  background: var(--sidebar-bg); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+/* Kính mờ kiểu macOS sidebar — --sidebar-bg là màu bán trong suốt (rgba),
+   backdrop-filter mới thực sự tạo hiệu ứng "mờ những gì phía sau". CHỈ áp
+   dụng ở màn hình rộng (desktop sidebar cố định) — bất kỳ phần tử nào có
+   backdrop-filter cũng tự tạo containing block mới cho con position:fixed,
+   nếu để trên .sidebar luôn thì drawer di động (.nav/.sidebar-foot fixed)
+   bên trong sẽ bị "giam" vào đúng chiều cao nhỏ của .sidebar đã sập lại
+   trên mobile thay vì phủ toàn màn hình — đã kiểm chứng bằng ảnh chụp thực
+   tế và thấy lỗi này trước khi giới hạn lại bằng media query. */
+@media (min-width: 861px) {
+  .sidebar {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+}
+.brand { padding: 16px 16px 14px; }
+.brand-logo { width: 100%; max-width: 208px; height: auto; display: block; border-radius: var(--radius-sm); box-shadow: var(--shadow-1); }
+.brand-text-under { font-size: var(--text-micro); font-weight: 600; color: var(--faint); margin-top: 9px; }
+
+.nav { padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; }
+.nav-label { font-size: var(--text-micro); font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; color: var(--faint); padding: 10px 10px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; position: relative;
+  padding: 9px 10px; border-radius: var(--radius-sm); border: none; background: none;
+  color: var(--muted); font-size: var(--text-body-sm); font-weight: 500; text-align: left; cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+.nav-item svg { flex-shrink: 0; color: var(--faint); transition: color 150ms ease-out; }
+.nav-item:hover { background: var(--surface-sunken); color: var(--ink); }
+.nav-item:hover svg { color: var(--muted); }
+.nav-item.active { background: var(--primary-wash); color: var(--primary-ink); font-weight: 650; }
+.nav-item.active svg { color: var(--primary-ink); }
+.nav-item.active::before {
+  content: ""; position: absolute; left: -10px; top: 8px; bottom: 8px; width: 3px;
+  background: var(--primary); border-radius: 0 3px 3px 0;
+}
+.nav-item .badge { margin-left: auto; }
+.sidebar-foot { margin-top: auto; padding: 12px 16px 16px; border-top: 1px solid var(--border); font-size: var(--text-micro); color: var(--faint); }
+.sidebar-account-name { font-size: var(--text-body-sm); font-weight: 650; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-account-role { font-size: var(--text-micro); color: var(--faint); margin-top: 1px; }
+.sidebar-signout { margin-top: 8px; width: 100%; justify-content: center; }
+
+.main { flex: 1 1 auto; min-width: 0; }
+
+.view-header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.view-header h1 { font-size: 19px; font-weight: 650; letter-spacing: -0.01em; margin: 0 0 3px; }
+.view-header p { margin: 0; color: var(--muted); font-size: var(--text-body-sm); }
+
+/* ---- Dashboard (Báo cáo) ---- */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; box-shadow: var(--shadow-1); }
+.kpi-card .label { font-size: var(--text-meta); color: var(--muted); margin-bottom: 6px; }
+.kpi-card .value { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.kpi-card .value.accent { color: var(--warm-ink); }
+.kpi-card .delta { font-size: var(--text-meta); color: var(--success); margin-top: 4px; font-weight: 600; }
+.kpi-card .delta.warm { color: var(--warm-ink); }
+
+.panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; box-shadow: var(--shadow-1); display: flex; flex-direction: column; }
+.panel h3 { font-size: var(--text-body-sm); font-weight: 650; margin: 0 0 14px; flex: 0 0 auto; }
+.panel-wide { grid-column: 1 / -1; }
+/* Chiều cao CỐ ĐỊNH (không giãn theo nội dung) cho cả 3 panel đầu hàng —
+   310px khớp đúng chiều cao thật của "Sản phẩm theo nhóm hàng" (11 dòng cố
+   định theo CATEGORY_ORDER, đã đo trực tiếp). Panel nào nội dung dài hơn thì
+   tự cuộn bên trong, không đẩy giãn cả panel. */
+.panel-scroll { height: 310px; overflow-y: auto; }
+
+.month-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; }
+.month-bar { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; height: 100%; min-width: 0; }
+.month-bar-track { flex: 1 1 auto; width: 100%; display: flex; align-items: flex-end; }
+.month-bar-fill { width: 100%; min-height: 2px; border-radius: 3px 3px 0 0; background: var(--primary); }
+.month-bar-label { font-size: var(--text-micro); color: var(--muted); margin-top: 6px; }
+.month-bar-count { font-size: var(--text-micro); color: var(--faint); font-variant-numeric: tabular-nums; }
+
+.bar-row { display: grid; grid-template-columns: 108px 1fr 40px; align-items: center; gap: 10px; margin-bottom: 10px; font-size: var(--text-meta); }
+.bar-row:last-child { margin-bottom: 0; }
+.bar-row .cat-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { height: 8px; border-radius: 999px; background: var(--surface-sunken); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 999px; background: var(--primary); }
+.bar-row .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+.activity-row { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: var(--text-meta); }
+.activity-row:last-child { border-bottom: none; }
+.activity-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); margin-top: 6px; flex-shrink: 0; }
+.activity-row .t { color: var(--faint); font-size: var(--text-micro); white-space: nowrap; }
+
+.note {
+  margin-top: 22px; padding: 12px 14px; border-radius: var(--radius-md);
+  background: var(--primary-wash); color: var(--primary-ink); font-size: var(--text-meta);
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.note svg { flex-shrink: 0; margin-top: 1px; }
+
+/* Nút hamburger mở/đóng menu điều hướng trên điện thoại — ẩn mặc định, chỉ
+   hiện trong @media bên dưới (860px trở xuống), cùng lớp phủ (backdrop) để
+   bấm ra ngoài là đóng menu, giống cách chuông thông báo đã làm. */
+.sidebar-mobile-toggle {
+  display: none; align-items: center; justify-content: center; margin-left: auto;
+  width: 36px; height: 36px; border-radius: var(--radius-sm); flex-shrink: 0;
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.sidebar-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 49; }
+
+@media (max-width: 860px) {
+  .shell { flex-direction: column; }
+  .sidebar { width: 100%; flex: none; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; }
+  .sidebar-mobile-toggle { display: flex; order: -1; margin-left: 0; }
+  .brand-logo { margin-left: auto; }
+  /* Menu ẩn mặc định — .mobile-open (bật khi bấm hamburger) biến nó thành
+     drawer trượt từ trái, đè lên nội dung thay vì chiếm chỗ cố định. */
+  .nav { display: none; }
+  .sidebar-foot { display: none; }
+  .sidebar.mobile-open .nav {
+    display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
+    width: 78vw; max-width: 300px; background: var(--sidebar-bg); z-index: 50;
+    overflow-y: auto; box-shadow: var(--shadow-2); padding-top: 12px;
+    backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  .sidebar.mobile-open .sidebar-foot {
+    display: block; position: fixed; left: 0; bottom: 0; width: 78vw; max-width: 300px; z-index: 50; background: var(--sidebar-bg);
+    backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  .panels { grid-template-columns: 1fr; }
+}
+
+/* .app giờ là vùng cuộn thật (thay cho body/window trước đây) — .main đã
+   overflow:hidden ở trên, nên .app phải tự cuộn để nội dung dài hơn màn
+   hình vẫn xem được bình thường. Với các trang có .table-page (bên dưới),
+   .table-page lấp đầy đúng 100% chiều cao này nên .app sẽ không cần tự
+   cuộn nữa — phần cuộn chuyển hẳn vào bên trong .table-scroll của trang đó. */
+.app { max-width: 1200px; margin: 0 auto; padding: 24px 20px 80px; height: 100%; overflow-y: auto; }
+/* Quản lý hàng hóa dùng hết chiều ngang màn hình thay vì bó vào 1200px —
+   bảng sản phẩm nhiều cột kiểu Excel cần không gian rộng. */
+.app-full { max-width: none; }
+
+/* Trang có bảng rộng (Quản lý hàng hóa, Chờ duyệt giá, Nhật ký hoạt động,
+   Quản lý người dùng) — tiêu đề/KPI/thanh công cụ ở trên giữ nguyên chiều
+   cao tự nhiên, chỉ .table-card bên dưới giãn lấp phần còn lại và tự cuộn
+   riêng (cả dọc lẫn ngang) bên trong, nên thanh cuộn ngang luôn nằm trong
+   tầm nhìn thay vì trôi xuống cuối trang dài. */
+/* padding-bottom 80px của .app hợp lý cho trang cuộn tự nhiên (đệm cuối
+   trang) — nhưng ở đây .table-page chiếm trọn chiều cao còn lại, phần đệm
+   đó lại trực tiếp cắt bớt chỗ dành cho bảng, khiến ít dòng hiện ra hơn hẳn
+   mức màn hình thật sự cho phép (đã đo bằng dữ liệu thật: ~90px trắng thừa
+   ở đáy, đúng bằng phần chênh 80px→20px này). Giảm còn 1 khoảng đệm nhỏ vừa
+   đủ, không cắt vào phần bảng. */
+/* overflow:visible (khác .app phía trên) — .table-page tự nó không bao giờ
+   cần cuộn (chiều cao 100% vừa khít, .table-card bên trong mới là nơi cuộn
+   thật), nhưng NẾU để nguyên overflow-y:auto kế thừa từ .app thì theo đúng
+   quy tắc CSS, overflow-x cũng bị ép thành auto theo — vô tình cắt mất mọi
+   menu sổ xuống (vd "Nhập & xuất") vượt ra ngoài khung này ở màn hình thấp.
+   Đặt lại visible ở đây (cùng phần tử với .app, luật khai báo sau thắng) để
+   trả lại đúng hành vi cũ, không ảnh hưởng gì đến việc cuộn bảng bên trong. */
+.table-page { display: flex; flex-direction: column; height: 100%; min-height: 0; padding-bottom: 20px; overflow: visible; }
+.table-page > .table-card { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.table-page > .table-card > .table-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; }
+
+/* Trả lại cách cuộn cả trang bình thường trên di động — khung cố định đúng
+   bằng màn hình chỉ hợp lý khi màn hình đủ rộng để thấy nhiều cột cùng lúc;
+   ở đây bảng đã tự chuyển sang dạng thẻ xếp dọc (xem @media 600px bên
+   dưới), không có cuộn ngang nên không cần khung cố định nữa. Đặt SAU các
+   rule gốc ở trên (không gộp chung vào @media 860px đầu file) để thắng
+   đúng theo thứ tự cascade — cùng độ đặc thù thì luật khai báo sau thắng. */
+@media (max-width: 860px) {
+  .shell { height: auto; overflow: visible; }
+  .main { overflow: visible; }
+  .app { height: auto; overflow-y: visible; }
+  .table-page { height: auto; }
+  .table-page > .table-card { flex: none; }
+  /* Chỉ trả lại cuộn dọc bình thường — vẫn giữ overflow-x:auto (từ .table-
+     scroll gốc) vì giữa 600–860px bảng chưa sập thành thẻ, vẫn cần cuộn
+     ngang để xem hết cột. */
+  .table-page > .table-card > .table-scroll { overflow-y: visible; }
+}
+
+/* ---- Header ---- */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 24px;
+  flex-wrap: wrap;
+}
+.app-header h1 { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; margin: 0; }
+.app-header-title { display: flex; align-items: center; gap: 10px; }
+.app-header-title-group { display: flex; flex-direction: column; gap: 4px; }
+/* Gộp "Tổng sản phẩm / Sản phẩm mới / Thay đổi giá" vào ngay dưới tiêu đề
+   thay vì 3 thẻ riêng — nhường chiều cao đó lại cho bảng dữ liệu bên dưới,
+   không còn dùng dạng thẻ cho nhóm số liệu "cần chú ý" nữa — đã bỏ hẳn theo
+   yêu cầu, nhường tối đa chỗ cho bảng dữ liệu. */
+.app-header-meta { margin: 0; color: var(--muted); font-size: var(--text-body-sm); font-variant-numeric: tabular-nums; }
+.app-header-meta-accent { color: var(--primary-ink); font-weight: 650; }
+
+.stat-kpis { display: flex; gap: 10px; font-variant-numeric: tabular-nums; }
+.stat-kpi {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 7px 16px; box-shadow: var(--shadow-1); min-width: 92px;
+}
+.stat-kpi-label { font-size: var(--text-micro); color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.stat-kpi-value { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); margin-top: 2px; }
+.stat-kpi-warm { background: var(--warm-wash); border-color: transparent; }
+.stat-kpi-warm .stat-kpi-label { color: var(--warm-ink); opacity: 0.85; }
+.stat-kpi-warm .stat-kpi-value { color: var(--warm-ink); }
+
+/* ---- Toolbar ---- */
+.toolbar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+.search-field { position: relative; flex: 1 1 240px; min-width: 200px; }
+.search-field svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--faint); pointer-events: none; }
+.search-field input { width: 100%; }
+
+.toolbar select,
+.search-field input {
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface-sunken); color: var(--ink); font-size: var(--text-body-sm);
+  padding: 8px 10px;
+}
+/* Must come after the shared rule above (same specificity) so the icon
+   never overlaps the field's own text — a previous version of this same
+   left-padding declaration got silently clobbered by the shared rule since
+   both matched with equal specificity and this one was declared first. */
+.search-field input { padding-left: 36px; }
+.toolbar select:focus-visible,
+.search-field input:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 1px; background: var(--surface);
+}
+
+.toggle-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 11px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface-sunken);
+  color: var(--muted); font-size: var(--text-body-sm); cursor: pointer; user-select: none; white-space: nowrap;
+}
+.toggle-pill input { display: none; }
+.toggle-pill.active { background: var(--warm-wash); border-color: transparent; color: var(--warm-ink); font-weight: 600; }
+
+/* Công tắc trượt kiểu iOS thật (rãnh + núm tròn di chuyển) — dùng cho các
+   lựa chọn bật/tắt thật sự (vd "Cập nhật giá theo lô"), khác với
+   .toggle-pill (chip lọc dạng nút bấm) ở trên. */
+.switch-field { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: var(--text-body-sm); color: var(--muted); white-space: nowrap; }
+.switch-field.has-checked { color: var(--warm-ink); font-weight: 600; }
+.switch { position: relative; display: inline-flex; flex-shrink: 0; width: 40px; height: 24px; }
+.switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.switch-track {
+  position: absolute; inset: 0; border-radius: 999px; background: var(--border-strong);
+  transition: background-color 150ms ease-out;
+}
+.switch-knob {
+  position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.switch input:checked ~ .switch-track { background: var(--warm); }
+.switch input:checked ~ .switch-track .switch-knob { transform: translateX(16px); }
+.switch input:focus-visible ~ .switch-track { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Vạch phân chia mảnh: cụm tìm kiếm/lọc bên trái, cụm hành động (Thêm/Nhập-
+   xuất) bên phải — trước đây chỉ cách nhau bằng khoảng trắng đẩy, không có
+   ranh giới trực quan nào. */
+.toolbar-spacer { flex: 1 1 auto; min-width: 24px; border-left: 1px solid var(--border); margin: 4px 0; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 999px;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink);
+  font-size: var(--text-body-sm); font-weight: 500; cursor: pointer; white-space: nowrap;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out, transform 150ms ease-out;
+}
+.btn:hover { background: var(--surface-sunken); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* 1 màu CTA duy nhất trong toàn app: teal (--primary). Cam (--warm) chỉ còn
+   dùng cho trạng thái "cần chú ý/chờ xử lý" (chip Chờ xuất, status-pill,
+   draft-badge, toggle Update giá) — không còn dùng làm màu nút hành động. */
+.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-ink); border-color: var(--primary-ink); }
+.btn-quiet { border-color: transparent; background: transparent; color: var(--muted); }
+.btn-quiet:hover { background: var(--surface-sunken); color: var(--ink); }
+.btn-neutral { background: var(--surface); border-color: var(--border-strong); color: var(--ink); }
+.btn-neutral:hover:not(:disabled) { background: var(--surface-sunken); }
+.btn-success { background: var(--success); border-color: var(--success); color: #fff; font-weight: 600; }
+.btn-success:hover:not(:disabled) { background: var(--success-ink); border-color: var(--success-ink); }
+.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 600; }
+.btn-danger:hover:not(:disabled) { background: var(--danger-ink); border-color: var(--danger-ink); }
+
+.menu-wrap { position: relative; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + 6px); min-width: 230px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2); padding: 6px; z-index: 30;
+}
+.menu button {
+  width: 100%; text-align: left; padding: 9px 10px; border-radius: var(--radius-sm);
+  border: none; background: none; color: var(--ink); font-size: var(--text-body-sm); cursor: pointer;
+  display: flex; align-items: center; gap: 9px;
+}
+.menu button:hover { background: var(--surface-sunken); }
+.menu button:disabled { opacity: 0.5; cursor: not-allowed; }
+.menu button svg { color: var(--muted); flex-shrink: 0; }
+.menu button.menu-item-accent { background: var(--primary-wash); color: var(--primary-ink); font-weight: 600; }
+.menu button.menu-item-accent svg { color: var(--primary-ink); }
+.menu button.menu-item-accent:hover { background: var(--primary-wash); filter: brightness(0.96); }
+.menu-divider { height: 1px; background: var(--border); margin: 5px 4px; }
+
+/* ---- Tabs + selection bar row ---- */
+.view-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+.view-row-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.segmented { position: relative; display: inline-flex; background: var(--surface-sunken); border-radius: var(--radius-sm); padding: 3px; gap: 2px; }
+.segmented button {
+  position: relative; z-index: 1;
+  border: none; background: transparent; padding: 7px 14px; border-radius: var(--radius-sm);
+  font-size: var(--text-body-sm); color: var(--muted); cursor: pointer; font-variant-numeric: tabular-nums;
+  transition: color 150ms ease-out;
+}
+.segmented button.active { color: #fff; font-weight: 600; }
+/* Khối trượt (thumb) — vị trí/độ rộng do JS đo từ nút đang active rồi set
+   qua inline style (xem component Segmented trong HomeClient.tsx), CSS chỉ
+   lo phần chuyển động mượt giữa 2 lần đo. */
+.segmented-thumb {
+  position: absolute; top: 3px; bottom: 3px; left: 0; z-index: 0;
+  background: var(--primary); border-radius: var(--radius-sm); box-shadow: var(--shadow-1);
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1), width 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.selection-bar {
+  display: flex; align-items: center; gap: 10px; padding: 9px 14px;
+  background: var(--primary-wash); border-radius: var(--radius-md);
+  color: var(--primary-ink); font-size: var(--text-body-sm);
+}
+.selection-bar b { font-variant-numeric: tabular-nums; }
+
+/* ---- Table ---- */
+.table-card { margin-top: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-1); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+/* Header xanh đậm, chữ trắng — nổi bật rõ trên thân bảng thay vì hòa lẫn. */
+thead th {
+  text-align: left; font-size: var(--text-micro); font-weight: 650;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  background: var(--header-bg); color: #fff; padding: 11px 14px; white-space: nowrap;
+  position: sticky; top: 0; z-index: 2;
+  border-bottom: 1px solid var(--border);
+}
+th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* Cho phép đúng 2 tiêu đề dài (Đơn vị cấp 2, Tỷ lệ quy đổi cấp 2) xuống 2
+   dòng thay vì buộc cả cột phải rộng ra chỉ để vừa 1 dòng chữ — 2 cột này
+   dữ liệu gần như luôn trống nên không cần rộng, chỉ nhãn cột dài thôi. */
+th.col-header-wrap { white-space: normal; line-height: 1.25; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: var(--text-body-sm); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-sunken); }
+tbody tr.is-pending { background: var(--warm-wash); }
+tbody tr.is-selected-elsewhere { background: var(--primary-wash); }
+tbody tr.is-selected-elsewhere:hover { background: var(--primary-wash); }
+
+.section-divider-row td { padding: 7px 14px; }
+.section-divider {
+  font-size: var(--text-micro); font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+  color: var(--primary-ink); background: var(--primary-wash);
+}
+
+/* Quản lý hàng hóa — riêng bảng này còn ghim cột checkbox + "Tên hàng hóa"
+   bên trái khi cuộn ngang (nhiều cột hơn hẳn các bảng khác trong app). */
+/* left offset của .col-name được set qua inline style (nameColumnStickyLeft
+   trong HomeClient.tsx), tính từ độ rộng thật của .col-check qua TanStack
+   Table column pinning — không hardcode 36px nữa. */
+.product-table .col-check, .product-table .col-name { position: sticky; z-index: 1; background: var(--surface); }
+.product-table .col-check { left: 0; }
+.product-table .col-name { font-weight: 550; border-right: 1px solid var(--border-strong); }
+
+/* Độ rộng từng cột giờ do TanStack Table quản lý (kéo giãn được — xem
+   .col-resize-handle bên dưới) và áp vào <colgroup> ngay trong JSX, nên
+   table-layout: fixed + width: auto để trình duyệt dùng đúng độ rộng đó
+   thay vì tự tính lại. Áp dụng chung cho cả bảng đầy đủ lẫn chế độ "Update
+   giá" (compact) — không cần override riêng nữa. */
+.product-table { width: auto; table-layout: fixed; }
+/* KHÔNG đặt position:relative riêng cho th ở đây — thead th (globals.css,
+   dùng chung mọi bảng) đã có position:sticky sẵn, bản thân sticky cũng là
+   1 loại "positioned element" hợp lệ để .col-resize-handle (position:
+   absolute) định vị theo, không cần thêm gì nữa. Từng có 1 rule ".product-
+   table th { position: relative }" ở đây — độ đặc thù (specificity) của nó
+   cao hơn "thead th" nên ĐÈ MẤT sticky, khiến toàn bộ cột (trừ 2 cột ghim
+   trái vốn có rule sticky riêng đặc thù hơn) không dính lại khi cuộn dọc —
+   lỗi có sẵn từ trước, chỉ vô tình lộ rõ khi bảng có khung cuộn riêng. */
+.product-table thead th.col-check, .product-table thead th.col-name { z-index: 3; background: var(--header-bg); }
+.product-table tbody tr:hover .col-check, .product-table tbody tr:hover .col-name { background: var(--surface-sunken); }
+.product-table tbody tr.is-pending .col-check, .product-table tbody tr.is-pending .col-name { background: var(--warm-wash); }
+.product-table tbody tr.is-selected-elsewhere .col-check, .product-table tbody tr.is-selected-elsewhere .col-name { background: var(--primary-wash); }
+.product-table tbody tr.new-product-row .col-check, .product-table tbody tr.new-product-row .col-name { background: var(--primary-wash); }
+.product-table tbody tr.new-product-row.just-saved .col-check, .product-table tbody tr.new-product-row.just-saved .col-name { background: var(--success-wash); }
+
+/* Tay kéo giãn cột (kiểu Excel) — dải mỏng bám mép phải mỗi <th> có thể kéo.
+   PHẢI nằm gọn trong chính <th> của nó (right: 0, không lấn sang phải như
+   right: -3px trước đây) — ô bảng có luật vẽ chồng lớp riêng (khác block
+   thường), khiến <th> liền kề luôn đè lên phần tay kéo bị lấn ra ngoài dù đã
+   đặt z-index cao hơn, chặn hẳn sự kiện chuột không bao giờ tới được tay kéo.
+   Đã kiểm chứng bằng document.elementFromPoint(): với offset âm, điểm giữa
+   tay kéo trả về đúng <th> bên cạnh chứ không phải tay kéo. */
+.col-resize-handle {
+  position: absolute; right: 0; top: 0; height: 100%; width: 10px; z-index: 4;
+  cursor: col-resize; touch-action: none; user-select: none; background: transparent;
+}
+.col-resize-handle:hover, .col-resize-handle.is-resizing { background: var(--primary); opacity: 0.6; }
+
+.code-cell { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: var(--text-meta); color: var(--muted); }
+.name-cell { font-weight: 550; }
+.name-cell .sub { display: block; font-weight: 400; color: var(--muted); font-size: var(--text-meta); margin-top: 1px; }
+/* Nhãn nhỏ dùng chung (đếm số / trạng thái) — 1 base + modifier màu, thay
+   cho 4 định nghĩa rời rạc trước đây (.badge, .status-pill, .draft-badge,
+   .chip.warm đều tự khai báo riêng padding/font-size khác nhau). */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 999px; font-size: var(--text-meta); font-weight: 600;
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.pill-primary { background: var(--primary-wash); color: var(--primary-ink); }
+.pill-primary .dot { background: var(--primary); }
+.pill-warm { background: var(--warm-wash); color: var(--warm-ink); }
+.pill-warm .dot { background: var(--warm); }
+.pill-success { background: var(--success-wash); color: var(--success); }
+.pill-success .dot { background: var(--success); }
+.pill-danger { background: var(--danger-wash); color: var(--danger-ink); }
+
+.draft-badge { margin-left: 6px; vertical-align: middle; padding: 1px 7px; }
+
+.price-input {
+  width: 96px; padding: 5px 8px; text-align: right; border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; color: var(--ink); font-variant-numeric: tabular-nums; font-size: var(--text-body-sm);
+}
+.price-input:hover { border-color: var(--border-strong); background: var(--surface); }
+.price-input:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; background: var(--surface); border-color: transparent; }
+.price-input:disabled { opacity: 0.6; }
+
+/* Sửa nhanh các cột khác (Mã nội bộ, Tên hóa đơn, ĐVT, Quy cách...) ngay
+   trong bảng — cùng kiểu trong suốt-tới-khi-hover với ô giá, chỉ khác căn
+   trái vì là chữ chứ không phải số. */
+.inline-cell-input, .product-table td select {
+  width: 100%; padding: 5px 8px; border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; color: var(--ink); font-size: var(--text-body-sm);
+}
+.inline-cell-input:hover, .product-table td select:hover { border-color: var(--border-strong); background: var(--surface); }
+.inline-cell-input:focus-visible, .product-table td select:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 0; background: var(--surface); border-color: transparent;
+}
+.inline-cell-input:disabled { opacity: 0.6; }
+
+/* Chế độ "bấm để sửa" (Tên hàng hóa) — hiện chữ thường, xuống dòng tự nhiên
+   khi dài, thay vì ô nhập 1 dòng luôn bị cắt chữ dù cột rộng bao nhiêu. */
+.inline-cell-text {
+  display: inline-block; width: 100%; padding: 4px 6px; border-radius: var(--radius-sm);
+  white-space: normal; word-break: break-word; cursor: pointer; border: 1px solid transparent;
+}
+.inline-cell-text:hover { background: var(--surface); border-color: var(--border-strong); }
+.inline-cell-placeholder { color: var(--faint); font-weight: 400; }
+
+/* Dòng trống cuối bảng "Quản lý hàng hóa" để thêm sản phẩm mới kiểu Excel —
+   nền teal nhạt (màu CTA của app, nổi bật kể cả khi các dòng dưới đang cam
+   "chờ xuất") + viền xanh lá. Khác với các ô sửa inline ở dòng thường (chỉ
+   hiện nền trắng khi hover/focus), ô của dòng thêm mới LUÔN nền trắng — để
+   nhìn là biết ngay đây là dòng đang ở chế độ nhập liệu, không cần tương
+   tác mới thấy. */
+.new-product-row { background: var(--primary-wash); }
+.new-product-row td { border-bottom: 1px dashed var(--success); }
+.new-product-row .col-check svg { color: var(--faint); }
+.new-product-row input,
+.new-product-row select {
+  width: 100%; padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--ink); font-size: var(--text-body-sm);
+}
+.new-product-row input::placeholder { color: var(--faint); }
+.new-product-row input:focus-visible, .new-product-row select:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 0; border-color: transparent;
+}
+.new-product-row input:disabled, .new-product-row select:disabled { opacity: 0.6; }
+
+/* Nháy nhẹ sau khi thêm sản phẩm thành công, trước khi dòng trống lại. */
+.new-product-row.just-saved { background: var(--success-wash); }
+
+.btn-sm { padding: 4px 10px; font-size: var(--text-meta); }
+
+.row-actions { display: flex; gap: 2px; justify-content: flex-end; }
+.icon-btn {
+  width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;
+  border: none; background: transparent; border-radius: var(--radius-sm); color: var(--muted); cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+.icon-btn:hover { background: var(--surface); color: var(--ink); }
+.icon-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.icon-btn.danger:hover { background: var(--danger-wash); color: var(--danger); }
+
+input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+
+.empty-state, .loading-state { padding: 40px 20px; text-align: center; color: var(--muted); }
+
+/* ---- Modal ---- */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(20, 24, 30, 0.45);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 6vh 20px; overflow-y: auto; z-index: 50;
+}
+.modal { background: var(--surface); border-radius: var(--radius-lg); width: min(640px, 100%); box-shadow: var(--shadow-2); padding: 22px 24px 20px; }
+.modal h2 { margin: 0 0 4px; font-size: 17px; font-weight: 650; }
+.modal .modal-sub { margin: 0 0 18px; color: var(--muted); font-size: var(--text-body-sm); }
+
+.field-group { margin-bottom: 18px; }
+.field-group h3 { font-size: var(--text-micro); font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); margin: 0 0 10px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+.field-grid.cols-3 { grid-template-columns: 1.4fr 1fr 1fr; }
+
+label.field { display: flex; flex-direction: column; gap: 5px; font-size: var(--text-meta); color: var(--muted); }
+label.field input, label.field select {
+  padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface-sunken); color: var(--ink); font-size: var(--text-body-sm);
+}
+label.field input:focus-visible, label.field select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; background: var(--surface); }
+label.field input:disabled { opacity: 0.6; }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+.helper-text { color: var(--faint); font-size: var(--text-meta); margin-top: 16px; }
+
+.pagination-bar { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; font-size: var(--text-meta); color: var(--muted); }
+
+/* ---- Đăng nhập ---- */
+.login-shell {
+  min-height: 100vh; display: grid; grid-template-columns: 1.1fr 1fr;
+  background: var(--bg);
+}
+.login-image-panel { position: relative; height: 100vh; overflow: hidden; }
+.login-image-panel img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.login-content {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 22px; padding: 28px 24px;
+}
+
+@media (max-width: 860px) {
+  .login-shell { grid-template-columns: 1fr; }
+  .login-image-panel { height: clamp(120px, 32vh, 220px); }
+}
+.login-logo-badge {
+  width: 132px; height: 132px; padding: 16px; border-radius: 26px; object-fit: contain;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-1);
+}
+.login-card {
+  width: 100%; max-width: 380px; background: var(--surface); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2); overflow: hidden;
+}
+.login-card-accent { height: 5px; background: var(--primary); }
+.login-card-body { padding: 32px 28px 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.login-title { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); text-align: center; }
+.login-subtitle { margin: 0; color: var(--muted); font-size: var(--text-body-sm); text-align: center; }
+.login-card-body > .btn { width: 100%; justify-content: center; }
+.login-card-body .btn { transition: transform 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out; }
+.login-card-body .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-1); }
+.login-divider { color: var(--faint); font-size: var(--text-meta); text-transform: uppercase; letter-spacing: 0.06em; }
+.login-password-form { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.login-password-form input {
+  padding: 9px 11px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface); color: var(--ink); font-size: var(--text-body-sm);
+}
+.login-password-form input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.login-password-form .btn { width: 100%; justify-content: center; }
+.login-error { color: var(--danger-ink); font-size: var(--text-meta); margin: 0; }
+
+.password-checklist { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.password-checklist li { display: flex; align-items: center; gap: 7px; font-size: var(--text-meta); color: var(--faint); }
+.password-checklist li.ok { color: var(--success-ink); }
+.password-checklist .mark { width: 14px; text-align: center; font-weight: 650; }
+
+.notification-bell { position: relative; }
+.notification-bell-trigger {
+  display: flex; align-items: center; justify-content: center; position: relative;
+  width: 34px; height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted); cursor: pointer;
+}
+.notification-bell-trigger:hover { background: var(--surface-sunken); color: var(--ink); }
+.notification-badge { position: absolute; top: -6px; right: -6px; margin-left: 0; }
+.notification-backdrop { position: fixed; inset: 0; z-index: 39; }
+.notification-panel {
+  position: absolute; top: calc(100% + 6px); left: 0; width: 320px; max-height: 380px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2); z-index: 40; display: flex; flex-direction: column; overflow: hidden;
+}
+.notification-panel-head {
+  display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); font-size: var(--text-body-sm); font-weight: 650;
+}
+.notification-list { overflow-y: auto; }
+.notification-empty { padding: 20px 12px; text-align: center; color: var(--faint); font-size: var(--text-meta); }
+.notification-item {
+  display: block; width: 100%; text-align: left; padding: 10px 12px; border: none; border-bottom: 1px solid var(--border);
+  background: var(--surface); cursor: pointer;
+}
+.notification-item:last-child { border-bottom: none; }
+.notification-item:hover { background: var(--surface-sunken); }
+.notification-item.unread { background: var(--primary-wash); }
+.notification-message { font-size: var(--text-meta); color: var(--ink); line-height: 1.4; }
+.notification-time { font-size: var(--text-micro); color: var(--faint); margin-top: 3px; }
+
+@media (max-width: 720px) {
+  .field-grid, .field-grid.cols-3 { grid-template-columns: 1fr; }
+  .app-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+
+/* Điện thoại (~600px trở xuống) — .app-header/.toolbar/.view-row đã tự xuống
+   dòng sẵn (flex-wrap), phần này chỉ xử lý các chỗ còn lại: 2 thẻ KPI tự xếp
+   chồng thay vì bị bóp lại, gạch phân chia trong toolbar ẩn đi vì không còn
+   hợp lý khi các nhóm đã xuống dòng riêng, thanh tab/thanh đã chọn cuộn ngang
+   được thay vì tràn/vỡ layout khi nhãn dài hoặc nhiều nút hành động. */
+@media (max-width: 600px) {
+  .stat-kpis { flex-wrap: wrap; }
+  .toolbar-spacer { display: none; }
+  .segmented { max-width: 100%; overflow-x: auto; }
+  .selection-bar { flex-wrap: wrap; }
+
+  /* Menu sổ xuống (.menu — "Nhập & xuất"...) và bảng thông báo đều neo theo
+     nút bấm (right:0 / left:0 + độ rộng cố định) — ở màn hình hẹp, nút bấm
+     có thể nằm gần mép trái/phải, khiến bảng bị đẩy tràn hẳn ra ngoài màn
+     hình (đã kiểm chứng thực tế: có lúc tràn hơn 250px, gần như không đọc
+     được). Đổi sang kiểu "trượt lên từ đáy" (bottom sheet), neo cố định
+     theo mép trái/phải MÀN HÌNH thay vì theo nút bấm — không bao giờ tràn
+     nữa dù nút ở bất kỳ đâu, giống cách drawer menu bên trái đã làm. */
+  .menu, .notification-panel {
+    position: fixed;
+    left: 12px; right: 12px; bottom: 12px; top: auto;
+    width: auto; max-width: none; max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  /* Bảng sản phẩm (.product-table) — sập thành danh sách thẻ dọc thay vì
+     bảng cuộn ngang, dễ chạm/sửa bằng ngón tay hơn nhiều. Vẫn dùng đúng các
+     ô sửa-inline/phân quyền hiện có (InlineTextCell, PriceInput, select...)
+     — chỉ đổi cách sắp xếp qua CSS (nhãn từng trường lấy từ data-label trên
+     <td>), không tạo component/luồng dữ liệu riêng cho mobile. */
+  .product-table thead { display: none; }
+  .product-table, .product-table tbody { display: block; min-width: 0; }
+  .product-table tr {
+    display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2px 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 12px; margin-bottom: 10px; box-shadow: var(--shadow-1);
+  }
+  .product-table td {
+    flex: 1 1 100%; display: flex; align-items: center; gap: 8px;
+    padding: 4px 0; border: none; width: auto !important; text-align: left;
+    min-width: 0;
+  }
+  .product-table td::before {
+    content: attr(data-label); flex: 0 0 104px; font-weight: 600; font-size: var(--text-meta); color: var(--muted);
+    text-align: left;
+  }
+  .product-table td.col-check, .product-table td.col-name { position: static; }
+  .product-table td.col-check { flex: 0 0 auto; order: -2; }
+  .product-table td.col-name {
+    display: block; flex: 1 1 auto; order: -1; font-weight: 650; font-size: 15px;
+    min-width: 0; overflow-wrap: break-word; border-right: none;
+  }
+  .product-table td.col-check::before,
+  .product-table td.col-name::before,
+  .product-table td.col-actions::before { content: none; }
+  .product-table td.col-actions { justify-content: flex-end; }
+  .product-table td.loading-state, .product-table td.empty-state, .product-table td.section-divider {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; }
+}
