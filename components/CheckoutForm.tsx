@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { formatVnd } from "@/lib/products";
 import { ArrowLeftIcon } from "@/components/icons";
-import { createOrder } from "@/app/thanh-toan/actions";
+import { createOrder } from "@/app/(site)/thanh-toan/actions";
 
 export default function CheckoutForm({ errorMessage }: { errorMessage: string | null }) {
   const { items, totalAmount } = useCart();

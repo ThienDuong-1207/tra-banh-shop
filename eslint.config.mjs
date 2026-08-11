@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Git worktrees created by Claude Code agents (full copies of the repo).
+    ".claude/worktrees/**",
   ]),
   // Code ported từ trabanh (back-office /admin) — dự án gốc chưa từng chạy
   // ESLint (không có eslint.config), viết theo phong cách thoải mái hơn:
