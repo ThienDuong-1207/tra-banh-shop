@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Bảng màu thương hiệu Trà & Bánh — theo đúng mục 2 của
+   documents/prompt_thiet_ke_uiux_website_ecommerce.md (misa-price-manager).
+   Tailwind v4: khai báo token màu trực tiếp bằng CSS, dùng được ngay dưới
+   dạng class bg-primary / text-accent / v.v. */
+@theme {
+  --color-primary: #6b1420;
+  --color-primary-dark: #4a0e16;
+  --color-primary-light: #8c2430;
+  --color-accent: #f0b429;
+  --color-accent-hover: #d89a00;
+  --color-cream: #fff8ed;
+  --color-warm-beige: #f5e6d3;
+  --color-peach: #f7dcd4;
+  --color-cream-yellow: #fbefd0;
+  --color-ink: #2b0a0e;
+  --color-muted: #7a6a62;
+  --color-promo: #c9762e;
+  --color-footer: #250608;
+
+  --font-sans: var(--font-be-vietnam-pro);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
