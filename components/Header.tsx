@@ -5,9 +5,8 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-primary text-cream">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <Image src="/logo.png" alt="Trà & Bánh" width={40} height={40} className="rounded-xl" />
-          <span className="text-lg font-bold">Trà &amp; Bánh</span>
+        <Link href="/" className="flex shrink-0 items-center">
+          <Image src="/logo.png" alt="Trà & Bánh" width={124} height={40} className="rounded-lg" priority />
         </Link>
         <div className="flex-1" />
         <nav className="hidden items-center gap-6 text-sm font-medium sm:flex">
