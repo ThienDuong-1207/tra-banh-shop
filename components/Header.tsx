@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import CartBadge from "@/components/CartBadge";
 
 export default function Header() {
   return (
@@ -20,6 +21,7 @@ export default function Header() {
             Liên hệ
           </Link>
         </nav>
+        <CartBadge />
       </div>
     </header>
   );
