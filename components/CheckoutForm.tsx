@@ -35,16 +35,16 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
       <h1 className="mt-4 text-2xl font-bold text-ink">Thông tin đặt hàng</h1>
 
       {errorMessage && (
-        <div className="mt-4 rounded-2xl bg-peach px-4 py-3 text-sm font-medium text-primary-dark" role="alert">
+        <div className="mt-4 rounded-2xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary-dark" role="alert">
           {errorMessage}
         </div>
       )}
 
-      <div className="mt-6 grid gap-8 sm:grid-cols-5">
+      <div className="mt-6 grid gap-8 lg:grid-cols-5 lg:items-start">
         <form
           action={createOrder}
           onSubmit={() => setSubmitting(true)}
-          className="flex flex-col gap-4 sm:col-span-3"
+          className="flex flex-col gap-4 lg:col-span-3"
         >
           <input type="hidden" name="items" value={JSON.stringify(items)} />
 
@@ -89,9 +89,10 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
             />
           </label>
 
-          <p className="text-xs text-muted">
-            Thanh toán bằng chuyển khoản QR — mã QR kèm đúng số tiền sẽ hiện ở bước tiếp theo.
-          </p>
+          <div className="rounded-xl bg-primary/5 px-4 py-3 text-sm text-primary-dark">
+            <span className="font-semibold">Thanh toán qua VietQR.</span> Sau khi đặt hàng, mã QR kèm đúng
+            số tiền sẽ hiện ra ở bước tiếp theo — chỉ cần quét bằng app ngân hàng để chuyển khoản.
+          </div>
 
           <button
             type="submit"
@@ -102,7 +103,7 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
           </button>
         </form>
 
-        <div className="h-fit rounded-2xl bg-warm-beige p-5 sm:col-span-2">
+        <div className="h-fit rounded-2xl bg-surface-alt p-5 ring-1 ring-black/5 lg:sticky lg:top-24 lg:col-span-2">
           <h2 className="font-semibold text-ink">Đơn hàng của bạn</h2>
           <ul className="mt-3 flex flex-col gap-2 text-sm">
             {items.map((item) => (
@@ -118,6 +119,7 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
             <span>Tổng cộng</span>
             <span className="text-primary">{formatVnd(totalAmount)}</span>
           </div>
+          <p className="mt-3 text-xs text-muted">Thanh toán: chuyển khoản qua VietQR sau khi đặt hàng.</p>
         </div>
       </div>
     </div>

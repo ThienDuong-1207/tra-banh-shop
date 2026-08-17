@@ -34,53 +34,55 @@ export default function CartPage() {
 
       <div className="mt-6 divide-y divide-black/5 rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
         {items.map((item) => (
-          <div key={`${item.product_id}:${item.don_vi}`} className="flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap">
+          <div key={`${item.product_id}:${item.don_vi}`} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate font-semibold text-ink">{item.ten_hang_hoa}</span>
+              <span className="line-clamp-2 font-semibold text-ink">{item.ten_hang_hoa}</span>
               <span className="text-sm text-muted">
                 {item.don_vi === "thung" ? "Đơn vị: thùng" : "Đơn vị: lẻ"} · {formatVnd(item.don_gia)}
               </span>
             </div>
 
-            <div className="flex items-center rounded-full border border-black/10">
-              <button
-                type="button"
-                aria-label="Giảm số lượng"
-                onClick={() => updateQty(item.product_id, item.don_vi, item.so_luong - 1)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-warm-beige"
-              >
-                <MinusIcon className="h-3.5 w-3.5" />
-              </button>
-              <span className="w-8 text-center text-sm font-semibold text-ink" aria-live="polite">
-                {item.so_luong}
+            <div className="flex items-center justify-between gap-4 sm:shrink-0 sm:justify-end">
+              <div className="flex items-center rounded-full border border-black/10">
+                <button
+                  type="button"
+                  aria-label="Giảm số lượng"
+                  onClick={() => updateQty(item.product_id, item.don_vi, item.so_luong - 1)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-surface-alt"
+                >
+                  <MinusIcon className="h-3.5 w-3.5" />
+                </button>
+                <span className="w-8 text-center text-sm font-semibold text-ink" aria-live="polite">
+                  {item.so_luong}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Tăng số lượng"
+                  onClick={() => updateQty(item.product_id, item.don_vi, item.so_luong + 1)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-surface-alt"
+                >
+                  <PlusIcon className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <span className="shrink-0 text-right font-semibold text-ink">
+                {formatVnd(item.don_gia * item.so_luong)}
               </span>
+
               <button
                 type="button"
-                aria-label="Tăng số lượng"
-                onClick={() => updateQty(item.product_id, item.don_vi, item.so_luong + 1)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-warm-beige"
+                aria-label={`Xoá ${item.ten_hang_hoa} khỏi giỏ`}
+                onClick={() => removeItem(item.product_id, item.don_vi)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-primary/10 hover:text-primary"
               >
-                <PlusIcon className="h-3.5 w-3.5" />
+                <TrashIcon className="h-4 w-4" />
               </button>
             </div>
-
-            <span className="w-24 shrink-0 text-right font-semibold text-ink">
-              {formatVnd(item.don_gia * item.so_luong)}
-            </span>
-
-            <button
-              type="button"
-              aria-label={`Xoá ${item.ten_hang_hoa} khỏi giỏ`}
-              onClick={() => removeItem(item.product_id, item.don_vi)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-peach hover:text-primary"
-            >
-              <TrashIcon className="h-4 w-4" />
-            </button>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 flex flex-col items-end gap-4 rounded-2xl bg-warm-beige p-5">
+      <div className="mt-6 flex flex-col items-end gap-4 rounded-2xl bg-surface-alt p-5 ring-1 ring-black/5">
         <div className="flex items-baseline gap-3">
           <span className="text-muted">Tổng cộng</span>
           <span className="text-2xl font-bold text-primary">{formatVnd(totalAmount)}</span>
