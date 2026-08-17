@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# reference asset for design work, not a site asset — don't ship to prod
+/public/videos_ecomerce
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

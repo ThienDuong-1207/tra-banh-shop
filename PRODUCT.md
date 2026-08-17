@@ -18,11 +18,10 @@ Chuyên nghiệp, chắc chắn, giàu chất liệu (tactile) — cảm giác c
 
 ## Anti-references
 
-- Bố cục "grocery-kit" đại trà kiểu Gromuse/Grocery Bazar (banner đa sắc pastel, card tròn to, testimonial carousel chung chung) — brief cũ của dự án đã đi theo hướng này, lần thiết kế này chủ động rời khỏi nó.
-- Nền kem/be nhạt mặc định kiểu "AI slop 2026" (`--cream`, `--sand`...) làm màu nền chính.
 - App tạp hoá tiêu dùng nhanh (Instacart/GrabMart-style) — đối tượng ở đây là người mua sỉ B2B, không phải người tiêu dùng cuối mua vài món lặt vặt.
-- Card grid giống hệt nhau, icon + tiêu đề + mô tả lặp lại vô cảm.
-- Placeholder emoji (🍵) thay ảnh sản phẩm — ảnh thật sẽ bổ sung sau, nhưng placeholder tạm thời phải có chủ đích thiết kế, không phải emoji ngẫu nhiên.
+- Placeholder emoji (🍵) thay ảnh sản phẩm — dùng ảnh sản phẩm thật (dù mới có 1 sản phẩm mẫu) thay vì emoji.
+
+**Cập nhật (ghi đè quyết định trước):** dự án trước đó có 2 phương án được thử: (1) một hướng thiết kế "distinctive" tự đề xuất né khỏi mô-típ grocery-kit — đã bị thay thế; (2) quyết định hiện tại của chủ dự án là **nhân bản gần như 1:1 layout của Gromuse** (UI kit gốc trong `trabanh/documents/prompt_thiet_ke_uiux_website_ecommerce.md`, video tham khảo `public/videos_ecomerce`), chỉ đổi màu thương hiệu chính (header/hero/trạng thái active) từ xanh rêu sang đỏ đô `#6b1420`. Đây là chỉ đạo trực tiếp, rõ ràng của khách hàng — không tự ý "cải tiến" xa khỏi layout Gromuse nữa trừ khi được yêu cầu lại. Giữ nguyên: nút CTA xanh lá, dải khuyến mãi đa màu pastel, banner tải app tím, card bo góc, nút "+"/stepper dạng khay.
 
 ## Design Principles
 
