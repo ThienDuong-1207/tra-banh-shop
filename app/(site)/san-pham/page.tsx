@@ -1,54 +1,87 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { getAllProducts, getProductsByCategory } from "@/lib/products";
-import { CATEGORY_ORDER } from "@/lib/categories";
 import ProductCard from "@/components/ProductCard";
+import FilterSortBar from "@/components/FilterSortBar";
 
 export const revalidate = 60;
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string }>;
-}) {
-  const { category } = await searchParams;
-  const products = category ? await getProductsByCategory(category) : await getAllProducts();
+type SearchParams = {
+  category?: string;
+  don_vi?: "le" | "thung";
+  gia_tu?: string;
+  gia_den?: string;
+  sort?: "gia-tang" | "gia-giam" | "ten-az";
+  q?: string;
+};
+
+export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const { category, don_vi, gia_tu, gia_den, sort, q } = await searchParams;
+  let products = category ? await getProductsByCategory(category) : await getAllProducts();
+
+  if (q) {
+    const needle = q.trim().toLowerCase();
+    if (needle) {
+      products = products.filter(
+        (p) =>
+          p.ten_hang_hoa.toLowerCase().includes(needle) ||
+          (p.brand_name?.toLowerCase().includes(needle) ?? false)
+      );
+    }
+  }
+
+  if (don_vi === "thung") {
+    products = products.filter((p) => p.gia_thung != null);
+  } else if (don_vi === "le") {
+    products = products.filter((p) => p.gia_ban != null);
+  }
+
+  const minGia = gia_tu ? Number(gia_tu) : null;
+  const maxGia = gia_den ? Number(gia_den) : null;
+  if (minGia != null && Number.isFinite(minGia)) {
+    products = products.filter((p) => (p.gia_ban ?? 0) >= minGia);
+  }
+  if (maxGia != null && Number.isFinite(maxGia)) {
+    products = products.filter((p) => (p.gia_ban ?? 0) <= maxGia);
+  }
+
+  const sorted = [...products];
+  if (sort === "gia-tang") {
+    sorted.sort((a, b) => (a.gia_ban ?? 0) - (b.gia_ban ?? 0));
+  } else if (sort === "gia-giam") {
+    sorted.sort((a, b) => (b.gia_ban ?? 0) - (a.gia_ban ?? 0));
+  } else if (sort === "ten-az") {
+    sorted.sort((a, b) => a.ten_hang_hoa.localeCompare(b.ten_hang_hoa, "vi"));
+  }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-bold text-ink">Sản phẩm</h1>
-      <p className="mt-1 text-sm text-muted">{products.length} sản phẩm</p>
-
-      <div className="mt-6 flex flex-wrap gap-2">
-        <Link
-          href="/san-pham"
-          className={`rounded-full px-4 py-1.5 text-sm font-medium ${
-            !category ? "bg-primary text-cream" : "bg-warm-beige text-ink hover:bg-peach"
-          }`}
-        >
-          Tất cả
-        </Link>
-        {CATEGORY_ORDER.map((c) => (
-          <Link
-            key={c}
-            href={`/san-pham?category=${encodeURIComponent(c)}`}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium ${
-              category === c ? "bg-primary text-cream" : "bg-warm-beige text-ink hover:bg-peach"
-            }`}
-          >
-            {c}
-          </Link>
-        ))}
+    <div>
+      <div className="mx-auto max-w-6xl px-4 pt-10">
+        <h1 className="text-2xl font-bold text-ink">Sản phẩm</h1>
+        <p className="mt-1 text-sm text-muted">
+          {sorted.length} sản phẩm{category ? ` trong ${category}` : ""}
+          {q ? ` khớp với "${q}"` : ""}
+        </p>
       </div>
 
-      {products.length > 0 ? (
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      ) : (
-        <div className="mt-16 text-center text-muted">Chưa có sản phẩm nào trong danh mục này.</div>
-      )}
+      <Suspense
+        fallback={<div className="mx-auto mt-6 h-[104px] max-w-6xl border-b border-black/10 px-4" />}
+      >
+        <FilterSortBar />
+      </Suspense>
+
+      <div className="mx-auto max-w-6xl px-4 pb-16">
+        {sorted.length > 0 ? (
+          <div className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
+            {sorted.map((p, i) => (
+              <ProductCard key={p.id} product={p} priority={i < 4} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-16 text-center text-muted">
+            Không tìm thấy sản phẩm phù hợp bộ lọc hiện tại.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

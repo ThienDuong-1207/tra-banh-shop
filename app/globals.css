@@ -1,9 +1,23 @@
 @import "tailwindcss";
 
-/* Bảng màu thương hiệu Trà & Bánh — theo đúng mục 2 của
-   documents/prompt_thiet_ke_uiux_website_ecommerce.md (misa-price-manager).
+/* Bảng màu thương hiệu Trà & Bánh — redesign theo PRODUCT.md (register:
+   brand, đối tượng B2B F&B) + "Design Direction" đã chốt.
    Tailwind v4: khai báo token màu trực tiếp bằng CSS, dùng được ngay dưới
-   dạng class bg-primary / text-accent / v.v. */
+   dạng class bg-primary / text-accent / v.v.
+
+   Đổi so với bản gốc:
+   - Giữ nguyên hue đỏ đô (primary) và vàng gold (accent) — vốn thương hiệu
+     đã đầu tư, chỉ đổi CÁCH DÙNG (primary/accent chiếm khối lớn có chủ đích,
+     không rải rác).
+   - `--color-cream` GIỮ LẠI nhưng chỉ dùng làm màu chữ/nền trên khối màu
+     tối (text-cream trên bg-primary/bg-footer) — không còn là nền trang mặc
+     định (đây chính là pattern "AI slop 2026" cần bỏ).
+   - Nền trang mặc định đổi sang `--color-surface`: trắng ngà trung tính
+     thật (chroma gần 0), không ngả ấm như cream cũ.
+   - Bỏ hẳn `--color-warm-beige` / `--color-peach` / `--color-cream-yellow`
+     — các nơi từng dùng làm nền pastel (category card, chip, alert) chuyển
+     sang `--color-surface-alt` (xám trung tính) hoặc thang màu neutral-*
+     có sẵn của Tailwind, hoặc ảnh thật/viền/typography. */
 @theme {
   --color-primary: #6b1420;
   --color-primary-dark: #4a0e16;
@@ -11,9 +25,8 @@
   --color-accent: #f0b429;
   --color-accent-hover: #d89a00;
   --color-cream: #fff8ed;
-  --color-warm-beige: #f5e6d3;
-  --color-peach: #f7dcd4;
-  --color-cream-yellow: #fbefd0;
+  --color-surface: oklch(98% 0.002 60);
+  --color-surface-alt: oklch(95% 0.003 60);
   --color-ink: #2b0a0e;
   --color-muted: #7a6a62;
   --color-promo: #c9762e;
@@ -23,6 +36,9 @@
 }
 
 body {
-  background: var(--color-cream);
+  background: var(--color-surface);
   color: var(--color-ink);
+  /* An toàn cho các khối fixed/translate (cart drawer, thanh mua hàng dính
+     đáy mobile) — không để bất kỳ phần tử nào tạo thanh cuộn ngang. */
+  overflow-x: hidden;
 }

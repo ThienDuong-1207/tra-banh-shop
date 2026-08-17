@@ -26,7 +26,7 @@ export default async function OrderSuccessPage({
       <h1 className="mt-4 text-2xl font-bold text-ink sm:text-3xl">Đặt hàng thành công!</h1>
       <p className="mt-2 text-muted">Cảm ơn bạn đã đặt hàng — hãy lưu lại mã đơn bên dưới.</p>
 
-      <div className="mt-8 rounded-2xl bg-warm-beige p-6">
+      <div className="mt-8 rounded-2xl bg-surface-alt p-6">
         <div className="flex items-center justify-center gap-2 text-sm text-muted">Mã đơn hàng</div>
         <div className="mt-1 text-xl font-bold tracking-wide text-primary">{ma}</div>
         <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted">Tổng thanh toán</div>
@@ -58,12 +58,54 @@ export default async function OrderSuccessPage({
         </div>
       )}
 
-      <Link
-        href="/san-pham"
-        className="mt-8 inline-flex items-center justify-center rounded-full bg-accent px-8 py-3 font-semibold text-ink hover:bg-accent-hover"
-      >
-        Tiếp tục mua sắm
-      </Link>
+      <div className="mt-8 rounded-2xl border border-black/10 p-6 text-left">
+        <h2 className="text-center font-semibold text-ink">Bước tiếp theo</h2>
+        <ol className="mt-4 flex flex-col gap-3 text-sm text-ink">
+          <li className="flex gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-cream">
+              1
+            </span>
+            <span>Shop xác nhận đơn ngay sau khi nhận được chuyển khoản đúng nội dung.</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-cream">
+              2
+            </span>
+            <span>Đơn được đóng gói và giao trong thời gian sớm nhất, tuỳ khu vực và số lượng đặt.</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-cream">
+              3
+            </span>
+            <span>Bạn nhận hàng và kiểm tra trước khi thanh toán phần còn lại (nếu có thoả thuận riêng).</span>
+          </li>
+        </ol>
+        <p className="mt-4 border-t border-black/10 pt-4 text-sm text-muted">
+          Cần đổi/huỷ đơn hoặc có thắc mắc? Nhắn Zalo{" "}
+          <a
+            href={`https://zalo.me/0906363395?text=${encodeURIComponent(`Chào shop, tôi muốn hỏi về đơn ${ma}`)}`}
+            className="font-semibold text-primary underline hover:text-primary-dark"
+          >
+            0906.363.395
+          </a>{" "}
+          kèm mã đơn <span className="font-semibold text-ink">{ma}</span>.
+        </p>
+      </div>
+
+      <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+        <Link
+          href="/san-pham"
+          className="inline-flex items-center justify-center rounded-full bg-accent px-8 py-3 font-semibold text-ink transition hover:bg-accent-hover"
+        >
+          Đặt thêm sản phẩm
+        </Link>
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-full border border-black/10 px-8 py-3 font-semibold text-ink transition hover:bg-surface-alt"
+        >
+          Về trang chủ
+        </Link>
+      </div>
     </div>
   );
 }

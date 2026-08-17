@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
 import { CartProvider } from "@/contexts/CartContext";
+import { CartDrawerProvider } from "@/contexts/CartDrawerContext";
 import "../globals.css";
 
 // Font tiếng Việt theo mục 3 của brief thiết kế — hỗ trợ đầy đủ dấu thanh
@@ -23,9 +25,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="vi" className={`${beVietnamPro.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         <CartProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <CartDrawerProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <CartDrawer />
+          </CartDrawerProvider>
         </CartProvider>
       </body>
     </html>
