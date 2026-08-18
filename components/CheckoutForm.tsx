@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { formatVnd } from "@/lib/products";
-import { ArrowLeftIcon } from "@/components/icons";
+import { ArrowLeftIcon, ChevronRightIcon } from "@/components/icons";
 import { createOrder } from "@/app/(site)/thanh-toan/actions";
 
 export default function CheckoutForm({ errorMessage }: { errorMessage: string | null }) {
@@ -18,7 +18,7 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
         <p className="mt-2 text-muted">Giỏ hàng của bạn đang trống.</p>
         <Link
           href="/san-pham"
-          className="mt-8 inline-flex items-center justify-center rounded-full bg-accent px-8 py-3 font-semibold text-ink hover:bg-accent-hover"
+          className="mt-8 inline-flex items-center justify-center rounded-full bg-cta px-8 py-3 font-semibold text-ink hover:bg-cta-hover"
         >
           Xem sản phẩm
         </Link>
@@ -28,7 +28,18 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <Link href="/gio-hang" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted">
+        <Link href="/" className="hover:text-primary">
+          Trà &amp; Bánh
+        </Link>
+        <ChevronRightIcon className="h-3.5 w-3.5" />
+        <Link href="/gio-hang" className="hover:text-primary">
+          Giỏ hàng
+        </Link>
+        <ChevronRightIcon className="h-3.5 w-3.5" />
+        <span className="font-medium text-ink">Thanh toán</span>
+      </nav>
+      <Link href="/gio-hang" className="mt-3 inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary">
         <ArrowLeftIcon className="h-4 w-4" />
         Quay lại giỏ hàng
       </Link>

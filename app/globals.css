@@ -1,35 +1,43 @@
 @import "tailwindcss";
 
-/* Bảng màu thương hiệu Trà & Bánh — redesign theo PRODUCT.md (register:
-   brand, đối tượng B2B F&B) + "Design Direction" đã chốt.
-   Tailwind v4: khai báo token màu trực tiếp bằng CSS, dùng được ngay dưới
-   dạng class bg-primary / text-accent / v.v.
+/* Bảng màu thương hiệu Trà & Bánh — nhân bản layout Gromuse (xem PRODUCT.md,
+   mục Anti-references > "Cập nhật (ghi đè quyết định trước)"), chỉ đổi màu
+   thương hiệu chính. Tailwind v4: khai báo token màu trực tiếp bằng CSS,
+   dùng được ngay dưới dạng class bg-primary / text-accent / v.v.
 
-   Đổi so với bản gốc:
-   - Giữ nguyên hue đỏ đô (primary) và vàng gold (accent) — vốn thương hiệu
-     đã đầu tư, chỉ đổi CÁCH DÙNG (primary/accent chiếm khối lớn có chủ đích,
-     không rải rác).
-   - `--color-cream` GIỮ LẠI nhưng chỉ dùng làm màu chữ/nền trên khối màu
-     tối (text-cream trên bg-primary/bg-footer) — không còn là nền trang mặc
-     định (đây chính là pattern "AI slop 2026" cần bỏ).
-   - Nền trang mặc định đổi sang `--color-surface`: trắng ngà trung tính
-     thật (chroma gần 0), không ngả ấm như cream cũ.
-   - Bỏ hẳn `--color-warm-beige` / `--color-peach` / `--color-cream-yellow`
-     — các nơi từng dùng làm nền pastel (category card, chip, alert) chuyển
-     sang `--color-surface-alt` (xám trung tính) hoặc thang màu neutral-*
-     có sẵn của Tailwind, hoặc ảnh thật/viền/typography. */
+   Đổi so với bản trước (redesign "distinctive" đã bị ghi đè):
+   - primary (đỏ đô #6b1420) thay cho xanh rêu đậm gốc của Gromuse —
+     header, hero, trạng thái active (tab, filter) đều dùng primary.
+   - accent (vàng gold) giữ vai trò phụ (nhấn giá/badge), KHÔNG dùng cho
+     nút CTA chính nữa.
+   - Thêm --color-cta (xanh lá lime) riêng cho các nút hành động chính mà
+     video giữ nguyên màu xanh lá: "Shop now"/nút mua, stepper +/- trên
+     card sản phẩm, nút nổi bật ở PDP. Tách khỏi accent để không đè lên vai
+     trò "nhấn giá/badge" hiện có của vàng gold — 3 màu (đỏ đô/vàng
+     gold/xanh lá) vẫn tách bạch rõ vai trò nên không rối mắt khi dựng thật.
+   - --color-surface chỉnh lại về xám rất nhạt trung tính (gần trắng, không
+     ngả ấm) khớp nền content area của video, KHÔNG phải nền kem/be.
+   - Thêm 4 màu dải khuyến mãi pastel/vivid (promo-a/b/c/d — hồng, cam,
+     xanh dương, tím) cho 4 thẻ khuyến mãi trang chủ, đây là khối trang trí
+     độc lập, không phải "màu nav" nên không cần theo primary/accent. */
 @theme {
   --color-primary: #6b1420;
   --color-primary-dark: #4a0e16;
   --color-primary-light: #8c2430;
   --color-accent: #f0b429;
   --color-accent-hover: #d89a00;
+  --color-cta: #96c93e;
+  --color-cta-hover: #7fae2e;
+  --color-cta-soft: #eaf3d8;
   --color-cream: #fff8ed;
-  --color-surface: oklch(98% 0.002 60);
-  --color-surface-alt: oklch(95% 0.003 60);
+  --color-surface: oklch(97.3% 0.002 260);
+  --color-surface-alt: oklch(94% 0.003 260);
   --color-ink: #2b0a0e;
   --color-muted: #7a6a62;
-  --color-promo: #c9762e;
+  --color-promo-a: #b23a63;
+  --color-promo-b: #c9762e;
+  --color-promo-c: #2f5f8a;
+  --color-promo-d: #5b3a8a;
   --color-footer: #250608;
 
   --font-sans: var(--font-be-vietnam-pro);

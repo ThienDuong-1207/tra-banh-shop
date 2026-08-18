@@ -94,7 +94,7 @@ export default function CartDrawer() {
             <Link
               href="/san-pham"
               onClick={close}
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-ink hover:bg-accent-hover"
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-cta px-6 py-2.5 text-sm font-semibold text-ink hover:bg-cta-hover"
             >
               Xem sản phẩm
             </Link>

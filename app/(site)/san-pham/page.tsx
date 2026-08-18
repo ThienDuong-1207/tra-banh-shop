@@ -1,7 +1,9 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { getAllProducts, getProductsByCategory } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 import FilterSortBar from "@/components/FilterSortBar";
+import { ChevronRightIcon } from "@/components/icons";
 
 export const revalidate = 60;
 
@@ -55,8 +57,15 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <div className="mx-auto max-w-6xl px-4 pt-10">
-        <h1 className="text-2xl font-bold text-ink">Sản phẩm</h1>
+      <div className="mx-auto max-w-6xl px-4 pt-8">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted">
+          <Link href="/" className="hover:text-primary">
+            Trà &amp; Bánh
+          </Link>
+          <ChevronRightIcon className="h-3.5 w-3.5" />
+          <span className="font-medium text-ink">{category || "Tất cả danh mục"}</span>
+        </nav>
+        <h1 className="mt-2 text-2xl font-bold text-ink">Sản phẩm</h1>
         <p className="mt-1 text-sm text-muted">
           {sorted.length} sản phẩm{category ? ` trong ${category}` : ""}
           {q ? ` khớp với "${q}"` : ""}
@@ -64,16 +73,16 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       </div>
 
       <Suspense
-        fallback={<div className="mx-auto mt-6 h-[104px] max-w-6xl border-b border-black/10 px-4" />}
+        fallback={<div className="mx-auto mt-6 h-[62px] max-w-6xl border-b border-black/10 px-4" />}
       >
         <FilterSortBar />
       </Suspense>
 
       <div className="mx-auto max-w-6xl px-4 pb-16">
         {sorted.length > 0 ? (
-          <div className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
             {sorted.map((p, i) => (
-              <ProductCard key={p.id} product={p} priority={i < 4} />
+              <ProductCard key={p.id} product={p} priority={i < 5} />
             ))}
           </div>
         ) : (
