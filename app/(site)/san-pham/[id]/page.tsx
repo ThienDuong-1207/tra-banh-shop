@@ -153,6 +153,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <dd className="font-medium text-ink">{product.brand_name ?? "—"}</dd>
             </div>
           </dl>
+
+          {product.mo_ta && (
+            <div>
+              <h2 className="font-semibold text-ink">Mô tả sản phẩm</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{product.mo_ta}</p>
+            </div>
+          )}
         </div>
       </div>
 

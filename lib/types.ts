@@ -1,9 +1,11 @@
 // Khớp đúng view public_products (chỉ các cột an toàn để hiển thị công khai)
 // và 2 bảng orders/order_items mới — xem SQL ở
-// supabase/migrations/001_orders_and_public_products.sql
+// supabase/migrations/001_orders_and_public_products.sql,
+// supabase/migrations/002_add_description_to_public_products.sql
 export type PublicProduct = {
   id: string;
   ten_hang_hoa: string;
+  mo_ta: string | null;
   category_sheet: string;
   dvt: string | null;
   gia_ban: number | null;
