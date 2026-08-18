@@ -43,6 +43,7 @@ Thực hiện đúng thứ tự, không bỏ qua bước nào:
 | `CheckoutForm` | Form nhập thông tin + submit đơn hàng ở `/thanh-toan`. Tóm tắt đơn dính (`lg:sticky lg:top-24`) bên cạnh form trên desktop, có ghi chú thanh toán VietQR gần nút submit |
 | `ClearCartOnMount` | Component ẩn, xóa giỏ hàng khi vào trang đặt hàng thành công |
 | `ContactBanner` | Banner liên hệ 2 cột (nền `primary-dark` + ảnh Monin phải + CTA Zalo/hotline), nhận prop `title`/`desc`. Dùng ở section "Liên hệ" trang chủ và cuối trang chi tiết sản phẩm — cùng 1 pattern, chỉ khác nội dung |
+| `SearchBox` | `"use client"` — ô tìm kiếm trong `Header` (desktop + mobile, nhận prop `id` để tránh trùng id 2 form), gõ tới đâu gợi ý tới đó: cột "Danh mục" (lọc `CATEGORY_ORDER` tại chỗ, không gọi mạng) + cột "Sản phẩm" (query `public_products` qua `supabase` client, debounce 250ms, giới hạn 5 kết quả). Submit form vẫn hoạt động không cần JS (`action="/san-pham"`, input `name="q"`) — dropdown chỉ là lớp tăng cường phía trên |
 | `icons.tsx` (`CartIcon`, `PlusIcon`, `MinusIcon`, `TrashIcon`, `CheckCircleIcon`, `ArrowLeftIcon`, `SearchIcon`, `FilterIcon`, `SortIcon`, `ChevronDownIcon`, `ChevronRightIcon`, `ArrowRightIcon`, `MenuIcon`, `XIcon`, `ShieldCheckIcon`, `TruckIcon`, `ChatIcon`, `NewsIcon`) | Icon SVG dùng chung — **luôn thêm icon mới vào đây, không paste SVG rời trong component khác** |
 
 ### Component admin (`components/admin/*.tsx`)

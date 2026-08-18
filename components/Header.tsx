@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import CartBadge from "@/components/CartBadge";
-import { MenuIcon, SearchIcon, XIcon } from "@/components/icons";
+import SearchBox from "@/components/SearchBox";
+import { MenuIcon, XIcon } from "@/components/icons";
 
 // Thanh điều hướng trên cùng — bố cục theo video tham khảo Gromuse: hamburger
 // (mobile) + logo trái, ô tìm kiếm dạng pill ở giữa, liên hệ nhanh + giỏ hàng
@@ -38,26 +39,9 @@ export default function Header() {
           />
         </Link>
 
-        <form action="/san-pham" className="hidden flex-1 items-center gap-2 rounded-full bg-white px-4 py-2 shadow-sm sm:flex">
-          <SearchIcon className="h-4.5 w-4.5 shrink-0 text-muted" />
-          <label htmlFor="header-search" className="sr-only">
-            Tìm sản phẩm
-          </label>
-          <input
-            id="header-search"
-            name="q"
-            type="search"
-            placeholder="Tìm syrup, sữa, trân châu, bột…"
-            className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
-          />
-          <button
-            type="submit"
-            aria-label="Tìm kiếm"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-cream transition hover:bg-primary-dark"
-          >
-            <SearchIcon className="h-4 w-4" />
-          </button>
-        </form>
+        <div className="hidden flex-1 sm:block">
+          <SearchBox id="header-search" />
+        </div>
 
         <div className="flex-1 sm:hidden" />
 
@@ -74,19 +58,9 @@ export default function Header() {
 
       {menuOpen && (
         <div className="border-t border-cream/10 px-4 py-3 sm:hidden">
-          <form action="/san-pham" className="mb-3 flex items-center gap-2 rounded-full bg-white px-4 py-2">
-            <SearchIcon className="h-4.5 w-4.5 shrink-0 text-muted" />
-            <label htmlFor="header-search-mobile" className="sr-only">
-              Tìm sản phẩm
-            </label>
-            <input
-              id="header-search-mobile"
-              name="q"
-              type="search"
-              placeholder="Tìm syrup, sữa, trân châu…"
-              className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
-            />
-          </form>
+          <div className="mb-3">
+            <SearchBox id="header-search-mobile" onNavigate={() => setMenuOpen(false)} />
+          </div>
           <nav className="flex flex-col gap-1 text-sm font-medium">
             <Link href="/" onClick={() => setMenuOpen(false)} className="rounded-lg px-2 py-2 hover:bg-primary-dark">
               Trang chủ
