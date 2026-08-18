@@ -49,7 +49,7 @@ export default async function Home() {
     <div>
       {/* Hero — khối bo góc lớn nền đỏ đô, mép dưới lượn sóng, tiêu đề 2 dòng +
           CTA pill + ảnh sản phẩm bên phải (theo bố cục video Gromuse). */}
-      <section className="mx-auto max-w-6xl px-4 pt-6 sm:pt-10">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 pt-6 sm:pt-10">
         <div className="relative overflow-hidden rounded-[2rem] bg-primary">
           <div className="grid gap-8 px-6 pb-16 pt-10 sm:px-10 sm:pb-20 sm:pt-14 lg:grid-cols-2 lg:items-center lg:gap-6">
             <div className="flex flex-col gap-5 text-cream">
@@ -100,7 +100,7 @@ export default async function Home() {
       </section>
 
       {/* Danh mục nhanh — 5 thẻ trắng + 1 ô "Xem tất cả". */}
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10 sm:py-14">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
           {QUICK_CATEGORIES.map((c) => {
             const image = getCategoryImage(c);
@@ -137,7 +137,7 @@ export default async function Home() {
 
       {/* Grid sản phẩm "Có thể bạn cần". */}
       {products.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-4 pb-4">
+        <section className="mx-auto max-w-[var(--container-shop)] px-4 pb-4">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-ink">Có thể bạn cần</h2>
             <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">
@@ -151,7 +151,7 @@ export default async function Home() {
           </div>
         </section>
       ) : (
-        <section className="mx-auto max-w-6xl px-4 pb-16 text-center text-muted">
+        <section className="mx-auto max-w-[var(--container-shop)] px-4 pb-16 text-center text-muted">
           Chưa có sản phẩm nào hiển thị — cần chạy migration
           <code className="mx-1 rounded bg-surface-alt px-1.5 py-0.5">001_orders_and_public_products.sql</code>
           trong Supabase SQL Editor trước.
@@ -160,7 +160,7 @@ export default async function Home() {
 
       {/* Dải khuyến mãi 4 màu — khối trang trí độc lập, nội dung trung thực
           (không bịa số % giảm giá). */}
-      <section className="mx-auto max-w-6xl px-4 py-10">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {PROMO_ITEMS.map((item) => (
             <div
@@ -189,7 +189,7 @@ export default async function Home() {
 
       {/* "Bán chạy trong tuần" — tab pill lọc danh mục. */}
       {products.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-6">
+        <section className="mx-auto max-w-[var(--container-shop)] px-4 py-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-ink">Bán chạy trong tuần</h2>
             <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">
@@ -202,7 +202,7 @@ export default async function Home() {
 
       {/* Banner liên hệ Zalo — thay cho banner tải app không có thật trong video
           gốc, giữ đúng bố cục 2 cột + màu tối như video. */}
-      <section className="mx-auto max-w-6xl px-4 py-10">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10">
         <div className="grid items-center gap-6 overflow-hidden rounded-[2rem] bg-primary-dark px-6 py-10 text-cream sm:px-10 lg:grid-cols-2">
           <div>
             <h2 className="text-2xl font-bold sm:text-3xl">Cần tư vấn trước khi đặt số lượng lớn?</h2>

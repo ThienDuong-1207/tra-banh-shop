@@ -43,6 +43,15 @@
   --font-sans: var(--font-be-vietnam-pro);
 }
 
+/* Chiều rộng container cho các trang dạng lưới (header, footer, trang chủ,
+   danh sách sản phẩm) — theo tỉ lệ margin/padding 2 bên của layout Gromuse
+   tham khảo (nội dung ~89% viewport trên màn hình rộng, không phải max-w-6xl
+   1152px co hẹp lại giữa màn hình lớn). Trang dạng đọc/form (chi tiết sản
+   phẩm, giỏ hàng, thanh toán) giữ container hẹp hơn có chủ đích, không đổi. */
+:root {
+  --container-shop: 1680px;
+}
+
 body {
   background: var(--color-surface);
   color: var(--color-ink);

@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <footer className="mt-auto rounded-t-[2rem] bg-footer text-cream">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
+      <div className="mx-auto grid max-w-[var(--container-shop)] gap-8 px-4 py-10 sm:grid-cols-3">
         <div>
           <div className="text-lg font-bold">Trà &amp; Bánh</div>
           <p className="mt-2 text-sm text-cream/70">

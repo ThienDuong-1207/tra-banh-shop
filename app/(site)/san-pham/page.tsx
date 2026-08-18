@@ -57,7 +57,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <div className="mx-auto max-w-6xl px-4 pt-8">
+      <div className="mx-auto max-w-[var(--container-shop)] px-4 pt-8">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted">
           <Link href="/" className="hover:text-primary">
             Trà &amp; Bánh
@@ -73,12 +73,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       </div>
 
       <Suspense
-        fallback={<div className="mx-auto mt-6 h-[62px] max-w-6xl border-b border-black/10 px-4" />}
+        fallback={<div className="mx-auto mt-6 h-[62px] max-w-[var(--container-shop)] border-b border-black/10 px-4" />}
       >
         <FilterSortBar />
       </Suspense>
 
-      <div className="mx-auto max-w-6xl px-4 pb-16">
+      <div className="mx-auto max-w-[var(--container-shop)] px-4 pb-16">
         {sorted.length > 0 ? (
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
             {sorted.map((p, i) => (
