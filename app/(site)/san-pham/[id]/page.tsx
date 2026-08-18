@@ -7,7 +7,17 @@ import { MONIN_ALT, MONIN_FRAMED, MONIN_PLAIN } from "@/lib/productImages";
 import { categorySlug } from "@/lib/categories";
 import ProductPurchasePanel from "@/components/ProductPurchasePanel";
 import ProductCard from "@/components/ProductCard";
-import { ArrowLeftIcon, ChevronRightIcon } from "@/components/icons";
+import { ArrowLeftIcon, ChevronRightIcon, ShieldCheckIcon, TruckIcon, ChatIcon } from "@/components/icons";
+
+// Dải tin cậy dưới nút mua — cùng 3 tiêu chí đã dùng ở section "Vì sao chọn
+// Trà & Bánh" trên trang chủ, thu gọn thành hàng ngang. Thay cho badge giảm
+// giá/countdown/sao đánh giá giả của layout tham khảo — nội dung đã xác
+// nhận là thật, không bịa số liệu bán hàng/đánh giá không có thật.
+const TRUST_BADGES = [
+  { label: "Hàng chính hãng", Icon: ShieldCheckIcon },
+  { label: "Giao hàng tận nơi", Icon: TruckIcon },
+  { label: "Tư vấn miễn phí", Icon: ChatIcon },
+];
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -53,7 +63,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
       <div className="mt-4 grid gap-8 lg:grid-cols-2 lg:items-start">
         <div>
-          <div className="relative aspect-square overflow-hidden rounded-3xl bg-surface-alt ring-1 ring-black/5">
+          <div
+            className={`relative overflow-hidden rounded-3xl bg-surface-alt ring-1 ring-black/5 ${
+              isMonin ? "aspect-[3/4]" : "aspect-square"
+            }`}
+          >
             {mainImage ? (
               <Image
                 src={mainImage.url}
@@ -61,7 +75,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 fill
                 priority
                 sizes="(min-width: 1024px) 45vw, 100vw"
-                className={isMonin ? "object-contain p-6" : "object-cover"}
+                className={isMonin ? "object-contain p-4" : "object-cover"}
               />
             ) : (
               <div className="flex h-full items-center justify-center px-6 text-center text-lg font-semibold text-ink/50">
@@ -99,6 +113,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           >
             Cần tư vấn thêm? Nhắn Zalo cho shop
           </a>
+
+          <div className="flex flex-wrap gap-x-5 gap-y-2 rounded-2xl bg-surface-alt px-4 py-3">
+            {TRUST_BADGES.map(({ label, Icon }) => (
+              <span key={label} className="flex items-center gap-2 text-xs font-medium text-ink">
+                <Icon className="h-4 w-4 shrink-0 text-primary" />
+                {label}
+              </span>
+            ))}
+          </div>
 
           <div className="flex flex-wrap gap-x-6 gap-y-1 border-y border-black/10 py-3 text-sm text-muted">
             <span>
