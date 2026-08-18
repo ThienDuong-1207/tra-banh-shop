@@ -42,7 +42,8 @@ Thực hiện đúng thứ tự, không bỏ qua bước nào:
 | `FilterSortBar` | Thanh lọc dạng dropdown ngang (danh mục/đơn vị/khoảng giá/sắp xếp — mỗi chip là `<select>` native bọc pill + `ChevronDownIcon`), dính (`sticky top-16`) phía trên grid ở `/san-pham`. Đọc/ghi qua query string (`category`, `don_vi`, `gia_tu`, `gia_den`, `sort`, `q`) — trang (Server Component) đọc `searchParams` để lọc/sắp xếp dữ liệu thật, component này không tự giữ danh sách sản phẩm |
 | `CheckoutForm` | Form nhập thông tin + submit đơn hàng ở `/thanh-toan`. Tóm tắt đơn dính (`lg:sticky lg:top-24`) bên cạnh form trên desktop, có ghi chú thanh toán VietQR gần nút submit |
 | `ClearCartOnMount` | Component ẩn, xóa giỏ hàng khi vào trang đặt hàng thành công |
-| `icons.tsx` (`CartIcon`, `PlusIcon`, `MinusIcon`, `TrashIcon`, `CheckCircleIcon`, `ArrowLeftIcon`, `SearchIcon`, `FilterIcon`, `SortIcon`, `ChevronDownIcon`, `ChevronRightIcon`, `ArrowRightIcon`, `MenuIcon`, `XIcon`) | Icon SVG dùng chung — **luôn thêm icon mới vào đây, không paste SVG rời trong component khác** |
+| `ContactBanner` | Banner liên hệ 2 cột (nền `primary-dark` + ảnh Monin phải + CTA Zalo/hotline), nhận prop `title`/`desc`. Dùng ở section "Liên hệ" trang chủ và cuối trang chi tiết sản phẩm — cùng 1 pattern, chỉ khác nội dung |
+| `icons.tsx` (`CartIcon`, `PlusIcon`, `MinusIcon`, `TrashIcon`, `CheckCircleIcon`, `ArrowLeftIcon`, `SearchIcon`, `FilterIcon`, `SortIcon`, `ChevronDownIcon`, `ChevronRightIcon`, `ArrowRightIcon`, `MenuIcon`, `XIcon`, `ShieldCheckIcon`, `TruckIcon`, `ChatIcon`, `NewsIcon`) | Icon SVG dùng chung — **luôn thêm icon mới vào đây, không paste SVG rời trong component khác** |
 
 ### Component admin (`components/admin/*.tsx`)
 

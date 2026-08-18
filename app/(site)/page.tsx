@@ -7,6 +7,7 @@ import { MONIN_ALT, MONIN_FRAMED } from "@/lib/productImages";
 import { NEWS_ITEMS } from "@/lib/news";
 import ProductCard from "@/components/ProductCard";
 import WeeklyBestSelling from "@/components/WeeklyBestSelling";
+import ContactBanner from "@/components/ContactBanner";
 import { ArrowRightIcon, ShieldCheckIcon, TruckIcon, ChatIcon, NewsIcon } from "@/components/icons";
 
 export const revalidate = 60;
@@ -217,32 +218,10 @@ export default async function Home() {
 
       {/* 7. Liên hệ. */}
       <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10">
-        <div className="grid items-center gap-6 overflow-hidden rounded-[2rem] bg-primary-dark px-6 py-10 text-cream sm:px-10 lg:grid-cols-2">
-          <div>
-            <h2 className="text-2xl font-bold sm:text-3xl">Cần tư vấn trước khi đặt số lượng lớn?</h2>
-            <p className="mt-2 max-w-md text-cream/80">
-              Nhắn Zalo cho shop để được báo giá sỉ, kiểm tra tồn kho và tư vấn công thức pha chế — phản hồi
-              trong giờ làm việc.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <a
-                href="https://zalo.me/0906363395"
-                className="inline-flex items-center gap-2 rounded-full bg-cta px-6 py-3 font-semibold text-ink transition hover:bg-cta-hover"
-              >
-                Chat Zalo ngay
-              </a>
-              <a
-                href="tel:0906363395"
-                className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-6 py-3 font-semibold text-cream transition hover:bg-primary"
-              >
-                Gọi 0906.363.395
-              </a>
-            </div>
-          </div>
-          <div className="relative mx-auto h-44 w-44 sm:h-56 sm:w-56">
-            <Image src={MONIN_FRAMED} alt={MONIN_ALT} fill sizes="224px" className="object-contain" />
-          </div>
-        </div>
+        <ContactBanner
+          title="Cần tư vấn trước khi đặt số lượng lớn?"
+          desc="Nhắn Zalo cho shop để được báo giá sỉ, kiểm tra tồn kho và tư vấn công thức pha chế — phản hồi trong giờ làm việc."
+        />
       </section>
     </div>
   );

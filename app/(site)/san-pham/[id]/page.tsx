@@ -7,6 +7,7 @@ import { MONIN_ALT, MONIN_FRAMED, MONIN_PLAIN } from "@/lib/productImages";
 import { categorySlug } from "@/lib/categories";
 import ProductPurchasePanel from "@/components/ProductPurchasePanel";
 import ProductCard from "@/components/ProductCard";
+import ContactBanner from "@/components/ContactBanner";
 import { ArrowLeftIcon, ChevronRightIcon, ShieldCheckIcon, TruckIcon, ChatIcon } from "@/components/icons";
 
 // Dải tin cậy dưới nút mua — cùng 3 tiêu chí đã dùng ở section "Vì sao chọn
@@ -165,6 +166,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
         </section>
       )}
+
+      <section className="mt-16">
+        <ContactBanner
+          title="Thao tác tại nhà, nhận đủ nguyên liệu, an tâm kinh doanh!"
+          desc="Đặt hàng online, giao tận quán — không cần rời quán vẫn có đủ nguyên liệu pha chế cho ca bán hôm nay."
+        />
+      </section>
     </div>
   );
 }
