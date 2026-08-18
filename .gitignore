@@ -39,6 +39,7 @@ yarn-error.log*
 
 # reference asset for design work, not a site asset — don't ship to prod
 /public/videos_ecomerce
+/public/videos ecomerce 2.mp4
 
 # Claude Code agent worktrees — never part of the project itself
 /.claude/worktrees/
