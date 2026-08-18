@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="mt-auto bg-footer text-cream">
+    <footer className="mt-auto rounded-t-[2rem] bg-footer text-cream">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
         <div>
           <div className="text-lg font-bold">Trà &amp; Bánh</div>
@@ -10,7 +10,12 @@ export default function Footer() {
         </div>
         <div>
           <div className="text-sm font-semibold uppercase tracking-wide text-cream/80">Liên hệ nhanh</div>
-          <p className="mt-2 text-sm text-cream/70">Zalo/Hotline: 0906.363.395</p>
+          <a
+            href="https://zalo.me/0906363395"
+            className="mt-2 inline-flex items-center gap-2 rounded-full bg-cream/10 px-4 py-2 text-sm text-cream/90 transition hover:bg-cream/15"
+          >
+            Zalo/Hotline: 0906.363.395
+          </a>
         </div>
         <div>
           <div className="text-sm font-semibold uppercase tracking-wide text-cream/80">Thông tin</div>

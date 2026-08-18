@@ -2,119 +2,151 @@ import Image from "next/image";
 import Link from "next/link";
 import { getAllProducts } from "@/lib/products";
 import { CATEGORY_ORDER, categorySlug } from "@/lib/categories";
-import { HERO_IMAGE, getCategoryImage } from "@/lib/categoryImages";
+import { getCategoryImage } from "@/lib/categoryImages";
+import { MONIN_ALT, MONIN_FRAMED, MONIN_PLAIN } from "@/lib/productImages";
 import ProductCard from "@/components/ProductCard";
-import { SearchIcon } from "@/components/icons";
+import WeeklyBestSelling from "@/components/WeeklyBestSelling";
+import { ArrowRightIcon } from "@/components/icons";
 
 export const revalidate = 60;
+
+const QUICK_CATEGORIES = CATEGORY_ORDER.slice(0, 5);
+
+const PROMO_ITEMS = [
+  {
+    eyebrow: "Bán sỉ",
+    title: "Mua sỉ tiết kiệm hơn",
+    desc: "Giá ưu đãi theo thùng cho các cơ sở đặt số lượng lớn.",
+    color: "bg-promo-a",
+  },
+  {
+    eyebrow: "Giao hàng",
+    title: "Giao nhanh khu vực nội thành",
+    desc: "Đặt trước giờ trưa, nhận hàng trong ngày với đơn nội thành.",
+    color: "bg-promo-b",
+  },
+  {
+    eyebrow: "Tư vấn",
+    title: "Tư vấn pha chế miễn phí",
+    desc: "Nhắn Zalo để được tư vấn công thức, định lượng nguyên liệu.",
+    color: "bg-promo-c",
+  },
+  {
+    eyebrow: "Đặt lại",
+    title: "Đặt lại nhanh trong 1 chạm",
+    desc: "Thêm giỏ ngay từ card sản phẩm, không cần tìm lại từ đầu.",
+    color: "bg-promo-d",
+  },
+];
 
 export default async function Home() {
   const products = await getAllProducts();
   const byCategory = new Map<string, number>();
   for (const p of products) byCategory.set(p.category_sheet, (byCategory.get(p.category_sheet) ?? 0) + 1);
+  const presentCategories = CATEGORY_ORDER.filter((c) => (byCategory.get(c) ?? 0) > 0);
 
   return (
     <div>
+      {/* Hero — khối bo góc lớn nền đỏ đô, mép dưới lượn sóng, tiêu đề 2 dòng +
+          CTA pill + ảnh sản phẩm bên phải (theo bố cục video Gromuse). */}
       <section className="mx-auto max-w-6xl px-4 pt-6 sm:pt-10">
-        <div className="grid overflow-hidden rounded-3xl bg-primary lg:grid-cols-2">
-          <div className="flex flex-col justify-center gap-5 px-6 py-10 text-cream sm:px-10 sm:py-14">
-            <h1 className="text-3xl font-bold leading-tight sm:text-4xl">
-              Nguyên liệu pha chế cho quán trà &amp; bánh
-            </h1>
-            <p className="max-w-md text-cream/80">
-              Đặt lại nhanh nguyên liệu quen thuộc, hoặc tìm mặt hàng mới — giá sỉ theo thùng &amp; giá lẻ
-              rõ ràng ngay từ đầu.
-            </p>
-
-            <form action="/san-pham" className="flex max-w-md items-center gap-2 rounded-full bg-white p-1.5 pl-4 shadow-lg">
-              <SearchIcon className="h-5 w-5 shrink-0 text-muted" />
-              <label htmlFor="hero-search" className="sr-only">
-                Tìm sản phẩm
-              </label>
-              <input
-                id="hero-search"
-                name="q"
-                type="search"
-                placeholder="Tìm syrup, sữa, trân châu…"
-                className="w-full bg-transparent py-2 text-sm text-ink outline-none placeholder:text-muted"
-              />
-              <button
-                type="submit"
-                className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-accent-hover"
+        <div className="relative overflow-hidden rounded-[2rem] bg-primary">
+          <div className="grid gap-8 px-6 pb-16 pt-10 sm:px-10 sm:pb-20 sm:pt-14 lg:grid-cols-2 lg:items-center lg:gap-6">
+            <div className="flex flex-col gap-5 text-cream">
+              <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.75rem]">
+                Nguyên liệu pha chế
+                <br />
+                chuẩn quán, đặt lại trong 1 phút
+              </h1>
+              <p className="max-w-md text-cream/80">
+                Syrup, sữa, bột, trân châu… giá sỉ theo thùng và giá lẻ hiển thị rõ ngay từ đầu — không cần
+                gọi hỏi mới biết giá.
+              </p>
+              <Link
+                href="/san-pham"
+                className="inline-flex w-fit items-center gap-2 rounded-full bg-cta px-7 py-3 font-semibold text-ink transition hover:bg-cta-hover"
               >
-                Tìm
-              </button>
-            </form>
+                Xem sản phẩm
+              </Link>
+            </div>
 
-            <Link href="/san-pham" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
-              Xem tất cả sản phẩm →
-            </Link>
+            <div className="relative mx-auto h-48 w-48 sm:h-64 sm:w-64 lg:h-72 lg:w-72">
+              <Image
+                src={MONIN_FRAMED}
+                alt={MONIN_ALT}
+                fill
+                priority
+                sizes="(min-width: 1024px) 25vw, 45vw"
+                className="object-contain drop-shadow-2xl"
+              />
+            </div>
           </div>
 
-          <div className="relative min-h-[220px] lg:min-h-0">
-            <Image
-              src={HERO_IMAGE.url}
-              alt={HERO_IMAGE.alt}
-              fill
-              priority
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
+          {/* Mép dưới lượn sóng — SVG phủ màu nền trang lên đáy khối primary,
+              dễ bảo trì hơn clip-path vì chỉnh path là chỉnh được ngay hình
+              dạng sóng mà không ảnh hưởng layout nội dung bên trên. */}
+          <svg
+            viewBox="0 0 1440 120"
+            preserveAspectRatio="none"
+            className="absolute inset-x-0 bottom-0 h-12 w-full text-surface sm:h-16"
+            aria-hidden="true"
+          >
+            <path
+              fill="currentColor"
+              d="M0,64 C240,110 480,20 720,48 C960,76 1200,24 1440,58 L1440,120 L0,120 Z"
             />
-          </div>
+          </svg>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-        <h2 className="text-2xl font-bold text-ink">Danh mục</h2>
-        <p className="mt-1 text-sm text-muted">Chọn danh mục để xem nhanh các mặt hàng đang có.</p>
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {CATEGORY_ORDER.map((c, i) => {
+      {/* Danh mục nhanh — 5 thẻ trắng + 1 ô "Xem tất cả". */}
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+          {QUICK_CATEGORIES.map((c) => {
             const image = getCategoryImage(c);
             const count = byCategory.get(c) ?? 0;
-            const isAboveFold = i < 5;
             return (
               <Link
                 key={c}
                 href={`/san-pham?category=${categorySlug(c)}`}
-                className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
-                {image ? (
-                  <>
-                    <Image
-                      src={image.url}
-                      alt={image.alt}
-                      fill
-                      sizes="(min-width: 1024px) 18vw, (min-width: 640px) 30vw, 45vw"
-                      priority={isAboveFold}
-                      loading={isAboveFold ? undefined : "lazy"}
-                      className="object-cover transition duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/15 to-transparent" />
-                  </>
-                ) : (
-                  <div className="absolute inset-0 bg-footer" />
-                )}
-                <div className="relative flex flex-col gap-0.5 p-4 text-cream">
-                  <span className="font-semibold">{c}</span>
-                  <span className="text-xs text-cream/75">{count} sản phẩm</span>
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate text-sm font-semibold text-ink">{c}</span>
+                  <span className="text-xs text-muted">{count} sản phẩm</span>
+                </div>
+                <div className="relative ml-auto h-11 w-11 shrink-0 overflow-hidden rounded-full bg-surface-alt">
+                  {image && (
+                    <Image src={image.url} alt="" fill sizes="44px" className="object-cover" />
+                  )}
                 </div>
               </Link>
             );
           })}
+          <Link
+            href="/san-pham"
+            className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-cta p-3 text-center text-ink transition hover:bg-cta-hover"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/70">
+              <ArrowRightIcon className="h-4 w-4" />
+            </span>
+            <span className="text-sm font-semibold">Xem tất cả</span>
+          </Link>
         </div>
       </section>
 
+      {/* Grid sản phẩm "Có thể bạn cần". */}
       {products.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-4 pb-16">
+        <section className="mx-auto max-w-6xl px-4 pb-4">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-ink">Sản phẩm đang có hàng</h2>
+            <h2 className="text-2xl font-bold text-ink">Có thể bạn cần</h2>
             <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">
-              Xem tất cả →
+              Xem thêm →
             </Link>
           </div>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
-            {products.slice(0, 8).map((p, i) => (
-              <ProductCard key={p.id} product={p} priority={i < 4} />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+            {products.slice(0, 10).map((p, i) => (
+              <ProductCard key={p.id} product={p} priority={i < 5} />
             ))}
           </div>
         </section>
@@ -125,6 +157,79 @@ export default async function Home() {
           trong Supabase SQL Editor trước.
         </section>
       )}
+
+      {/* Dải khuyến mãi 4 màu — khối trang trí độc lập, nội dung trung thực
+          (không bịa số % giảm giá). */}
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {PROMO_ITEMS.map((item) => (
+            <div
+              key={item.title}
+              className={`relative flex h-44 flex-col justify-between overflow-hidden rounded-2xl p-4 text-cream ${item.color}`}
+            >
+              <Image
+                src={MONIN_PLAIN}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 25vw, 50vw"
+                className="object-cover opacity-20 mix-blend-luminosity"
+                aria-hidden="true"
+              />
+              <span className="relative text-xs font-semibold uppercase tracking-wide text-cream/85">
+                {item.eyebrow}
+              </span>
+              <div className="relative">
+                <h3 className="text-base font-bold leading-snug">{item.title}</h3>
+                <p className="mt-1 text-xs text-cream/85">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* "Bán chạy trong tuần" — tab pill lọc danh mục. */}
+      {products.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 py-6">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-ink">Bán chạy trong tuần</h2>
+            <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">
+              Xem thêm →
+            </Link>
+          </div>
+          <WeeklyBestSelling products={products} categories={presentCategories} />
+        </section>
+      )}
+
+      {/* Banner liên hệ Zalo — thay cho banner tải app không có thật trong video
+          gốc, giữ đúng bố cục 2 cột + màu tối như video. */}
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <div className="grid items-center gap-6 overflow-hidden rounded-[2rem] bg-primary-dark px-6 py-10 text-cream sm:px-10 lg:grid-cols-2">
+          <div>
+            <h2 className="text-2xl font-bold sm:text-3xl">Cần tư vấn trước khi đặt số lượng lớn?</h2>
+            <p className="mt-2 max-w-md text-cream/80">
+              Nhắn Zalo cho shop để được báo giá sỉ, kiểm tra tồn kho và tư vấn công thức pha chế — phản hồi
+              trong giờ làm việc.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <a
+                href="https://zalo.me/0906363395"
+                className="inline-flex items-center gap-2 rounded-full bg-cta px-6 py-3 font-semibold text-ink transition hover:bg-cta-hover"
+              >
+                Chat Zalo ngay
+              </a>
+              <a
+                href="tel:0906363395"
+                className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-6 py-3 font-semibold text-cream transition hover:bg-primary"
+              >
+                Gọi 0906.363.395
+              </a>
+            </div>
+          </div>
+          <div className="relative mx-auto h-44 w-44 sm:h-56 sm:w-56">
+            <Image src={MONIN_FRAMED} alt={MONIN_ALT} fill sizes="224px" className="object-contain" />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

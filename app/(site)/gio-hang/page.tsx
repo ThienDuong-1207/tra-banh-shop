@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import { formatVnd } from "@/lib/products";
-import { ArrowLeftIcon, CartIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/icons";
+import { ArrowLeftIcon, CartIcon, ChevronRightIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/icons";
 
 export default function CartPage() {
   const { items, totalAmount, updateQty, removeItem } = useCart();
@@ -16,7 +16,7 @@ export default function CartPage() {
         <p className="mt-2 text-muted">Chọn nguyên liệu bạn cần rồi quay lại đây để đặt hàng.</p>
         <Link
           href="/san-pham"
-          className="mt-8 inline-flex items-center justify-center rounded-full bg-accent px-8 py-3 font-semibold text-ink hover:bg-accent-hover"
+          className="mt-8 inline-flex items-center justify-center rounded-full bg-cta px-8 py-3 font-semibold text-ink hover:bg-cta-hover"
         >
           Xem sản phẩm
         </Link>
@@ -26,7 +26,14 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <Link href="/san-pham" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted">
+        <Link href="/" className="hover:text-primary">
+          Trà &amp; Bánh
+        </Link>
+        <ChevronRightIcon className="h-3.5 w-3.5" />
+        <span className="font-medium text-ink">Giỏ hàng</span>
+      </nav>
+      <Link href="/san-pham" className="mt-3 inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary">
         <ArrowLeftIcon className="h-4 w-4" />
         Tiếp tục mua hàng
       </Link>

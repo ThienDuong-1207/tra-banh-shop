@@ -109,7 +109,7 @@ export default function ProductPurchasePanel({ product }: { product: PublicProdu
             addItem(buildItem());
             router.push("/gio-hang");
           }}
-          className="inline-flex flex-1 items-center justify-center rounded-full bg-accent px-8 py-3 font-semibold text-ink transition hover:bg-accent-hover"
+          className="inline-flex flex-1 items-center justify-center rounded-full bg-cta px-8 py-3 font-semibold text-ink transition hover:bg-cta-hover"
         >
           Mua ngay
         </button>
@@ -126,7 +126,7 @@ export default function ProductPurchasePanel({ product }: { product: PublicProdu
           type="button"
           onClick={handleQuickAdd}
           className={`inline-flex flex-1 max-w-56 items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition motion-reduce:transition-none ${
-            justAdded ? "bg-primary text-cream" : "bg-accent text-ink hover:bg-accent-hover"
+            justAdded ? "bg-primary text-cream" : "bg-cta text-ink hover:bg-cta-hover"
           }`}
         >
           {justAdded ? "Đã thêm vào giỏ" : "Thêm vào giỏ"}

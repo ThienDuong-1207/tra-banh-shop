@@ -95,7 +95,7 @@ export default async function OrderSuccessPage({
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Link
           href="/san-pham"
-          className="inline-flex items-center justify-center rounded-full bg-accent px-8 py-3 font-semibold text-ink transition hover:bg-accent-hover"
+          className="inline-flex items-center justify-center rounded-full bg-cta px-8 py-3 font-semibold text-ink transition hover:bg-cta-hover"
         >
           Đặt thêm sản phẩm
         </Link>
