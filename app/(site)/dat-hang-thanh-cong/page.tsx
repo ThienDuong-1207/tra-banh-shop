@@ -22,9 +22,17 @@ export default async function OrderSuccessPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 text-center">
       <ClearCartOnMount />
-      <CheckCircleIcon className="mx-auto h-14 w-14 text-primary" />
-      <h1 className="mt-4 text-2xl font-bold text-ink sm:text-3xl">Đặt hàng thành công!</h1>
-      <p className="mt-2 text-muted">Cảm ơn bạn đã đặt hàng — hãy lưu lại mã đơn bên dưới.</p>
+
+      <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-black/5 sm:p-10">
+        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-cta-soft">
+          <CheckCircleIcon className="h-11 w-11 text-cta-hover" />
+        </span>
+        <h1 className="mt-5 text-2xl font-bold text-ink sm:text-3xl">Đặt hàng thành công!</h1>
+        <p className="mt-2 text-muted">
+          Shop đã nhận đơn <span className="font-semibold text-ink">{ma}</span> — liên hệ Zalo/Hotline{" "}
+          <span className="font-semibold text-ink">0906.363.395</span> nếu cần hỗ trợ thêm.
+        </p>
+      </div>
 
       <div className="mt-8 rounded-2xl bg-surface-alt p-6">
         <div className="flex items-center justify-center gap-2 text-sm text-muted">Mã đơn hàng</div>
