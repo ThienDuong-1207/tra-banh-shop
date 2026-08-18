@@ -3,39 +3,37 @@ import Link from "next/link";
 import { getAllProducts } from "@/lib/products";
 import { CATEGORY_ORDER, categorySlug } from "@/lib/categories";
 import { getCategoryImage } from "@/lib/categoryImages";
-import { MONIN_ALT, MONIN_FRAMED, MONIN_PLAIN } from "@/lib/productImages";
+import { MONIN_ALT, MONIN_FRAMED } from "@/lib/productImages";
+import { NEWS_ITEMS } from "@/lib/news";
 import ProductCard from "@/components/ProductCard";
 import WeeklyBestSelling from "@/components/WeeklyBestSelling";
-import { ArrowRightIcon } from "@/components/icons";
+import { ArrowRightIcon, ShieldCheckIcon, TruckIcon, ChatIcon, NewsIcon } from "@/components/icons";
 
 export const revalidate = 60;
 
 const QUICK_CATEGORIES = CATEGORY_ORDER.slice(0, 5);
 
-const PROMO_ITEMS = [
+// Khối tiêu chí tin cậy — thay cho pattern "Featured store" (site 1 nhà cung
+// cấp, không phải marketplace nhiều vendor nên không áp dụng được). Nội dung
+// đã xác nhận với chủ shop, tái dùng token màu promo-a/b/c có sẵn.
+const TRUST_ITEMS = [
   {
-    eyebrow: "Bán sỉ",
-    title: "Mua sỉ tiết kiệm hơn",
-    desc: "Giá ưu đãi theo thùng cho các cơ sở đặt số lượng lớn.",
+    title: "Hàng chính hãng",
+    desc: "Nhập trực tiếp từ thương hiệu/nhà phân phối, không qua trung gian trôi nổi.",
     color: "bg-promo-a",
+    Icon: ShieldCheckIcon,
   },
   {
-    eyebrow: "Giao hàng",
-    title: "Giao nhanh khu vực nội thành",
-    desc: "Đặt trước giờ trưa, nhận hàng trong ngày với đơn nội thành.",
+    title: "Giao hàng tận nơi",
+    desc: "Giao đến tận quán/kho, nhận hàng kiểm tra trước khi thanh toán.",
     color: "bg-promo-b",
+    Icon: TruckIcon,
   },
   {
-    eyebrow: "Tư vấn",
-    title: "Tư vấn pha chế miễn phí",
-    desc: "Nhắn Zalo để được tư vấn công thức, định lượng nguyên liệu.",
+    title: "Tư vấn miễn phí",
+    desc: "Nhắn Zalo để được tư vấn công thức, định lượng nguyên liệu phù hợp.",
     color: "bg-promo-c",
-  },
-  {
-    eyebrow: "Đặt lại",
-    title: "Đặt lại nhanh trong 1 chạm",
-    desc: "Thêm giỏ ngay từ card sản phẩm, không cần tìm lại từ đầu.",
-    color: "bg-promo-d",
+    Icon: ChatIcon,
   },
 ];
 
@@ -135,20 +133,17 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Grid sản phẩm "Có thể bạn cần". */}
+      {/* 3. Sản phẩm bán chạy — chưa có dữ liệu combo/giá gói thật nên hiển thị
+          sản phẩm bán chạy đơn lẻ (tab pill lọc danh mục), không bịa giá combo. */}
       {products.length > 0 ? (
         <section className="mx-auto max-w-[var(--container-shop)] px-4 pb-4">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-ink">Có thể bạn cần</h2>
+            <h2 className="text-2xl font-bold text-ink">Sản phẩm bán chạy</h2>
             <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">
               Xem thêm →
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
-            {products.slice(0, 10).map((p, i) => (
-              <ProductCard key={p.id} product={p} priority={i < 5} />
-            ))}
-          </div>
+          <WeeklyBestSelling products={products} categories={presentCategories} />
         </section>
       ) : (
         <section className="mx-auto max-w-[var(--container-shop)] px-4 pb-16 text-center text-muted">
@@ -158,50 +153,69 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Dải khuyến mãi 4 màu — khối trang trí độc lập, nội dung trung thực
-          (không bịa số % giảm giá). */}
+      {/* 4. Tiêu chí tin cậy — thay pattern "Featured store" (không áp dụng vì
+          đây là site 1 nhà cung cấp, không phải marketplace nhiều vendor). */}
       <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {PROMO_ITEMS.map((item) => (
-            <div
-              key={item.title}
-              className={`relative flex h-44 flex-col justify-between overflow-hidden rounded-2xl p-4 text-cream ${item.color}`}
-            >
-              <Image
-                src={MONIN_PLAIN}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 25vw, 50vw"
-                className="object-cover opacity-20 mix-blend-luminosity"
-                aria-hidden="true"
-              />
-              <span className="relative text-xs font-semibold uppercase tracking-wide text-cream/85">
-                {item.eyebrow}
-              </span>
-              <div className="relative">
-                <h3 className="text-base font-bold leading-snug">{item.title}</h3>
-                <p className="mt-1 text-xs text-cream/85">{item.desc}</p>
+        <h2 className="mb-6 text-2xl font-bold text-ink">Vì sao chọn Trà &amp; Bánh</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {TRUST_ITEMS.map(({ title, desc, color, Icon }) => (
+            <div key={title} className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/5">
+              <div className={`flex h-24 items-center px-5 text-cream ${color}`}>
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20">
+                  <Icon className="h-6 w-6" />
+                </span>
+              </div>
+              <div className="p-5">
+                <h3 className="font-bold text-ink">{title}</h3>
+                <p className="mt-1 text-sm text-muted">{desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* "Bán chạy trong tuần" — tab pill lọc danh mục. */}
-      {products.length > 0 && (
-        <section className="mx-auto max-w-[var(--container-shop)] px-4 py-6">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-ink">Bán chạy trong tuần</h2>
-            <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">
-              Xem thêm →
-            </Link>
-          </div>
-          <WeeklyBestSelling products={products} categories={presentCategories} />
-        </section>
-      )}
+      {/* 5. Sản phẩm theo từng loại — mỗi danh mục có sản phẩm 1 hàng riêng. */}
+      {presentCategories.map((category) => {
+        const items = products.filter((p) => p.category_sheet === category).slice(0, 5);
+        if (items.length === 0) return null;
+        return (
+          <section key={category} className="mx-auto max-w-[var(--container-shop)] px-4 py-6">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-ink">{category}</h2>
+              <Link
+                href={`/san-pham?category=${categorySlug(category)}`}
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Xem thêm →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+              {items.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
-      {/* Banner liên hệ Zalo — thay cho banner tải app không có thật trong video
-          gốc, giữ đúng bố cục 2 cột + màu tối như video. */}
+      {/* 6. Tin tức & Mẹo pha chế — khung nội dung, chưa có bài viết/CMS thật
+          (xem lib/news.ts). Không có link vì chưa có trang bài viết riêng. */}
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10">
+        <div className="mb-6 flex items-center gap-2">
+          <NewsIcon className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl font-bold text-ink">Tin tức &amp; Mẹo pha chế</h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {NEWS_ITEMS.map((item) => (
+            <div key={item.title} className="rounded-2xl bg-white p-5 ring-1 ring-black/5">
+              <h3 className="font-bold leading-snug text-ink">{item.title}</h3>
+              <p className="mt-2 text-sm text-muted">{item.excerpt}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 7. Liên hệ. */}
       <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10">
         <div className="grid items-center gap-6 overflow-hidden rounded-[2rem] bg-primary-dark px-6 py-10 text-cream sm:px-10 lg:grid-cols-2">
           <div>
