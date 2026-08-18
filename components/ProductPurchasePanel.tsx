@@ -27,6 +27,7 @@ export default function ProductPurchasePanel({ product }: { product: PublicProdu
   const buildItem = (): CartItem => ({
     product_id: product.id,
     ten_hang_hoa: product.ten_hang_hoa,
+    category_sheet: product.category_sheet,
     don_vi: donVi,
     don_gia: donGia,
     so_luong: soLuong,

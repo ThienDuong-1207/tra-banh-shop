@@ -27,6 +27,7 @@ export default function AddToCartButton({ product }: { product: PublicProduct })
     addItem({
       product_id: product.id,
       ten_hang_hoa: product.ten_hang_hoa,
+      category_sheet: product.category_sheet,
       don_vi: "le",
       don_gia: product.gia_ban!,
       so_luong: 1,

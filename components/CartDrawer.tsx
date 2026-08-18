@@ -1,10 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useCartDrawer } from "@/contexts/CartDrawerContext";
 import { formatVnd } from "@/lib/products";
+import { getCategoryImage } from "@/lib/categoryImages";
 import { CartIcon, MinusIcon, PlusIcon, TrashIcon, XIcon } from "@/components/icons";
 
 // Drawer giỏ hàng trượt từ phải — mở nhanh khi bấm CartBadge ở Header trên
@@ -102,8 +104,14 @@ export default function CartDrawer() {
         ) : (
           <>
             <ul className="flex-1 divide-y divide-black/5 overflow-y-auto px-5">
-              {items.map((item) => (
-                <li key={`${item.product_id}:${item.don_vi}`} className="flex flex-col gap-2 py-4">
+              {items.map((item) => {
+                const image = getCategoryImage(item.category_sheet ?? "");
+                return (
+                <li key={`${item.product_id}:${item.don_vi}`} className="flex gap-3 py-4">
+                  <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-alt">
+                    {image && <Image src={image.url} alt="" fill sizes="56px" className="object-cover" />}
+                  </span>
+                  <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <div className="flex items-start justify-between gap-2">
                     <span className="line-clamp-2 text-sm font-semibold text-ink">{item.ten_hang_hoa}</span>
                     <button
@@ -139,8 +147,10 @@ export default function CartDrawer() {
                     </div>
                     <span className="text-sm font-semibold text-ink">{formatVnd(item.don_gia * item.so_luong)}</span>
                   </div>
+                  </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
             <div className="border-t border-black/10 px-5 py-4">
               <div className="flex items-baseline justify-between">

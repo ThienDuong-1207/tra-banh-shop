@@ -57,7 +57,7 @@ Thực hiện đúng thứ tự, không bỏ qua bước nào:
 | Hàm/module | Việc gì |
 |---|---|
 | `products.ts`: `getAllProducts`, `getProductsByCategory`, `getProductById`, `formatVnd` | Đọc dữ liệu sản phẩm (qua view `public_products`) + format tiền VNĐ — **luôn dùng `formatVnd`, không tự viết `toLocaleString` rải rác** |
-| `cart.ts`: `loadCart`, `saveCart`, `clearCart`, `cartLineKey` | Đọc/ghi giỏ hàng trong localStorage |
+| `cart.ts`: `loadCart`, `saveCart`, `clearCart`, `cartLineKey` | Đọc/ghi giỏ hàng trong localStorage. `CartItem` (`lib/types.ts`) có `category_sheet` — set khi `addItem()` (từ `product.category_sheet`) để `/gio-hang`, `CartDrawer`, `/thanh-toan` tra được ảnh chất liệu qua `getCategoryImage`. Giỏ hàng cũ đã lưu trước khi có trường này sẽ thiếu field, `getCategoryImage(undefined)` trả `null` an toàn (không crash, chỉ không có ảnh) |
 | `bank.ts`: `getBankInfo`, `buildVietQrUrl` | Đọc cấu hình ngân hàng từ env + sinh URL mã VietQR |
 | `categories.ts`: `CATEGORY_ORDER`, `categorySlug` | Thứ tự hiển thị danh mục + tạo slug URL |
 | `categoryImages.ts`: `getCategoryImage`, `CATEGORY_IMAGES`, `HERO_IMAGE` | Ảnh chất liệu thật (Unsplash, đã xác thực URL tồn tại) đại diện mỗi `category_sheet` — dùng thay placeholder emoji ở `ProductCard`, trang chi tiết sản phẩm, thẻ danh mục trang chủ. `getCategoryImage` trả `null` nếu danh mục chưa có ảnh xác thực (hiện tại: "Sữa đặc") — nơi gọi phải tự vẽ fallback không-ảnh (nền tông thương hiệu + typography), không bỏ trống/không đoán ảnh sai chủ đề |

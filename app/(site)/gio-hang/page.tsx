@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import { formatVnd } from "@/lib/products";
+import { getCategoryImage } from "@/lib/categoryImages";
 import { ArrowLeftIcon, CartIcon, ChevronRightIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/icons";
 
 export default function CartPage() {
@@ -40,8 +42,13 @@ export default function CartPage() {
       <h1 className="mt-4 text-2xl font-bold text-ink">Giỏ hàng của bạn</h1>
 
       <div className="mt-6 divide-y divide-black/5 rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-        {items.map((item) => (
+        {items.map((item) => {
+          const image = getCategoryImage(item.category_sheet ?? "");
+          return (
           <div key={`${item.product_id}:${item.don_vi}`} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+            <span className="relative hidden h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-alt sm:block">
+              {image && <Image src={image.url} alt="" fill sizes="56px" className="object-cover" />}
+            </span>
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="line-clamp-2 font-semibold text-ink">{item.ten_hang_hoa}</span>
               <span className="text-sm text-muted">
@@ -86,7 +93,8 @@ export default function CartPage() {
               </button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="mt-6 flex flex-col items-end gap-4 rounded-2xl bg-surface-alt p-5 ring-1 ring-black/5">

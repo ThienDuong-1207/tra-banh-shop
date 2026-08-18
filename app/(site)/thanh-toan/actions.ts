@@ -31,6 +31,8 @@ export async function createOrder(formData: FormData): Promise<void> {
   const customer_address = String(formData.get("customer_address") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
   const itemsRaw = String(formData.get("items") ?? "[]");
+  const paymentMethodRaw = String(formData.get("payment_method") ?? "");
+  const payment_method = paymentMethodRaw === "cod" ? "cod" : "chuyen_khoan";
 
   if (!customer_name || !customer_phone) {
     redirectToCheckoutError("Vui lòng nhập đầy đủ họ tên và số điện thoại.");
@@ -98,6 +100,7 @@ export async function createOrder(formData: FormData): Promise<void> {
       customer_address: customer_address || null,
       note: note || null,
       total_amount,
+      payment_method,
     });
     if (!error) {
       inserted = true;
@@ -125,5 +128,7 @@ export async function createOrder(formData: FormData): Promise<void> {
     redirectToCheckoutError("Không lưu được chi tiết đơn hàng, vui lòng thử lại.");
   }
 
-  redirect(`/dat-hang-thanh-cong?ma=${encodeURIComponent(order_code)}&tong=${total_amount}`);
+  redirect(
+    `/dat-hang-thanh-cong?ma=${encodeURIComponent(order_code)}&tong=${total_amount}&pt=${payment_method}`
+  );
 }

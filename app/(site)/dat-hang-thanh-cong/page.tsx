@@ -8,16 +8,17 @@ import ClearCartOnMount from "@/components/ClearCartOnMount";
 export default async function OrderSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ma?: string; tong?: string }>;
+  searchParams: Promise<{ ma?: string; tong?: string; pt?: string }>;
 }) {
-  const { ma, tong } = await searchParams;
+  const { ma, tong, pt } = await searchParams;
   const totalAmount = Number(tong);
   if (!ma || !Number.isFinite(totalAmount)) {
     redirect("/");
   }
+  const isCod = pt === "cod";
 
   const bank = getBankInfo();
-  const qrUrl = bank ? buildVietQrUrl(bank, totalAmount, ma) : null;
+  const qrUrl = !isCod && bank ? buildVietQrUrl(bank, totalAmount, ma) : null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 text-center">
@@ -41,7 +42,13 @@ export default async function OrderSuccessPage({
         <div className="mt-1 text-2xl font-bold text-ink">{formatVnd(totalAmount)}</div>
       </div>
 
-      {qrUrl ? (
+      {isCod ? (
+        <div className="mt-8 rounded-2xl bg-white p-6 text-sm text-ink shadow-sm ring-1 ring-black/5">
+          <span className="font-semibold">Thanh toán khi nhận hàng.</span> Chuẩn bị đúng số tiền{" "}
+          <span className="font-semibold">{formatVnd(totalAmount)}</span> để thanh toán cho shipper khi
+          nhận hàng.
+        </div>
+      ) : qrUrl ? (
         <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
           <h2 className="font-semibold text-ink">Quét mã để chuyển khoản</h2>
           {/* eslint-disable-next-line @next/next/no-img-element -- ảnh QR sinh động theo số tiền/nội dung, không cần tối ưu next/image */}
@@ -73,7 +80,11 @@ export default async function OrderSuccessPage({
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-cream">
               1
             </span>
-            <span>Shop xác nhận đơn ngay sau khi nhận được chuyển khoản đúng nội dung.</span>
+            <span>
+              {isCod
+                ? "Shop xác nhận đơn qua điện thoại/Zalo trước khi giao."
+                : "Shop xác nhận đơn ngay sau khi nhận được chuyển khoản đúng nội dung."}
+            </span>
           </li>
           <li className="flex gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-cream">

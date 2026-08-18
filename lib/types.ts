@@ -17,6 +17,7 @@ export type PublicProduct = {
 export type CartItem = {
   product_id: string;
   ten_hang_hoa: string;
+  category_sheet: string | null;
   don_vi: "le" | "thung";
   don_gia: number;
   so_luong: number;
