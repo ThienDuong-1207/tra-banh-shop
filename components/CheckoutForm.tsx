@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { formatVnd } from "@/lib/products";
 import { getCategoryImage } from "@/lib/categoryImages";
-import { ArrowLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/icons";
+import { ArrowLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon, ShieldCheckIcon, TrashIcon } from "@/components/icons";
 import { createOrder } from "@/app/(site)/thanh-toan/actions";
 import type { CartItem } from "@/lib/types";
 
@@ -128,7 +128,7 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
             <h2 className="text-lg font-bold text-ink">Sản phẩm trong đơn hàng</h2>
             <div className="mt-4 divide-y divide-black/5">
               {items.map((item: CartItem) => {
-                const image = getCategoryImage(item.category_sheet ?? "");
+                const image = getCategoryImage(item.category_sheet ?? "", item.ten_hang_hoa);
                 return (
                   <div
                     key={`${item.product_id}:${item.don_vi}`}
@@ -276,10 +276,15 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
           <button
             type="submit"
             disabled={submitting}
-            className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-primary px-8 py-3 font-semibold text-cream transition hover:bg-primary-dark disabled:opacity-60"
+            className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-primary px-8 py-3 font-semibold text-cream shadow-sm shadow-primary/30 transition hover:bg-primary-dark hover:shadow-md disabled:opacity-60"
           >
             {submitting ? "Đang tạo đơn…" : "Đặt hàng"}
           </button>
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted">
+            <ShieldCheckIcon className="h-4 w-4 shrink-0 text-primary" />
+            Shop xác nhận đơn thủ công qua Zalo/Hotline trước khi giao — thông tin của bạn chỉ dùng để xử lý
+            đơn hàng này.
+          </p>
         </div>
       </form>
     </div>

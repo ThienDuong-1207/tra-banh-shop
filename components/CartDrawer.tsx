@@ -105,7 +105,7 @@ export default function CartDrawer() {
           <>
             <ul className="flex-1 divide-y divide-black/5 overflow-y-auto px-5">
               {items.map((item) => {
-                const image = getCategoryImage(item.category_sheet ?? "");
+                const image = getCategoryImage(item.category_sheet ?? "", item.ten_hang_hoa);
                 return (
                 <li key={`${item.product_id}:${item.don_vi}`} className="flex gap-3 py-4">
                   <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-alt">

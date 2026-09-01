@@ -122,7 +122,7 @@ export default function SearchBox({ id, onNavigate }: { id: string; onNavigate?:
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Sản phẩm</h3>
                   <ul className="mt-2 flex flex-col gap-1">
                     {products.map((p) => {
-                      const image = getCategoryImage(p.category_sheet);
+                      const image = getCategoryImage(p.category_sheet, p.ten_hang_hoa);
                       return (
                         <li key={p.id}>
                           <Link

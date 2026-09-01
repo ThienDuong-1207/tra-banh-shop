@@ -43,7 +43,7 @@ export default function CartPage() {
 
       <div className="mt-6 divide-y divide-black/5 rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
         {items.map((item) => {
-          const image = getCategoryImage(item.category_sheet ?? "");
+          const image = getCategoryImage(item.category_sheet ?? "", item.ten_hang_hoa);
           return (
           <div key={`${item.product_id}:${item.don_vi}`} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
             <span className="relative hidden h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-alt sm:block">

@@ -15,9 +15,12 @@ export const revalidate = 60;
 const QUICK_CATEGORIES = CATEGORY_ORDER.slice(0, 5);
 
 // Viền màu xen kẽ quanh ảnh mỗi thẻ danh mục — tái dùng đúng token màu đã có
-// (promo-a/b/c/d, cta), không thêm màu mới, chỉ để dải danh mục "tươi" hơn
-// thay vì toàn bộ card trắng đơn sắc.
-const TILE_ACCENTS = ["ring-promo-a", "ring-promo-b", "ring-promo-c", "ring-promo-d", "ring-cta"];
+// (promo-a/b/c/d, accent vàng gold), không thêm màu mới, chỉ để dải danh mục
+// "tươi" hơn thay vì toàn bộ card trắng đơn sắc. Đổi 1 slot từ cta (lime,
+// vốn đã lặp lại ở nút "Xem tất cả" ngay cạnh) sang accent — vàng gold gần
+// như chưa xuất hiện ở đâu khác trên trang, nên đưa vào đây giúp bảng màu đỡ
+// phẳng mà không đụng vai trò CTA hành động của lime.
+const TILE_ACCENTS = ["ring-promo-a", "ring-promo-b", "ring-promo-c", "ring-promo-d", "ring-accent"];
 
 // Khối tiêu chí tin cậy — thay cho pattern "Featured store" (site 1 nhà cung
 // cấp, không phải marketplace nhiều vendor nên không áp dụng được). Nội dung
@@ -75,6 +78,16 @@ export default async function Home() {
             </div>
 
             <div className="relative mx-auto h-48 w-48 sm:h-64 sm:w-64 lg:h-72 lg:w-72">
+              {/* Quầng sáng vàng gold sau ảnh sản phẩm — điểm nhấn "sang trọng"
+                  duy nhất trên hero, không lặp lại nơi khác trên trang. Vượt
+                  ra ngoài khung ảnh (âm inset) vì ảnh MONIN_FRAMED có nền
+                  trắng đục phủ kín khung, quầng sáng cần lộ ra rìa mới thấy
+                  được trên nền đỏ đô. Không dùng -z-10: parent chỉ có
+                  position:relative (chưa tạo stacking context riêng), z-index
+                  âm sẽ thoát ra ngoài và bị đè bởi bg-primary của cả khối
+                  hero — không set z-index, thứ tự DOM (khai báo trước ảnh) là
+                  đủ để nằm dưới ảnh. */}
+              <div className="absolute -inset-6 rounded-full bg-accent/50 blur-3xl sm:-inset-10" aria-hidden="true" />
               <Image
                 src={MONIN_FRAMED}
                 alt={MONIN_ALT}
@@ -148,7 +161,7 @@ export default async function Home() {
         <section className="mx-auto max-w-[var(--container-shop)] px-4 pb-4">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-2xl font-bold text-ink">
-              <BoltIcon className="h-6 w-6 text-cta" />
+              <BoltIcon className="h-6 w-6 text-accent-hover" />
               Flash Sale
             </h2>
             <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">

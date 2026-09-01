@@ -25,7 +25,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const product = await getProductById(id);
   if (!product) notFound();
 
-  const categoryImage = getCategoryImage(product.category_sheet);
+  const categoryImage = getCategoryImage(product.category_sheet, product.ten_hang_hoa);
   const isMonin = (product.brand_name ?? "").toLowerCase().includes("monin");
   // Ảnh chính: nếu đúng là sản phẩm Monin mẫu, dùng ảnh thật của chính nó +
   // 2 thumbnail biến thể thật (không phải nhiều ảnh giả cho mọi sản phẩm) —

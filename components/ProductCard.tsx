@@ -6,7 +6,7 @@ import type { PublicProduct } from "@/lib/types";
 import AddToCartButton from "@/components/AddToCartButton";
 
 export default function ProductCard({ product, priority = false }: { product: PublicProduct; priority?: boolean }) {
-  const image = getCategoryImage(product.category_sheet);
+  const image = getCategoryImage(product.category_sheet, product.ten_hang_hoa);
   const hasThung = product.gia_thung != null && !!product.quy_cach;
 
   return (
@@ -44,9 +44,11 @@ export default function ProductCard({ product, priority = false }: { product: Pu
           {product.dvt && <span className="text-xs text-muted">/ {product.dvt}</span>}
         </div>
         {hasThung && (
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs text-muted">
-            <span className="font-semibold text-ink">{formatVnd(product.gia_thung)}</span>
-            <span>/ thùng ({product.quy_cach})</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold text-ink">
+              {formatVnd(product.gia_thung)} / thùng
+            </span>
+            <span className="text-xs text-muted">({product.quy_cach})</span>
           </div>
         )}
         <div className="mt-auto pt-3">

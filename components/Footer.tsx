@@ -64,7 +64,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-cream/10 py-4 text-center text-xs text-cream/60">
-        © {new Date().getFullYear()} Trà &amp; Bánh. Đang xây dựng.
+        © {new Date().getFullYear()} Trà &amp; Bánh. Nguyên liệu trà, bánh, pha chế — bán sỉ &amp; lẻ.
       </div>
     </footer>
   );
