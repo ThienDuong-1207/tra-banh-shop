@@ -80,7 +80,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
       <div className="mx-auto max-w-[var(--container-shop)] px-4 pb-16">
         {sorted.length > 0 ? (
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {sorted.map((p, i) => (
               <ProductCard key={p.id} product={p} priority={i < 5} />
             ))}

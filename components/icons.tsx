@@ -157,3 +157,11 @@ export function NewsIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function BoltIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12.9 2 4 13.5h5.6L10.4 22 20 9.8h-6.1L12.9 2Z" />
+    </svg>
+  );
+}

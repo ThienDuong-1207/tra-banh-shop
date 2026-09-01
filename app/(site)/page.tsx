@@ -8,7 +8,7 @@ import { NEWS_ITEMS } from "@/lib/news";
 import ProductCard from "@/components/ProductCard";
 import WeeklyBestSelling from "@/components/WeeklyBestSelling";
 import ContactBanner from "@/components/ContactBanner";
-import { ArrowRightIcon, ShieldCheckIcon, TruckIcon, ChatIcon, NewsIcon } from "@/components/icons";
+import { ArrowRightIcon, ShieldCheckIcon, TruckIcon, ChatIcon, NewsIcon, BoltIcon } from "@/components/icons";
 
 export const revalidate = 60;
 
@@ -134,12 +134,16 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3. Sản phẩm bán chạy — chưa có dữ liệu combo/giá gói thật nên hiển thị
-          sản phẩm bán chạy đơn lẻ (tab pill lọc danh mục), không bịa giá combo. */}
+      {/* 3. Flash Sale — chỉ đổi tên/nhãn từ "Sản phẩm bán chạy", KHÔNG thêm
+          giá gạch ngang/countdown giả vì chưa có dữ liệu giá khuyến mãi hay
+          thời gian kết thúc thật. Dữ liệu/logic bên dưới giữ nguyên. */}
       {products.length > 0 ? (
         <section className="mx-auto max-w-[var(--container-shop)] px-4 pb-4">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-ink">Sản phẩm bán chạy</h2>
+            <h2 className="flex items-center gap-2 text-2xl font-bold text-ink">
+              <BoltIcon className="h-6 w-6 text-cta" />
+              Flash Sale
+            </h2>
             <Link href="/san-pham" className="text-sm font-semibold text-primary hover:underline">
               Xem thêm →
             </Link>
@@ -190,7 +194,7 @@ export default async function Home() {
                 Xem thêm →
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
               {items.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
