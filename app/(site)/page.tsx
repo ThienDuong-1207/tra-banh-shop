@@ -56,7 +56,7 @@ export default async function Home() {
     <div>
       {/* Hero — khối bo góc lớn nền đỏ đô, mép dưới lượn sóng, tiêu đề 2 dòng +
           CTA pill + ảnh sản phẩm bên phải (theo bố cục video Gromuse). */}
-      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 pt-8 sm:pt-14">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 pt-8 sm:pt-14">
         <div className="relative overflow-hidden rounded-[2rem] bg-primary">
           <div className="grid gap-8 px-6 pb-14 pt-9 sm:px-10 sm:pb-16 sm:pt-12 lg:grid-cols-2 lg:items-center lg:gap-6">
             <div className="flex flex-col gap-5 text-cream">
@@ -117,7 +117,7 @@ export default async function Home() {
       </section>
 
       {/* Danh mục nhanh — 5 thẻ trắng + 1 ô "Xem tất cả". */}
-      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 py-10 sm:py-14">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 py-10 sm:py-14">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
           {QUICK_CATEGORIES.map((c, i) => {
             const image = getCategoryImage(c);
@@ -158,7 +158,7 @@ export default async function Home() {
           giá gạch ngang/countdown giả vì chưa có dữ liệu giá khuyến mãi hay
           thời gian kết thúc thật. Dữ liệu/logic bên dưới giữ nguyên. */}
       {products.length > 0 ? (
-        <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 pb-4">
+        <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 pb-4">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-2xl font-bold text-ink">
               <BoltIcon className="h-6 w-6 text-accent-hover" />
@@ -171,7 +171,7 @@ export default async function Home() {
           <WeeklyBestSelling products={products} categories={presentCategories} />
         </section>
       ) : (
-        <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 pb-16 text-center text-muted">
+        <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 pb-16 text-center text-muted">
           Chưa có sản phẩm nào hiển thị — cần chạy migration
           <code className="mx-1 rounded bg-surface-alt px-1.5 py-0.5">001_orders_and_public_products.sql</code>
           trong Supabase SQL Editor trước.
@@ -180,7 +180,7 @@ export default async function Home() {
 
       {/* 4. Tiêu chí tin cậy — thay pattern "Featured store" (không áp dụng vì
           đây là site 1 nhà cung cấp, không phải marketplace nhiều vendor). */}
-      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 py-10">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 py-10">
         <h2 className="mb-6 text-2xl font-bold text-ink">Vì sao chọn Trà &amp; Bánh</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {TRUST_ITEMS.map(({ title, desc, color, Icon }) => (
@@ -207,7 +207,7 @@ export default async function Home() {
         const items = products.filter((p) => p.category_sheet === category).slice(0, 8);
         if (items.length === 0) return null;
         return (
-          <section key={category} className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 py-6">
+          <section key={category} className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 py-6">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-ink">{category}</h2>
               <Link
@@ -228,7 +228,7 @@ export default async function Home() {
 
       {/* 6. Tin tức & Mẹo pha chế — khung nội dung, chưa có bài viết/CMS thật
           (xem lib/news.ts). Không có link vì chưa có trang bài viết riêng. */}
-      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 py-10">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 py-10">
         <div className="mb-6 flex items-center gap-2">
           <NewsIcon className="h-5 w-5 text-primary" />
           <h2 className="text-2xl font-bold text-ink">Tin tức &amp; Mẹo pha chế</h2>
@@ -244,7 +244,7 @@ export default async function Home() {
       </section>
 
       {/* 7. Liên hệ. */}
-      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-10 py-10">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 sm:px-6 lg:px-15 py-10">
         <ContactBanner
           title="Cần tư vấn trước khi đặt số lượng lớn?"
           desc="Nhắn Zalo cho shop để được báo giá sỉ, kiểm tra tồn kho và tư vấn công thức pha chế — phản hồi trong giờ làm việc."

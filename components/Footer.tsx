@@ -11,7 +11,7 @@ const POLICY_LINKS = [
 export default function Footer() {
   return (
     <footer className="mt-auto rounded-t-[2rem] bg-footer text-cream">
-      <div className="mx-auto grid max-w-[var(--container-shop)] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-10">
+      <div className="mx-auto grid max-w-[var(--container-shop)] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-15">
         <div>
           <div className="text-lg font-bold">Trà &amp; Bánh</div>
           <p className="mt-2 text-sm text-cream/70">

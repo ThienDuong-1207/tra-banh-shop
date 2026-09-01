@@ -49,12 +49,23 @@
 }
 
 /* Chiều rộng container cho các trang dạng lưới (header, footer, trang chủ,
-   danh sách sản phẩm) — theo tỉ lệ margin/padding 2 bên của layout Gromuse
-   tham khảo (nội dung ~89% viewport trên màn hình rộng, không phải max-w-6xl
-   1152px co hẹp lại giữa màn hình lớn). Trang dạng đọc/form (chi tiết sản
-   phẩm, giỏ hàng, thanh toán) giữ container hẹp hơn có chủ đích, không đổi. */
+   danh sách sản phẩm). Trang dạng đọc/form (chi tiết sản phẩm, giỏ hàng,
+   thanh toán) giữ container hẹp hơn có chủ đích, không đổi.
+
+   Cập nhật (ghi đè quyết định trước — "89% viewport, không co hẹp" theo
+   Gromuse): đo trực tiếp trang tham khảo mới
+   nguyenlieuphachequangnhung.vn bằng computed style (không đoán) —
+   container của họ cap 1280px ở khoảng 1280-1535px viewport và 1536px từ
+   1536px trở lên, cộng padding cố định 60px (lg:px-15) mỗi bên. Áp dụng
+   đúng 2 mốc đó nội dung mình cũng còn ~80.6% ở 1440px và ~73.8% ở 1920px,
+   khớp số đo thật của họ — chủ động "đóng khung" hơn thay vì tràn viền. */
 :root {
-  --container-shop: 1680px;
+  --container-shop: 1280px;
+}
+@media (min-width: 1536px) {
+  :root {
+    --container-shop: 1536px;
+  }
 }
 
 body {
