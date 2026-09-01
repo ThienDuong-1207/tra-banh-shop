@@ -28,8 +28,8 @@ export const CATEGORY_IMAGES: Record<string, CategoryImage> = {
     alt: "Dãy hũ syrup/nước cốt trái cây nhiều màu xếp cạnh nhau",
   },
   "Bột": {
-    url: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?auto=format&fit=crop&w=1200&q=80",
-    alt: "Bánh cuộn phủ lớp bột/đường phấn nhìn từ trên xuống",
+    url: "https://images.unsplash.com/photo-1614897920852-72084376cd9b?auto=format&fit=crop&w=1200&q=80",
+    alt: "Thìa gỗ đầy bột cacao bên cạnh socola vụn trên bàn gỗ",
   },
   "Trân châu": {
     url: "https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&w=1200&q=80",

@@ -14,6 +14,11 @@ export const revalidate = 60;
 
 const QUICK_CATEGORIES = CATEGORY_ORDER.slice(0, 5);
 
+// Viền màu xen kẽ quanh ảnh mỗi thẻ danh mục — tái dùng đúng token màu đã có
+// (promo-a/b/c/d, cta), không thêm màu mới, chỉ để dải danh mục "tươi" hơn
+// thay vì toàn bộ card trắng đơn sắc.
+const TILE_ACCENTS = ["ring-promo-a", "ring-promo-b", "ring-promo-c", "ring-promo-d", "ring-cta"];
+
 // Khối tiêu chí tin cậy — thay cho pattern "Featured store" (site 1 nhà cung
 // cấp, không phải marketplace nhiều vendor nên không áp dụng được). Nội dung
 // đã xác nhận với chủ shop, tái dùng token màu promo-a/b/c có sẵn.
@@ -48,9 +53,9 @@ export default async function Home() {
     <div>
       {/* Hero — khối bo góc lớn nền đỏ đô, mép dưới lượn sóng, tiêu đề 2 dòng +
           CTA pill + ảnh sản phẩm bên phải (theo bố cục video Gromuse). */}
-      <section className="mx-auto max-w-[var(--container-shop)] px-4 pt-6 sm:pt-10">
+      <section className="mx-auto max-w-[var(--container-shop)] px-4 pt-8 sm:pt-14">
         <div className="relative overflow-hidden rounded-[2rem] bg-primary">
-          <div className="grid gap-8 px-6 pb-16 pt-10 sm:px-10 sm:pb-20 sm:pt-14 lg:grid-cols-2 lg:items-center lg:gap-6">
+          <div className="grid gap-8 px-6 pb-14 pt-9 sm:px-10 sm:pb-16 sm:pt-12 lg:grid-cols-2 lg:items-center lg:gap-6">
             <div className="flex flex-col gap-5 text-cream">
               <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.75rem]">
                 Nguyên liệu pha chế
@@ -101,7 +106,7 @@ export default async function Home() {
       {/* Danh mục nhanh — 5 thẻ trắng + 1 ô "Xem tất cả". */}
       <section className="mx-auto max-w-[var(--container-shop)] px-4 py-10 sm:py-14">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
-          {QUICK_CATEGORIES.map((c) => {
+          {QUICK_CATEGORIES.map((c, i) => {
             const image = getCategoryImage(c);
             const count = byCategory.get(c) ?? 0;
             return (
@@ -114,7 +119,9 @@ export default async function Home() {
                   <span className="truncate text-sm font-semibold text-ink">{c}</span>
                   <span className="text-xs text-muted">{count} sản phẩm</span>
                 </div>
-                <div className="relative ml-auto h-11 w-11 shrink-0 overflow-hidden rounded-full bg-surface-alt">
+                <div
+                  className={`relative ml-auto h-11 w-11 shrink-0 overflow-hidden rounded-full bg-surface-alt ring-2 ${TILE_ACCENTS[i % TILE_ACCENTS.length]}`}
+                >
                   {image && (
                     <Image src={image.url} alt="" fill sizes="44px" className="object-cover" />
                   )}
