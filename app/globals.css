@@ -10,13 +10,18 @@
      header, hero, trạng thái active (tab, filter) đều dùng primary.
    - accent (vàng gold) giữ vai trò phụ (nhấn giá/badge), KHÔNG dùng cho
      nút CTA chính nữa.
-   - Thêm --color-cta (xanh lá lime) riêng cho các nút hành động chính mà
-     video giữ nguyên màu xanh lá: "Shop now"/nút mua, stepper +/- trên
-     card sản phẩm, nút nổi bật ở PDP. Tách khỏi accent để không đè lên vai
-     trò "nhấn giá/badge" hiện có của vàng gold — 3 màu (đỏ đô/vàng
-     gold/xanh lá) vẫn tách bạch rõ vai trò nên không rối mắt khi dựng thật.
-   - --color-surface chỉnh lại về xám rất nhạt trung tính (gần trắng, không
-     ngả ấm) khớp nền content area của video, KHÔNG phải nền kem/be.
+   - Thêm --color-cta riêng cho các nút hành động chính: "Shop now"/nút mua,
+     stepper +/- trên card sản phẩm, nút nổi bật ở PDP. Tách khỏi accent để
+     không đè lên vai trò "nhấn giá/badge" hiện có của vàng gold.
+   - Cập nhật (đánh giá impeccable critique + đề xuất lại bảng màu, hướng
+     "Ô-liu trầm" đã chọn): --color-cta đổi từ xanh lá lime chói
+     (#96c93e, OKLCH chroma 0.174 — đọc như app tạp hoá giá rẻ) sang xanh
+     ô-liu trầm (#76914d, cùng hue ~127° nhưng chroma thấp hơn nhiều) để
+     đồng bộ với hướng "sang trọng, chuyên nghiệp" của đỏ đô + vàng gold mà
+     vẫn giữ quy ước "xanh lá = hành động". --color-surface/-alt retint nhẹ
+     theo hue của primary (~19°, ấm) thay vì hue 260° (hơi ngả lạnh) cũ —
+     đồng bộ tông ấm toàn trang, KHÔNG phải nền kem/be (chroma vẫn rất thấp,
+     tránh cliché "warm sand" — xem impeccable brand register).
    - Thêm 4 màu dải khuyến mãi pastel/vivid (promo-a/b/c/d — hồng, cam,
      xanh dương, tím) cho 4 thẻ khuyến mãi trang chủ, đây là khối trang trí
      độc lập, không phải "màu nav" nên không cần theo primary/accent. */
@@ -26,12 +31,12 @@
   --color-primary-light: #8c2430;
   --color-accent: #f0b429;
   --color-accent-hover: #d89a00;
-  --color-cta: #96c93e;
-  --color-cta-hover: #7fae2e;
-  --color-cta-soft: #eaf3d8;
+  --color-cta: #76914d;
+  --color-cta-hover: #556d2d;
+  --color-cta-soft: #e3ecd8;
   --color-cream: #fff8ed;
-  --color-surface: oklch(97.3% 0.002 260);
-  --color-surface-alt: oklch(94% 0.003 260);
+  --color-surface: #faf5f4;
+  --color-surface-alt: #f2e8e8;
   --color-ink: #2b0a0e;
   --color-muted: #7a6a62;
   --color-promo-a: #b23a63;
@@ -58,4 +63,14 @@ body {
   /* An toàn cho các khối fixed/translate (cart drawer, thanh mua hàng dính
      đáy mobile) — không để bất kỳ phần tử nào tạo thanh cuộn ngang. */
   overflow-x: hidden;
+}
+
+/* Ẩn thanh cuộn ngang cho carousel sản phẩm (Flash Sale) — vẫn cuộn được
+   bằng chạm/trackpad hoặc nút mũi tên, chỉ ẩn thanh cuộn thị giác. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

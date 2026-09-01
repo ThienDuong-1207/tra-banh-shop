@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
 import type { PublicProduct } from "@/lib/types";
 
 // products truyền vào đã sort theo category_sheet rồi tên (xem
@@ -41,6 +42,15 @@ export default function WeeklyBestSelling({
 }) {
   const [active, setActive] = useState<string | null>(null);
   const filtered = active ? products.filter((p) => p.category_sheet === active) : pickDiverse(products, 8);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Cuộn theo đúng 1 "màn hình" thẻ đang hiển thị (chiều rộng khung nhìn),
+  // không cuộn theo số px cố định — khớp với mọi breakpoint (2/3/4 thẻ).
+  const scrollByPage = (direction: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * el.clientWidth, behavior: "smooth" });
+  };
 
   return (
     <div>
@@ -69,10 +79,45 @@ export default function WeeklyBestSelling({
       </div>
 
       {filtered.length > 0 ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-          {filtered.slice(0, 8).map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
+        <div className="relative mt-6">
+          {/* Carousel cuộn ngang — mỗi thẻ giữ đúng chiều rộng như lưới
+              2/3/4 cột cũ (breakpoint tương ứng), chỉ đổi cách hiển thị từ
+              lưới tĩnh sang cuộn ngang + nút mũi tên để xem hết 8 sản phẩm
+              mà không cần rời trang. */}
+          <div
+            ref={trackRef}
+            className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth sm:gap-4"
+          >
+            {filtered.slice(0, 8).map((p) => (
+              <div
+                key={p.id}
+                className="w-[calc(50%-0.375rem)] shrink-0 snap-start sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]"
+              >
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
+
+          {filtered.length > 4 && (
+            <>
+              <button
+                type="button"
+                onClick={() => scrollByPage(-1)}
+                aria-label="Xem sản phẩm trước"
+                className="absolute left-0 top-1/2 hidden h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-md ring-1 ring-black/10 transition hover:bg-surface-alt sm:flex"
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollByPage(1)}
+                aria-label="Xem sản phẩm tiếp theo"
+                className="absolute right-0 top-1/2 hidden h-11 w-11 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-md ring-1 ring-black/10 transition hover:bg-surface-alt sm:flex"
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </>
+          )}
         </div>
       ) : (
         <div className="mt-10 text-center text-sm text-muted">Chưa có sản phẩm trong danh mục này.</div>

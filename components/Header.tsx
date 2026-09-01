@@ -16,7 +16,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-primary text-cream">
-      <div className="mx-auto flex max-w-[var(--container-shop)] items-center gap-3 px-4 py-3 sm:gap-4">
+      <div className="mx-auto flex max-w-[var(--container-shop)] items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 lg:px-10">
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}

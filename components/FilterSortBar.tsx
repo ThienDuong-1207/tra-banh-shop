@@ -58,7 +58,7 @@ export default function FilterSortBar() {
     }`;
 
   return (
-    <div className="sticky top-16 z-30 w-full border-b border-black/10 bg-surface/95 px-4 py-3 backdrop-blur">
+    <div className="sticky top-16 z-30 w-full border-b border-black/10 bg-surface/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-10">
       <div className="mx-auto flex max-w-[var(--container-shop)] flex-wrap items-center gap-2">
         <label className="relative">
           <span className="sr-only">Danh mục</span>
