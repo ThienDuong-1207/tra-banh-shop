@@ -13,37 +13,39 @@
    - Thêm --color-cta riêng cho các nút hành động chính: "Shop now"/nút mua,
      stepper +/- trên card sản phẩm, nút nổi bật ở PDP. Tách khỏi accent để
      không đè lên vai trò "nhấn giá/badge" hiện có của vàng gold.
-   - Cập nhật (đánh giá impeccable critique + đề xuất lại bảng màu, hướng
-     "Ô-liu trầm" đã chọn): --color-cta đổi từ xanh lá lime chói
-     (#96c93e, OKLCH chroma 0.174 — đọc như app tạp hoá giá rẻ) sang xanh
-     ô-liu trầm (#76914d, cùng hue ~127° nhưng chroma thấp hơn nhiều) để
-     đồng bộ với hướng "sang trọng, chuyên nghiệp" của đỏ đô + vàng gold mà
-     vẫn giữ quy ước "xanh lá = hành động". --color-surface/-alt retint nhẹ
-     theo hue của primary (~19°, ấm) thay vì hue 260° (hơi ngả lạnh) cũ —
-     đồng bộ tông ấm toàn trang, KHÔNG phải nền kem/be (chroma vẫn rất thấp,
-     tránh cliché "warm sand" — xem impeccable brand register).
+   - Cập nhật lần 1 (đánh giá impeccable critique): --color-cta đổi từ xanh
+     lá lime chói (#96c93e) sang ô-liu trầm (#76914d) để đồng bộ hướng
+     "sang trọng, chuyên nghiệp". Đã BỊ GHI ĐÈ bởi cập nhật lần 2 bên dưới.
+   - Cập nhật lần 2 (đảo ngược — xem PRODUCT.md > Brand Personality >
+     "Cập nhật (ghi đè quyết định trước về màu sắc)"): khách hàng phản hồi
+     trực tiếp bảng màu trầm "quá tối", muốn hướng tươi/bắt mắt đúng tinh
+     thần thương mại điện tử — đảo ngược hẳn hướng "sang trọng trầm". Toàn
+     bộ token đỏ đô/ô-liu trầm/nền ngả tối phía trên đã đổi sang bản tươi
+     hơn (đỏ tươi bão hoà kiểu Coca-Cola/KFC, xanh lá tươi, gold sáng, nền
+     sáng gần trắng) — xem giá trị thực tế trong khối `@theme` bên dưới,
+     KHÔNG dùng lại các giá trị trầm được nhắc ở "Cập nhật lần 1" nữa.
    - Thêm 4 màu dải khuyến mãi pastel/vivid (promo-a/b/c/d — hồng, cam,
      xanh dương, tím) cho 4 thẻ khuyến mãi trang chủ, đây là khối trang trí
      độc lập, không phải "màu nav" nên không cần theo primary/accent. */
 @theme {
-  --color-primary: #6b1420;
-  --color-primary-dark: #4a0e16;
-  --color-primary-light: #8c2430;
-  --color-accent: #f0b429;
-  --color-accent-hover: #d89a00;
-  --color-cta: #76914d;
-  --color-cta-hover: #556d2d;
-  --color-cta-soft: #e3ecd8;
+  --color-primary: #c92e3b;
+  --color-primary-dark: #99001e;
+  --color-primary-light: #e36460;
+  --color-accent: #fbb61b;
+  --color-accent-hover: #de9300;
+  --color-cta: #82bb4c;
+  --color-cta-hover: #5d9222;
+  --color-cta-soft: #e0f2d3;
   --color-cream: #fff8ed;
-  --color-surface: #faf5f4;
-  --color-surface-alt: #f2e8e8;
+  --color-surface: #fdf9f9;
+  --color-surface-alt: #f5eceb;
   --color-ink: #2b0a0e;
   --color-muted: #7a6a62;
   --color-promo-a: #b23a63;
   --color-promo-b: #c9762e;
   --color-promo-c: #2f5f8a;
   --color-promo-d: #5b3a8a;
-  --color-footer: #250608;
+  --color-footer: #58000a;
 
   --font-sans: var(--font-be-vietnam-pro);
 }

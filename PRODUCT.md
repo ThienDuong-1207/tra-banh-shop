@@ -14,7 +14,9 @@ Website bán nguyên liệu pha chế trực tuyến: duyệt theo danh mục, x
 
 ## Brand Personality
 
-Chuyên nghiệp, chắc chắn, giàu chất liệu (tactile) — cảm giác của một nhà cung cấp nguyên liệu lâu năm mà chủ quán tin tưởng đặt hàng định kỳ, không phải một app tạp hoá đại trà. Ấm áp đến từ chất liệu (kết cấu syrup, bột, kem) và văn hoá trà/bánh Việt, không đến từ màu pastel ngọt ngào kiểu grocery app. Giọng nói: trực tiếp, rõ ràng, tôn trọng thời gian của người mua sỉ (không màu mè, không sales-y).
+Chuyên nghiệp, chắc chắn, giàu chất liệu (tactile) — cảm giác của một nhà cung cấp nguyên liệu lâu năm mà chủ quán tin tưởng đặt hàng định kỳ, không phải một app tạp hoá đại trà. Giọng nói: trực tiếp, rõ ràng, tôn trọng thời gian của người mua sỉ (không màu mè, không sales-y).
+
+**Cập nhật (ghi đè quyết định trước về màu sắc):** phần "ấm áp đến từ chất liệu, không đến từ màu pastel ngọt ngào kiểu grocery app" ở trên đã bị chủ dự án đảo ngược — sau khi thử hướng "sang trọng, trầm" (đỏ đô đậm `#6b1420` + CTA ô-liu trầm), phản hồi trực tiếp là **màu quá tối**, muốn bảng màu **tươi, bắt mắt, đúng tinh thần thương mại điện tử** (tham khảo: đỏ tươi bão hoà kiểu Coca-Cola/KFC — quen thuộc trong ngành F&B, gợi cảm giác ngon miệng/năng động). Bảng màu hiện hành (xem `app/globals.css`): `primary #c92e3b` (đỏ tươi, không còn là đỏ đô nặng), `cta #82bb4c` (xanh lá tươi), `accent #fbb61b` (gold sáng). Đây là chỉ đạo trực tiếp của khách hàng, không tự ý làm trầm lại màu sắc nữa trừ khi được yêu cầu lại. Chất liệu/texture (syrup, bột, kem) và văn hoá trà/bánh Việt vẫn là nguồn cảm hứng cho hình ảnh/copy, chỉ riêng bảng màu là không né tránh độ tươi/bắt mắt như trước.
 
 ## Anti-references
 
