@@ -24,6 +24,12 @@
      hơn (đỏ tươi bão hoà kiểu Coca-Cola/KFC, xanh lá tươi, gold sáng, nền
      sáng gần trắng) — xem giá trị thực tế trong khối `@theme` bên dưới,
      KHÔNG dùng lại các giá trị trầm được nhắc ở "Cập nhật lần 1" nữa.
+   - Cập nhật lần 3 (footer lệch tông): bản đầu của cập nhật lần 2 dùng
+     --color-footer: #58000a (đo OKLCH: chroma 0.117, cùng hue ~22° với
+     primary nhưng chroma thấp hơn nhiều — đọc như nâu-đỏ đục, lệch tông so
+     với primary #c92e3b chroma 0.190). Đổi sang #740005 — cùng hue/chroma
+     family với primary (chỉ giảm lightness), đọc đúng là "bản đậm hơn của
+     primary" thay vì một màu nâu rời rạc.
    - Thêm 4 màu dải khuyến mãi pastel/vivid (promo-a/b/c/d — hồng, cam,
      xanh dương, tím) cho 4 thẻ khuyến mãi trang chủ, đây là khối trang trí
      độc lập, không phải "màu nav" nên không cần theo primary/accent. */
@@ -45,7 +51,7 @@
   --color-promo-b: #c9762e;
   --color-promo-c: #2f5f8a;
   --color-promo-d: #5b3a8a;
-  --color-footer: #58000a;
+  --color-footer: #740005;
 
   --font-sans: var(--font-be-vietnam-pro);
 }
