@@ -33,6 +33,10 @@ Chuyên nghiệp, chắc chắn, giàu chất liệu (tactile) — cảm giác c
 4. **Một điểm nhấn, phần còn lại kỷ luật** — theo đúng nguyên tắc "restraint" của impeccable: chọn một signature element cho mỗi trang, phần còn lại phục vụ tốc độ thao tác.
 5. **B2B trước, nhưng không lạnh lùng như dashboard nội bộ** — vẫn là trang `brand` (bán hàng), không biến thành công cụ quản trị khô khan.
 
+## Icon Sourcing
+
+Được phép dùng **Material Symbols** (Google Fonts icons, `fonts.google.com/icons`) — giấy phép Apache 2.0, miễn phí thương mại, không bắt buộc credit. Cách dùng: tải file SVG cụ thể về và dán inline vào `components/icons.tsx` theo đúng pattern icon hiện có (component riêng, `className` prop, `currentColor`) — **không** nhúng `<link>` tới stylesheet/font Material Symbols của Google (tránh network request runtime tới CDN ngoài, đi ngược lại cách font chữ đang tự host qua `next/font/google` ở build-time). Icon hiện có trong `icons.tsx` là dạng `stroke` (viền nét, `strokeWidth 1.8`, `fill="none"`), còn Material Symbols xuất ra dạng `fill` (khối đặc) — khi thêm icon mới từ Material Symbols cần so cạnh icon cũ để khớp độ đậm nhạt nét, tránh lệch cỡ trong cùng 1 giao diện.
+
 ## Accessibility & Inclusion
 
 WCAG AA: contrast ≥4.5:1 cho body text, ≥3:1 cho text lớn. Touch target ≥44px (đối tượng thao tác trên điện thoại khi ở quầy/kho). Font hỗ trợ đầy đủ dấu tiếng Việt (đã dùng Be Vietnam Pro). Tôn trọng `prefers-reduced-motion`. Không yêu cầu đặc biệt khác được nêu.
