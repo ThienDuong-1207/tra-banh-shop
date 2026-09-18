@@ -98,3 +98,35 @@ export const CATEGORY_ORDER = [
   "Trà", "Sữa tươi", "Sữa đặc", "Kem đông lạnh", "Syrup", "Bột",
   "Trân châu", "Mứt", "Đồ lon", "Mặt hàng khác", "Công cụ dụng cụ",
 ];
+
+// Khớp đúng schema `orders`/`order_items` ở
+// supabase/migrations/001_orders_and_public_products.sql (đơn đặt từ web
+// public, nhân sự nội bộ xem/cập nhật qua OrdersView).
+export type OrderStatus = "cho_thanh_toan" | "da_thanh_toan" | "dang_xu_ly" | "dang_giao" | "hoan_thanh" | "huy";
+export type PaymentMethod = "chuyen_khoan" | "cod";
+
+export type Order = {
+  id: string;
+  order_code: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string | null;
+  note: string | null;
+  status: OrderStatus;
+  payment_method: PaymentMethod;
+  total_amount: number;
+  created_at: string;
+  confirmed_at: string | null;
+  confirmed_by: string | null;
+};
+
+export type OrderItem = {
+  id: string;
+  order_id: string;
+  product_id: string;
+  ten_hang_hoa: string;
+  don_vi: string;
+  don_gia: number;
+  so_luong: number;
+  thanh_tien: number;
+};

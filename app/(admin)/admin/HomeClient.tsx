@@ -16,9 +16,12 @@ import {
 import { QUY_CACH_SUGGESTIONS, TY_LE_SUGGESTIONS, DVT_SUGGESTIONS, extractQuantityFromQuyCach } from "@/lib/admin/suggestionLists";
 import { ACTION_LABELS } from "@/lib/admin/activityLabels";
 import { stripXlsxDrawings } from "@/lib/admin/stripXlsxDrawings";
+import { formatVnd, formatDate } from "@/lib/admin/format";
 import PasswordChecklist from "@/components/admin/PasswordChecklist";
+import Segmented from "@/components/admin/Segmented";
+import OrdersView from "@/components/admin/OrdersView";
 
-type View = "hanghoa" | "tonkho" | "baocao" | "duyetgia" | "users" | "activitylog";
+type View = "hanghoa" | "tonkho" | "baocao" | "duyetgia" | "users" | "activitylog" | "donhang";
 export type Role = "sales" | "accountant" | "admin";
 
 // Tạm ẩn nav "Quản lý tồn kho" theo yêu cầu — đổi thành true để hiện lại.
@@ -1381,6 +1384,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
       )}
     </div>
         )}
+        {activeView === "donhang" && <OrdersView userId={userId} />}
         {activeView === "tonkho" && <InventoryView />}
         {activeView === "baocao" && <DashboardView products={products} pendingCount={pendingIds.size} />}
         {activeView === "duyetgia" && (
@@ -1699,6 +1703,10 @@ function Sidebar({
         <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => onChange("hanghoa")}>
           <TagIcon />
           Quản lý hàng hóa
+        </button>
+        <button className={`nav-item${activeView === "donhang" ? " active" : ""}`} onClick={() => onChange("donhang")}>
+          <ReceiptIcon />
+          Đơn hàng
         </button>
         <button className={`nav-item${activeView === "duyetgia" ? " active" : ""}`} onClick={() => onChange("duyetgia")}>
           <TagIcon />
@@ -3182,35 +3190,6 @@ function InlineTextCell({
   );
 }
 
-type SegmentedItem = { key: string; label: React.ReactNode; active: boolean; onClick: () => void };
-
-function Segmented({ items, style }: { items: SegmentedItem[]; style?: React.CSSProperties }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [thumbStyle, setThumbStyle] = useState<React.CSSProperties>({ opacity: 0 });
-  const activeKey = items.find((it) => it.active)?.key;
-
-  useLayoutEffect(() => {
-    const container = containerRef.current;
-    const activeIndex = items.findIndex((it) => it.active);
-    if (!container || activeIndex === -1) return;
-    const btn = container.querySelectorAll("button")[activeIndex] as HTMLButtonElement | undefined;
-    if (!btn) return;
-    setThumbStyle({ opacity: 1, width: btn.offsetWidth, transform: `translateX(${btn.offsetLeft}px)` });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeKey, items.length, items.map((it) => String(it.label)).join("|")]);
-
-  return (
-    <div className="segmented" style={style} ref={containerRef}>
-      <div className="segmented-thumb" style={thumbStyle} />
-      {items.map((it) => (
-        <button key={it.key} type="button" className={it.active ? "active" : ""} onClick={it.onClick}>
-          {it.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function StatusPill({ product, isPending }: { product: Product; isPending: boolean }) {
   const title = `Cập nhật: ${formatDate(product.updated_at)}${
     product.last_exported_at ? " · Đã xuất: " + formatDate(product.last_exported_at) : ""
@@ -4020,11 +3999,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 // Sub-line under the product name in the table: mã vạch + mã thùng (the
 // scannable codes staff actually use day-to-day) instead of mã nội bộ, which
 // is still shown as a tooltip on hover.
-function formatVnd(v: number | null | undefined): string {
-  return v === null || v === undefined ? "—" : v.toLocaleString("vi-VN");
-}
-
-
 // A product "thiếu thông tin" if it has no thương hiệu, no mã vạch, or an
 // inconsistent quy cách thùng (only some of quy_cach/ty_le/gia_thung are set).
 function isMissingInfo(p: Product): boolean {
@@ -4034,11 +4008,6 @@ function isMissingInfo(p: Product): boolean {
   const thungFieldsSet = thungFields.filter((v) => v !== null && v !== undefined && v !== "").length;
   if (thungFieldsSet > 0 && thungFieldsSet < thungFields.length) return true;
   return false;
-}
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 function relativeTimeVi(iso: string): string {
@@ -4097,6 +4066,16 @@ function BellIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+function ReceiptIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z" />
+      <path d="M9 8h6" />
+      <path d="M9 12h6" />
+      <path d="M9 16h4" />
     </svg>
   );
 }

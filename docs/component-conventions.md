@@ -44,13 +44,15 @@ Thực hiện đúng thứ tự, không bỏ qua bước nào:
 | `ClearCartOnMount` | Component ẩn, xóa giỏ hàng khi vào trang đặt hàng thành công |
 | `ContactBanner` | Banner liên hệ 2 cột (nền `primary-dark` + ảnh Monin phải + CTA Zalo/hotline), nhận prop `title`/`desc`. Dùng ở section "Liên hệ" trang chủ và cuối trang chi tiết sản phẩm — cùng 1 pattern, chỉ khác nội dung |
 | `SearchBox` | `"use client"` — ô tìm kiếm trong `Header` (desktop + mobile, nhận prop `id` để tránh trùng id 2 form), gõ tới đâu gợi ý tới đó: cột "Danh mục" (lọc `CATEGORY_ORDER` tại chỗ, không gọi mạng) + cột "Sản phẩm" (query `public_products` qua `supabase` client, debounce 250ms, giới hạn 5 kết quả). Submit form vẫn hoạt động không cần JS (`action="/san-pham"`, input `name="q"`) — dropdown chỉ là lớp tăng cường phía trên |
-| `icons.tsx` (`CartIcon`, `PlusIcon`, `MinusIcon`, `TrashIcon`, `CheckCircleIcon`, `ArrowLeftIcon`, `SearchIcon`, `FilterIcon`, `SortIcon`, `ChevronDownIcon`, `ChevronRightIcon`, `ArrowRightIcon`, `MenuIcon`, `XIcon`, `ShieldCheckIcon`, `TruckIcon`, `ChatIcon`, `NewsIcon`) | Icon SVG dùng chung — **luôn thêm icon mới vào đây, không paste SVG rời trong component khác** |
+| `icons.tsx` (`CartIcon`, `PlusIcon`, `MinusIcon`, `TrashIcon`, `CheckCircleIcon`, `ArrowLeftIcon`, `SearchIcon`, `FilterIcon`, `SortIcon`, `ChevronDownIcon`, `ChevronRightIcon`, `ChevronLeftIcon`, `ArrowRightIcon`, `MenuIcon`, `XIcon`, `ShieldCheckIcon`, `TruckIcon`, `ChatIcon`, `NewsIcon`, `BoltIcon`) | Icon SVG dùng chung — **luôn thêm icon mới vào đây, không paste SVG rời trong component khác** |
 
 ### Component admin (`components/admin/*.tsx`)
 
 | Component | Việc gì |
 |---|---|
 | `PasswordChecklist` | Checklist yêu cầu mật khẩu, dùng ở trang đặt/đổi mật khẩu admin |
+| `Segmented` | `"use client"` — thanh tab dạng viên thuốc trượt (`items: {key, label, active, onClick}[]`), tách từ `HomeClient.tsx` vì dùng ở ≥2 view. Đang dùng ở "Nhật ký hoạt động", "Chờ duyệt giá" (trong `HomeClient.tsx`) và `OrdersView` |
+| `OrdersView` | `"use client"` — view "Đơn hàng" (nav `donhang` trong `HomeClient.tsx`). Đọc/cập nhật trực tiếp bảng `orders`/`order_items` (RLS đã cấp sẵn cho nhân sự nội bộ từ `supabase/migrations/001_orders_and_public_products.sql`), subscribe realtime `postgres_changes` trên `orders` (INSERT/UPDATE) cùng pattern với `NotificationBell`. Tab lọc theo `OrderStatus` qua `Segmented`, modal chi tiết xem `order_items` + đổi trạng thái (ghi `confirmed_at`/`confirmed_by` đúng 1 lần ở lần đổi đầu tiên) |
 
 ### Hàm dùng chung public (`lib/*.ts`)
 
@@ -69,7 +71,7 @@ Thực hiện đúng thứ tự, không bỏ qua bước nào:
 
 ### Hàm dùng chung admin (`lib/admin/*.ts`)
 
-Đã có sẵn ~29 module (builder xuất Word/Excel/PDF, đồng bộ Google Sheet, auth, activity log...). Trước khi viết thêm logic export/xử lý dữ liệu mới trong `/admin`, kiểm tra `lib/admin/` xem đã có builder/hàm tương tự chưa (ví dụ: cần xuất Excel → xem `excelImport.ts`, `misaBuilder.ts`, `categoryExportBuilder.ts` đã có pattern gì dùng lại được).
+Đã có sẵn ~32 module (builder xuất Word/Excel/PDF, đồng bộ Google Sheet, auth, activity log...). Trước khi viết thêm logic export/xử lý dữ liệu mới trong `/admin`, kiểm tra `lib/admin/` xem đã có builder/hàm tương tự chưa (ví dụ: cần xuất Excel → xem `excelImport.ts`, `misaBuilder.ts`, `categoryExportBuilder.ts` đã có pattern gì dùng lại được). Riêng `format.ts` (`formatVnd`, `formatDate`) và `types.ts` (thêm `Order`, `OrderItem`, `OrderStatus`, `PaymentMethod` — khớp schema `orders`/`order_items`) là 2 module hay cần tới nhất khi làm thêm UI mới — luôn import từ đây, không viết lại `toLocaleString` rải rác như trước.
 
 ## Khi nào tách component là ĐÚNG, khi nào là THỪA
 
