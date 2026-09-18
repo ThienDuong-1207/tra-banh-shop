@@ -1,3 +1,7 @@
+// Danh sách view của HomeClient.tsx — tách ra đây (thay vì khai báo cục bộ
+// trong HomeClient.tsx) vì OverviewView cần kiểu này cho prop `onNavigate`.
+export type View = "tongquan" | "hanghoa" | "tonkho" | "baocao" | "duyetgia" | "users" | "activitylog" | "donhang";
+
 export type Product = {
   id: string;
   ma_noi_bo: string;

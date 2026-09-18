@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import { useReactTable, getCoreRowModel, type ColumnDef, type ColumnSizingState, type VisibilityState } from "@tanstack/react-table";
 import { supabase } from "@/lib/admin/supabaseClient";
 import {
+  View,
   Product,
   ProductInput,
   PriceChangeRequest,
@@ -20,8 +21,8 @@ import { formatVnd, formatDate } from "@/lib/admin/format";
 import PasswordChecklist from "@/components/admin/PasswordChecklist";
 import Segmented from "@/components/admin/Segmented";
 import OrdersView from "@/components/admin/OrdersView";
+import OverviewView from "@/components/admin/OverviewView";
 
-type View = "hanghoa" | "tonkho" | "baocao" | "duyetgia" | "users" | "activitylog" | "donhang";
 export type Role = "sales" | "accountant" | "admin";
 
 // Tạm ẩn nav "Quản lý tồn kho" theo yêu cầu — đổi thành true để hiện lại.
@@ -133,7 +134,7 @@ function loadStoredColumnSizing(): ColumnSizingState {
 }
 
 export default function HomeClient({ displayName, role, userId }: { displayName: string; role: Role; userId: string }) {
-  const [activeView, setActiveView] = useState<View>("hanghoa");
+  const [activeView, setActiveView] = useState<View>("tongquan");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [brandNames, setBrandNames] = useState<string[]>([]);
@@ -1384,6 +1385,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
       )}
     </div>
         )}
+        {activeView === "tongquan" && <OverviewView products={products} onNavigate={setActiveView} />}
         {activeView === "donhang" && <OrdersView userId={userId} />}
         {activeView === "tonkho" && <InventoryView />}
         {activeView === "baocao" && <DashboardView products={products} pendingCount={pendingIds.size} />}
@@ -1703,6 +1705,10 @@ function Sidebar({
         <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => onChange("hanghoa")}>
           <TagIcon />
           Quản lý hàng hóa
+        </button>
+        <button className={`nav-item${activeView === "tongquan" ? " active" : ""}`} onClick={() => onChange("tongquan")}>
+          <HomeIcon />
+          Tổng quan
         </button>
         <button className={`nav-item${activeView === "donhang" ? " active" : ""}`} onClick={() => onChange("donhang")}>
           <ReceiptIcon />
@@ -4066,6 +4072,15 @@ function BellIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+function HomeIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m3 11 9-8 9 8" />
+      <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
+      <path d="M9 21v-6h6v6" />
     </svg>
   );
 }

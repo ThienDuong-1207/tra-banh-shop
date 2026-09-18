@@ -88,6 +88,24 @@ export default function OrdersView({ userId }: { userId: string }) {
     return c;
   }, [orders]);
 
+  // Dải số liệu nhanh — chuẩn e-commerce admin (Shopify-style "today's
+  // orders/revenue" ở đầu trang Orders). Doanh thu KHÔNG tính đơn đã huỷ,
+  // "hôm nay"/"7 ngày qua" tính theo giờ trình duyệt của người xem.
+  const stats = useMemo(() => {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const sevenDaysAgo = new Date(startOfToday.getTime() - 6 * 24 * 60 * 60 * 1000);
+    let ordersToday = 0;
+    let revenue7Days = 0;
+    for (const o of orders) {
+      const createdAt = new Date(o.created_at);
+      if (createdAt >= startOfToday) ordersToday++;
+      if (o.status !== "huy" && createdAt >= sevenDaysAgo) revenue7Days += o.total_amount;
+    }
+    const pending = counts.get("cho_thanh_toan") ?? 0;
+    return { ordersToday, revenue7Days, pending };
+  }, [orders, counts]);
+
   const filtered = useMemo(
     () => (statusFilter === "all" ? orders : orders.filter((o) => o.status === statusFilter)),
     [orders, statusFilter]
@@ -133,6 +151,21 @@ export default function OrdersView({ userId }: { userId: string }) {
         <div>
           <h1>Đơn hàng</h1>
           <p>Đơn đặt từ website — xem chi tiết và cập nhật trạng thái xử lý.</p>
+        </div>
+      </div>
+
+      <div className="kpi-grid">
+        <div className="kpi-card">
+          <div className="label">Đơn hôm nay</div>
+          <div className="value">{stats.ordersToday}</div>
+        </div>
+        <div className="kpi-card">
+          <div className="label">Doanh thu 7 ngày qua</div>
+          <div className="value">{formatVnd(stats.revenue7Days)}đ</div>
+        </div>
+        <div className="kpi-card">
+          <div className="label">Chờ thanh toán</div>
+          <div className="value accent">{stats.pending}</div>
         </div>
       </div>
 
@@ -204,8 +237,8 @@ export default function OrdersView({ userId }: { userId: string }) {
       </div>
 
       {detailOrder && (
-        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setDetailOrder(null)}>
-          <div className="modal">
+        <div className="panel-backdrop" onClick={(e) => e.target === e.currentTarget && setDetailOrder(null)}>
+          <div className="panel-slide">
             <h2>Đơn {detailOrder.order_code}</h2>
             <p className="modal-sub">
               {detailOrder.customer_name} · {detailOrder.customer_phone}
