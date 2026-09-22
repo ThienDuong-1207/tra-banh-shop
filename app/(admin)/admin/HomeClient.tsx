@@ -24,7 +24,6 @@ import OrdersView from "@/components/admin/OrdersView";
 import OverviewView from "@/components/admin/OverviewView";
 import CustomersView from "@/components/admin/CustomersView";
 import ShopSettingsView from "@/components/admin/ShopSettingsView";
-import ProductPhotosView from "@/components/admin/ProductPhotosView";
 import CouponsView from "@/components/admin/CouponsView";
 
 export type Role = "sales" | "accountant" | "admin" | "staff" | "shipper";
@@ -60,6 +59,7 @@ const ROLE_LABEL: Record<Role, string> = {
 // hẹp hơn hẳn nội dung thật (có dòng dài gần 200 ký tự).
 const PRODUCT_COLUMNS: ColumnDef<Product, unknown>[] = [
   { id: "select", size: 36, enableResizing: false },
+  { id: "photo", size: 52, enableResizing: false },
   { id: "ten_hang_hoa", size: 220, minSize: 160 },
   { id: "category_sheet", size: 180, minSize: 140 },
   { id: "ma_noi_bo", size: 130, minSize: 110 },
@@ -176,6 +176,8 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
   const [exportingInventory, setExportingInventory] = useState(false);
   const [exportingAll, setExportingAll] = useState<"category" | "brand" | "word" | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [photoUploadingId, setPhotoUploadingId] = useState<string | null>(null);
+  const [missingPhotoOnly, setMissingPhotoOnly] = useState(false);
   const [dismissing, setDismissing] = useState(false);
   const [deletingSelected, setDeletingSelected] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -269,6 +271,8 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
     [products]
   );
 
+  const missingPhotoCount = useMemo(() => products.filter((p) => !p.photo_url).length, [products]);
+
   // Thống kê tháng cho thanh KPI đầu trang "Quản lý hàng hóa". monthStart
   // tính 1 lần mỗi khi products đổi (đủ dùng — không cần theo dõi realtime
   // qua nửa đêm giao tháng).
@@ -293,6 +297,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
     else if (category !== "Tất cả") list = list.filter((p) => p.category_sheet === category);
     if (brandFilter !== "Tất cả") list = list.filter((p) => p.brand?.name === brandFilter);
     if (missingOnly) list = list.filter(isMissingInfo);
+    if (missingPhotoOnly) list = list.filter((p) => !p.photo_url);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
@@ -304,7 +309,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
       );
     }
     return list;
-  }, [products, category, brandFilter, missingOnly, search]);
+  }, [products, category, brandFilter, missingOnly, missingPhotoOnly, search]);
 
   const visible = useMemo(() => {
     if (tab === "pending") return filteredByCriteria.filter((p) => pendingIds.has(p.id));
@@ -318,7 +323,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
   const [page, setPage] = useState(1);
   useEffect(() => {
     setPage(1);
-  }, [tab, category, brandFilter, missingOnly, search]);
+  }, [tab, category, brandFilter, missingOnly, missingPhotoOnly, search]);
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const pagedVisible = useMemo(
@@ -345,13 +350,14 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
     state: { columnSizing, columnVisibility },
     onColumnSizingChange: setColumnSizing,
     onColumnVisibilityChange: setColumnVisibility,
-    // Ghim "Chọn" + "Tên hàng hóa" bên trái khi cuộn ngang — offset (left)
-    // của "Tên hàng hóa" được tính từ độ rộng thật của "Chọn" thay vì hardcode
-    // 36px trong CSS, nên vẫn đúng nếu độ rộng cột ghim trước đó thay đổi.
-    initialState: { columnPinning: { left: ["select", "ten_hang_hoa"] } },
+    // Ghim "Chọn" + "Ảnh" + "Tên hàng hóa" bên trái khi cuộn ngang — offset
+    // (left) của từng cột tính từ độ rộng thật của các cột ghim trước đó
+    // thay vì hardcode trong CSS, nên vẫn đúng nếu độ rộng cột ghim thay đổi.
+    initialState: { columnPinning: { left: ["select", "photo", "ten_hang_hoa"] } },
   });
   const [productHeaderRow] = productTable.getHeaderGroups();
-  const nameColumnStickyLeft = productTable.getColumn("ten_hang_hoa")?.getStart("left") ?? 36;
+  const photoColumnStickyLeft = productTable.getColumn("photo")?.getStart("left") ?? 36;
+  const nameColumnStickyLeft = productTable.getColumn("ten_hang_hoa")?.getStart("left") ?? 88;
 
   // Tự vừa cột (bấm đúp tay kéo, giống Excel) — đo độ rộng chữ THẬT bằng
   // canvas (đúng font đang render, không cần dựng thử DOM) của mọi ô đang
@@ -506,6 +512,42 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
     },
     [loadBrandNames]
   );
+
+  // Tải/xoá ảnh thật riêng SKU — ghi thẳng qua client Supabase (RLS đã cho
+  // phép sales/accountant/admin sửa products, staff bị chặn), không qua API
+  // field-permission route vì photo_url không nằm trong FIELD_PERMISSIONS —
+  // giống hệt cách ProductPhotosView (đã gộp vào đây, xoá file riêng) từng làm.
+  async function uploadProductPhoto(p: Product, file: File) {
+    setPhotoUploadingId(p.id);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${p.id}/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("product-photos").upload(path, file, { upsert: true });
+    if (uploadError) {
+      alert("Tải ảnh thất bại: " + uploadError.message);
+      setPhotoUploadingId(null);
+      return;
+    }
+    const { data: publicUrlData } = supabase.storage.from("product-photos").getPublicUrl(path);
+    const photoUrl = publicUrlData.publicUrl;
+    const { error: updateError } = await supabase.from("products").update({ photo_url: photoUrl }).eq("id", p.id);
+    setPhotoUploadingId(null);
+    if (updateError) {
+      alert("Lưu ảnh thất bại: " + updateError.message);
+      return;
+    }
+    setProducts((prev) => prev.map((x) => (x.id === p.id ? { ...x, photo_url: photoUrl } : x)));
+  }
+
+  async function removeProductPhoto(p: Product) {
+    if (!p.photo_url) return;
+    if (!confirm(`Xoá ảnh của "${p.ten_hang_hoa}"?`)) return;
+    const { error } = await supabase.from("products").update({ photo_url: null }).eq("id", p.id);
+    if (error) {
+      alert("Xoá ảnh thất bại: " + error.message);
+      return;
+    }
+    setProducts((prev) => prev.map((x) => (x.id === p.id ? { ...x, photo_url: null } : x)));
+  }
 
   async function reviewPriceRequest(id: string, action: "approve" | "reject") {
     if (action === "reject" && !confirm("Từ chối đề xuất giá này?")) return;
@@ -919,6 +961,10 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
         onEdit={setFormTarget}
         onDelete={handleDeleteProduct}
         onCompleteDraft={setCompleteDraftTarget}
+        onUploadPhoto={uploadProductPhoto}
+        onRemovePhoto={removeProductPhoto}
+        photoUploading={photoUploadingId === p.id}
+        photoColumnStickyLeft={photoColumnStickyLeft}
         nameColumnStickyLeft={nameColumnStickyLeft}
       />
     );
@@ -954,7 +1000,8 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
             <h1>Quản lý giá sản phẩm — Tiệm Trà Bánh</h1>
           </div>
           <p className="app-header-meta app-header-meta-accent">
-            {products.length} sản phẩm · {monthlyStats.newThisMonth} mới · {priceChangesThisMonth} đổi giá (tháng {monthlyStats.monthLabel})
+            {products.length} sản phẩm · {monthlyStats.newThisMonth} mới · {priceChangesThisMonth} đổi giá (tháng {monthlyStats.monthLabel}) ·{" "}
+            {missingPhotoCount} thiếu ảnh
           </p>
         </div>
       </header>
@@ -981,6 +1028,11 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
           <input type="checkbox" checked={missingOnly} onChange={(e) => setMissingOnly(e.target.checked)} />
           <WarningIcon />
           Thiếu thông tin
+        </label>
+        <label className={`toggle-pill${missingPhotoOnly ? " active" : ""}`}>
+          <input type="checkbox" checked={missingPhotoOnly} onChange={(e) => setMissingPhotoOnly(e.target.checked)} />
+          <PhotoIcon />
+          Thiếu ảnh
         </label>
         <label className={`switch-field${compactView ? " has-checked" : ""}`}>
           <span className="switch">
@@ -1188,6 +1240,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
           <table className="product-table" style={{ width: productTable.getTotalSize() }}>
             <colgroup>
               <col style={{ width: productTable.getColumn("select")?.getSize() }} />
+              <col style={{ width: productTable.getColumn("photo")?.getSize() }} />
               <col style={{ width: productTable.getColumn("ten_hang_hoa")?.getSize() }} />
               {!compactView && <col style={{ width: productTable.getColumn("category_sheet")?.getSize() }} />}
               {!compactView && <col style={{ width: productTable.getColumn("ma_noi_bo")?.getSize() }} />}
@@ -1220,6 +1273,9 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
                     }}
                     onChange={toggleSelectAllVisible}
                   />
+                </th>
+                <th className="col-photo" style={{ left: photoColumnStickyLeft }}>
+                  Ảnh
                 </th>
                 <th className="col-name" style={{ left: nameColumnStickyLeft }}>
                   Tên hàng hóa
@@ -1334,19 +1390,20 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
                   brandNames={brandNames}
                   categoryFilter={category}
                   onCreate={handleCreateProductInline}
+                  photoColumnStickyLeft={photoColumnStickyLeft}
                   nameColumnStickyLeft={nameColumnStickyLeft}
                 />
               )}
               {loading && (
                 <tr>
-                  <td colSpan={20} className="loading-state">
+                  <td colSpan={21} className="loading-state">
                     Đang tải...
                   </td>
                 </tr>
               )}
               {!loading && visible.length === 0 && (
                 <tr>
-                  <td colSpan={20} className="empty-state">
+                  <td colSpan={21} className="empty-state">
                     Không có sản phẩm nào.
                   </td>
                 </tr>
@@ -1354,7 +1411,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
               {pagedVisible.map((p) => renderRow(p))}
               {selectedElsewhere.length > 0 && (
                 <tr className="section-divider-row">
-                  <td colSpan={20} className="section-divider">
+                  <td colSpan={21} className="section-divider">
                     Đã chọn ở bộ lọc khác ({selectedElsewhere.length})
                   </td>
                 </tr>
@@ -1426,7 +1483,6 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
         {activeView === "donhang" && <OrdersView userId={userId} />}
         {activeView === "khachhang" && <CustomersView />}
         {activeView === "caidat" && role === "admin" && <ShopSettingsView userId={userId} />}
-        {activeView === "anhsanpham" && role !== "staff" && <ProductPhotosView products={products} />}
         {activeView === "khuyenmai" && <CouponsView />}
         {activeView === "tonkho" && <InventoryView />}
         {activeView === "baocao" && <DashboardView products={products} pendingCount={pendingIds.size} />}
@@ -1465,6 +1521,10 @@ type ProductRowProps = {
   onEdit: (p: Product) => void;
   onDelete: (p: Product) => void;
   onCompleteDraft: (p: Product) => void;
+  onUploadPhoto: (p: Product, file: File) => void;
+  onRemovePhoto: (p: Product) => void;
+  photoUploading: boolean;
+  photoColumnStickyLeft: number;
   nameColumnStickyLeft: number;
 };
 
@@ -1487,10 +1547,16 @@ const ProductRow = memo(function ProductRow({
   onEdit,
   onDelete,
   onCompleteDraft,
+  onUploadPhoto,
+  onRemovePhoto,
+  photoUploading,
+  photoColumnStickyLeft,
   nameColumnStickyLeft,
 }: ProductRowProps) {
   const className = [isPending ? "is-pending" : "", extraClassName ?? ""].filter(Boolean).join(" ");
   const isAdmin = role === "admin";
+  const canEditPhoto = role === "sales" || role === "accountant" || role === "admin";
+  const photoInputId = `photo-upload-${p.id}`;
 
   function selectBrand(newValue: string) {
     if (newValue === "__new__") {
@@ -1505,6 +1571,52 @@ const ProductRow = memo(function ProductRow({
     <tr className={className}>
       <td className="col-check">
         <input type="checkbox" checked={isSelected} onChange={() => onToggleSelect(p.id)} />
+      </td>
+      <td className="col-photo" style={{ left: photoColumnStickyLeft }}>
+        {canEditPhoto ? (
+          <label htmlFor={photoInputId} className="row-photo-thumb" title={p.photo_url ? "Đổi ảnh" : "Tải ảnh"}>
+            {photoUploading ? (
+              <span className="row-photo-uploading">...</span>
+            ) : p.photo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={p.photo_url} alt="" />
+            ) : (
+              <span>—</span>
+            )}
+            {p.photo_url && !photoUploading && (
+              <button
+                type="button"
+                className="row-photo-remove"
+                title="Xoá ảnh"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onRemovePhoto(p);
+                }}
+              >
+                ×
+              </button>
+            )}
+            <input
+              id={photoInputId}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              disabled={photoUploading}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onUploadPhoto(p, file);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        ) : p.photo_url ? (
+          <span className="row-photo-thumb">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p.photo_url} alt="" />
+          </span>
+        ) : (
+          <span className="row-photo-thumb">—</span>
+        )}
       </td>
       <td className="col-name" data-col-id="ten_hang_hoa" style={{ left: nameColumnStickyLeft }}>
         <InlineTextCell
@@ -1760,12 +1872,6 @@ function Sidebar({
           <TagIcon />
           Quản lý hàng hóa
         </button>
-        {role !== "staff" && (
-          <button className={`nav-item${activeView === "anhsanpham" ? " active" : ""}`} onClick={() => onChange("anhsanpham")}>
-            <PhotoIcon />
-            Ảnh sản phẩm
-          </button>
-        )}
         <button className={`nav-item${activeView === "donhang" ? " active" : ""}`} onClick={() => onChange("donhang")}>
           <ReceiptIcon />
           Đơn hàng
@@ -3598,6 +3704,7 @@ function NewProductRow({
   brandNames,
   categoryFilter,
   onCreate,
+  photoColumnStickyLeft,
   nameColumnStickyLeft,
 }: {
   role: Role;
@@ -3605,6 +3712,7 @@ function NewProductRow({
   brandNames: string[];
   categoryFilter: string;
   onCreate: (input: ProductInput) => Promise<boolean>;
+  photoColumnStickyLeft: number;
   nameColumnStickyLeft: number;
 }) {
   const defaultCategory = categoryFilter !== "Tất cả" ? categoryFilter : CATEGORY_ORDER[0];
@@ -3659,6 +3767,9 @@ function NewProductRow({
     <tr className={`new-product-row${justSaved ? " just-saved" : ""}`} onKeyDown={handleKeyDown}>
       <td className="col-check">
         <PlusIcon />
+      </td>
+      <td className="col-photo" style={{ left: photoColumnStickyLeft }}>
+        <span className="row-photo-thumb">—</span>
       </td>
       <td className="col-name" style={{ left: nameColumnStickyLeft }}>
         <input

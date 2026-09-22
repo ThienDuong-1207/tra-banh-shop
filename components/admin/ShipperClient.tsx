@@ -12,7 +12,7 @@ const PAYMENT_LABEL: Record<PaymentMethod, string> = {
 
 // Trang riêng cho shipper — tối giản, tối ưu điện thoại, KHÔNG dùng chung
 // khung admin đầy đủ (không lộ bảng sản phẩm/giá không liên quan). RLS
-// (supabase/migrations/007_shipper_and_status_history.sql) đã tự giới hạn
+// (supabase/migrations/007a/007b_shipper_and_status_history.sql) đã tự giới hạn
 // query dưới đây chỉ trả về: đơn "Đang xử lý" chưa ai nhận + đơn đã là của
 // chính shipper này — không cần lọc thêm gì ở phía client cho phần bảo mật,
 // chỉ tách hiển thị thành 2 danh sách cho rõ.

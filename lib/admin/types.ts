@@ -11,7 +11,6 @@ export type View =
   | "donhang"
   | "khachhang"
   | "caidat"
-  | "anhsanpham"
   | "khuyenmai";
 
 // Khớp đúng bảng coupons — xem supabase/migrations/005_coupons.sql. Cùng
@@ -159,7 +158,7 @@ export type Order = {
 };
 
 // Ghi lại THẬT mỗi lần đổi trạng thái đơn — xem
-// supabase/migrations/007_shipper_and_status_history.sql. Dùng cho khối
+// supabase/migrations/007a/007b_shipper_and_status_history.sql. Dùng cho khối
 // "Dòng thời gian" ở panel chi tiết OrdersView.
 export type OrderStatusHistory = {
   id: string;

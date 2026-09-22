@@ -1,5 +1,5 @@
--- Chạy trong Supabase SQL Editor của project misa-price-manager (CÙNG 1
--- project với 001-006, không tạo project mới).
+-- Chạy SAU 007a (phải chạy 007a trước, đợi Success, rồi mới chạy file này
+-- — xem lý do trong 007a_shipper_enum_value.sql).
 --
 -- 1) Vai trò "shipper" — mô hình "ai nhận trước được trước" (shared pool):
 --    đơn "Đang xử lý" (dang_xu_ly), chưa ai nhận, hiện cho MỌI shipper; bấm
@@ -8,8 +8,6 @@
 --    KHÔNG vào được khung admin đầy đủ.
 -- 2) order_status_history — ghi lại THẬT mỗi lần đổi trạng thái (giờ +
 --    người đổi), phục vụ "Dòng thời gian" ở panel chi tiết OrdersView.
-alter type user_role add value if not exists 'shipper';
-
 alter table orders add column if not exists shipper_id uuid references profiles(id);
 create index if not exists idx_orders_shipper_id on orders (shipper_id);
 
