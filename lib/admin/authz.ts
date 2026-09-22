@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "./supabaseServerClient";
+import type { Role } from "./types";
 
-export type Role = "sales" | "accountant" | "admin" | "staff" | "shipper";
+export type { Role };
 
 // Returns the signed-in user's id + assigned role, or null if not signed in
 // / not yet assigned a role. Kept as a single nullable return (rather than a
