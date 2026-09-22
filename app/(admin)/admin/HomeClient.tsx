@@ -25,8 +25,14 @@ import OverviewView from "@/components/admin/OverviewView";
 
 export type Role = "sales" | "accountant" | "admin";
 
-// Tạm ẩn nav "Quản lý tồn kho" theo yêu cầu — đổi thành true để hiện lại.
+// Tạm ẩn các nav ngoài phạm vi yêu cầu hiện tại (chỉ giữ Tổng quan/Quản lý
+// hàng hóa/Đơn hàng — sau này thêm Tin nhắn) — đổi cờ tương ứng thành true
+// để hiện lại, không mất code/dữ liệu bên dưới.
 const SHOW_INVENTORY_NAV = false;
+const SHOW_PRICE_APPROVAL_NAV = false;
+const SHOW_ACTIVITY_LOG_NAV = false;
+const SHOW_REPORTS_NAV = false;
+const SHOW_USERS_NAV = false;
 
 // Lựa chọn thêm trong bộ lọc "Nhóm hàng" — mọi sản phẩm trừ Công cụ dụng cụ
 // (Sales/Kế toán ít khi cần xem lẫn dụng cụ pha chế khi lọc "Tất cả").
@@ -1702,38 +1708,47 @@ function Sidebar({
       </div>
       {mobileNavOpen && <div className="sidebar-backdrop" onClick={onToggleMobileNav} />}
       <div className="nav">
-        <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => onChange("hanghoa")}>
-          <TagIcon />
-          Quản lý hàng hóa
-        </button>
         <button className={`nav-item${activeView === "tongquan" ? " active" : ""}`} onClick={() => onChange("tongquan")}>
           <HomeIcon />
           Tổng quan
+        </button>
+        <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => onChange("hanghoa")}>
+          <TagIcon />
+          Quản lý hàng hóa
         </button>
         <button className={`nav-item${activeView === "donhang" ? " active" : ""}`} onClick={() => onChange("donhang")}>
           <ReceiptIcon />
           Đơn hàng
         </button>
-        <button className={`nav-item${activeView === "duyetgia" ? " active" : ""}`} onClick={() => onChange("duyetgia")}>
-          <TagIcon />
-          Chờ duyệt giá
-          {priceRequestCount > 0 && <span className="pill pill-warm badge">{priceRequestCount}</span>}
-        </button>
-        <button className={`nav-item${activeView === "activitylog" ? " active" : ""}`} onClick={() => onChange("activitylog")}>
-          <LogIcon />
-          Nhật ký hoạt động
-        </button>
-        <button className={`nav-item${activeView === "baocao" ? " active" : ""}`} onClick={() => onChange("baocao")}>
-          <ChartIcon />
-          Báo cáo
-        </button>
-        {role === "admin" && (
+        {/* Ẩn các mục ngoài phạm vi yêu cầu hiện tại (Tổng quan/Sản phẩm/Đơn
+            hàng/Tin nhắn) — không xoá code/dữ liệu, chỉ ẩn khỏi nav. Đổi cờ
+            tương ứng thành true để hiện lại khi cần, cùng pattern
+            SHOW_INVENTORY_NAV đã có sẵn. */}
+        {SHOW_PRICE_APPROVAL_NAV && (
+          <button className={`nav-item${activeView === "duyetgia" ? " active" : ""}`} onClick={() => onChange("duyetgia")}>
+            <TagIcon />
+            Chờ duyệt giá
+            {priceRequestCount > 0 && <span className="pill pill-warm badge">{priceRequestCount}</span>}
+          </button>
+        )}
+        {SHOW_ACTIVITY_LOG_NAV && (
+          <button className={`nav-item${activeView === "activitylog" ? " active" : ""}`} onClick={() => onChange("activitylog")}>
+            <LogIcon />
+            Nhật ký hoạt động
+          </button>
+        )}
+        {SHOW_REPORTS_NAV && (
+          <button className={`nav-item${activeView === "baocao" ? " active" : ""}`} onClick={() => onChange("baocao")}>
+            <ChartIcon />
+            Báo cáo
+          </button>
+        )}
+        {SHOW_USERS_NAV && role === "admin" && (
           <button className={`nav-item${activeView === "users" ? " active" : ""}`} onClick={() => onChange("users")}>
             <UsersIcon />
             Quản lý người dùng
           </button>
         )}
-        {/* Tạm ẩn theo yêu cầu — bật lại bằng cách đổi SHOW_INVENTORY_NAV thành true */}
         {SHOW_INVENTORY_NAV && (
           <button className={`nav-item${activeView === "tonkho" ? " active" : ""}`} onClick={() => onChange("tonkho")}>
             <ArchiveIcon />
