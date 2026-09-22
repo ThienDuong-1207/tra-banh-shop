@@ -27,11 +27,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   const categoryImage = getCategoryImage(product.category_sheet, product.ten_hang_hoa);
   const isMonin = (product.brand_name ?? "").toLowerCase().includes("monin");
-  // Ảnh chính: nếu đúng là sản phẩm Monin mẫu, dùng ảnh thật của chính nó +
-  // 2 thumbnail biến thể thật (không phải nhiều ảnh giả cho mọi sản phẩm) —
-  // các sản phẩm khác chỉ có 1 ảnh chất liệu đại diện theo danh mục, không
-  // bịa thêm góc chụp không có thật.
-  const mainImage = isMonin ? { url: MONIN_PLAIN, alt: MONIN_ALT } : categoryImage;
+  // Ảnh chính: ưu tiên cao nhất là photo_url (ảnh thật của ĐÚNG sản phẩm
+  // này, admin tải qua tab "Ảnh sản phẩm") — kế đến mới tới trường hợp mẫu
+  // Monin demo, cuối cùng fallback ảnh chất liệu chung theo danh mục.
+  const mainImage = product.photo_url
+    ? { url: product.photo_url, alt: product.ten_hang_hoa }
+    : isMonin
+      ? { url: MONIN_PLAIN, alt: MONIN_ALT }
+      : categoryImage;
   const thumbnails = isMonin
     ? [
         { url: MONIN_PLAIN, alt: MONIN_ALT },

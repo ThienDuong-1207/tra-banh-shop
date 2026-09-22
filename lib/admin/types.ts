@@ -1,6 +1,35 @@
 // Danh sách view của HomeClient.tsx — tách ra đây (thay vì khai báo cục bộ
 // trong HomeClient.tsx) vì OverviewView cần kiểu này cho prop `onNavigate`.
-export type View = "tongquan" | "hanghoa" | "tonkho" | "baocao" | "duyetgia" | "users" | "activitylog" | "donhang";
+export type View =
+  | "tongquan"
+  | "hanghoa"
+  | "tonkho"
+  | "baocao"
+  | "duyetgia"
+  | "users"
+  | "activitylog"
+  | "donhang"
+  | "khachhang"
+  | "caidat"
+  | "anhsanpham"
+  | "khuyenmai";
+
+// Khớp đúng bảng coupons — xem supabase/migrations/005_coupons.sql. Cùng
+// shape với lib/types.ts (Coupon) phía public, khai báo riêng ở đây vì
+// lib/admin không được import lib/ public theo quy ước (docs/component-conventions.md).
+export type Coupon = {
+  id: string;
+  code: string;
+  discount_type: "percent" | "fixed";
+  discount_value: number;
+  min_order_amount: number;
+  usage_limit: number | null;
+  used_count: number;
+  starts_at: string | null;
+  expires_at: string | null;
+  active: boolean;
+  created_at: string;
+};
 
 export type Product = {
   id: string;
@@ -29,12 +58,16 @@ export type Product = {
   last_exported_at: string | null;
   is_draft: boolean;
   created_at: string | null; // null = sản phẩm cũ, thêm trước khi có cột này
+  photo_url: string | null; // ảnh thật riêng SKU (Supabase Storage bucket "product-photos"), null = chưa có, storefront fallback ảnh danh mục
 };
 
 // Shape sent from the product create/edit form: same editable fields as
 // Product, minus server-assigned ones, with `brand` as a plain name instead
 // of `brand_id` (the API resolves-or-creates the brand row by name).
-export type ProductInput = Omit<Product, "id" | "brand_id" | "brand" | "updated_at" | "last_exported_at" | "is_draft" | "created_at"> & {
+export type ProductInput = Omit<
+  Product,
+  "id" | "brand_id" | "brand" | "updated_at" | "last_exported_at" | "is_draft" | "created_at" | "photo_url"
+> & {
   brand: string | null;
 };
 
@@ -71,7 +104,7 @@ export type Profile = {
   username: string | null;
   email: string | null;
   display_name: string | null;
-  role: "sales" | "accountant" | "admin" | null;
+  role: "sales" | "accountant" | "admin" | "staff" | "shipper" | null;
   must_change_password: boolean;
   created_at: string;
 };
@@ -122,6 +155,18 @@ export type Order = {
   created_at: string;
   confirmed_at: string | null;
   confirmed_by: string | null;
+  shipper_id: string | null;
+};
+
+// Ghi lại THẬT mỗi lần đổi trạng thái đơn — xem
+// supabase/migrations/007_shipper_and_status_history.sql. Dùng cho khối
+// "Dòng thời gian" ở panel chi tiết OrdersView.
+export type OrderStatusHistory = {
+  id: string;
+  order_id: string;
+  status: OrderStatus;
+  changed_at: string;
+  changed_by: string | null;
 };
 
 export type OrderItem = {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SHOP_GPKD_NUMBER, SHOP_ADDRESSES } from "@/lib/shopInfo";
+import { getShopSettings } from "@/lib/shopSettings";
 
 const POLICY_LINKS = [
   { href: "/chinh-sach-doi-tra", label: "Chính sách đổi trả" },
@@ -8,7 +8,8 @@ const POLICY_LINKS = [
   { href: "/chinh-sach-bao-mat", label: "Chính sách bảo mật" },
 ];
 
-export default function Footer() {
+export default async function Footer() {
+  const { gpkd_number, addresses } = await getShopSettings();
   return (
     <footer className="mt-auto rounded-t-[2rem] bg-footer text-cream">
       <div className="mx-auto grid max-w-[var(--container-shop)] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-15">
@@ -17,8 +18,8 @@ export default function Footer() {
           <p className="mt-2 text-sm text-cream/70">
             Nguyên liệu trà, bánh, pha chế — bán sỉ &amp; lẻ.
           </p>
-          {SHOP_GPKD_NUMBER && (
-            <p className="mt-3 text-xs text-cream/50">GPKD số {SHOP_GPKD_NUMBER}</p>
+          {gpkd_number && (
+            <p className="mt-3 text-xs text-cream/50">GPKD số {gpkd_number}</p>
           )}
         </div>
 
@@ -30,9 +31,9 @@ export default function Footer() {
           >
             Zalo/Hotline: 0906.363.395
           </a>
-          {SHOP_ADDRESSES.length > 0 && (
+          {addresses.length > 0 && (
             <ul className="mt-3 flex flex-col gap-1.5 text-sm text-cream/70">
-              {SHOP_ADDRESSES.map((addr) => (
+              {addresses.map((addr) => (
                 <li key={addr}>{addr}</li>
               ))}
             </ul>

@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { validateCoupon } from "@/lib/coupons";
+import type { Coupon } from "@/lib/types";
 
 type CartItemInput = {
   product_id: string;
@@ -33,6 +35,7 @@ export async function createOrder(formData: FormData): Promise<void> {
   const itemsRaw = String(formData.get("items") ?? "[]");
   const paymentMethodRaw = String(formData.get("payment_method") ?? "");
   const payment_method = paymentMethodRaw === "cod" ? "cod" : "chuyen_khoan";
+  const promoCode = String(formData.get("promo_code") ?? "").trim();
 
   if (!customer_name || !customer_phone) {
     redirectToCheckoutError("Vui lòng nhập đầy đủ họ tên và số điện thoại.");
@@ -84,7 +87,41 @@ export async function createOrder(formData: FormData): Promise<void> {
     redirect("/gio-hang");
   }
 
-  const total_amount = orderItems.reduce((sum, i) => sum + i.thanh_tien, 0);
+  const subtotal = orderItems.reduce((sum, i) => sum + i.thanh_tien, 0);
+
+  // Mã khuyến mãi — tính lại HOÀN TOÀN từ đầu ở server, không tin
+  // appliedCoupon/discount mà client hiển thị (cùng nguyên tắc không tin
+  // don_gia client gửi ở trên). Sai/hết hạn/hết lượt → chặn đơn ngay, không
+  // âm thầm bỏ qua mã và tính đủ giá (khách sẽ tưởng nhầm là mã đã được áp
+  // dụng).
+  let coupon_code: string | null = null;
+  let discount_amount = 0;
+  if (promoCode) {
+    const { data: couponRow, error: couponError } = await supabase
+      .from("coupons")
+      .select("*")
+      .ilike("code", promoCode)
+      .maybeSingle();
+    if (couponError || !couponRow) {
+      redirectToCheckoutError("Mã khuyến mãi không hợp lệ.");
+    }
+    const coupon = couponRow as Coupon;
+    const result = validateCoupon(coupon, subtotal);
+    if (!result.valid) {
+      redirectToCheckoutError(result.reason);
+    }
+    coupon_code = coupon.code;
+    discount_amount = result.discountAmount;
+    // Tăng used_count kiểu best-effort — không chặn đơn nếu tăng thất bại
+    // (ví dụ race hiếm 2 khách cùng lúc dùng mã sắp hết lượt), chỉ ghi log.
+    const { error: incrementError } = await supabase
+      .from("coupons")
+      .update({ used_count: coupon.used_count + 1 })
+      .eq("id", coupon.id);
+    if (incrementError) console.error("createOrder increment coupon used_count:", incrementError.message);
+  }
+
+  const total_amount = subtotal - discount_amount;
   const orderId = crypto.randomUUID();
 
   let order_code = generateOrderCode(new Date());
@@ -101,6 +138,8 @@ export async function createOrder(formData: FormData): Promise<void> {
       note: note || null,
       total_amount,
       payment_method,
+      coupon_code,
+      discount_amount,
     });
     if (!error) {
       inserted = true;

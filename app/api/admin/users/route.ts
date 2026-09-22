@@ -8,7 +8,7 @@ import { logActivity } from "@/lib/admin/activityLog";
 
 export const runtime = "nodejs";
 
-const VALID_ROLES: Role[] = ["sales", "accountant", "admin"];
+const VALID_ROLES: Role[] = ["sales", "accountant", "admin", "staff", "shipper"];
 
 // Admin tạo tài khoản đăng nhập bằng mật khẩu cho nhân sự không dùng Google —
 // mật khẩu này chỉ là mật khẩu tạm, must_change_password=true bắt buộc người

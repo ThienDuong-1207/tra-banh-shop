@@ -22,8 +22,12 @@ import PasswordChecklist from "@/components/admin/PasswordChecklist";
 import Segmented from "@/components/admin/Segmented";
 import OrdersView from "@/components/admin/OrdersView";
 import OverviewView from "@/components/admin/OverviewView";
+import CustomersView from "@/components/admin/CustomersView";
+import ShopSettingsView from "@/components/admin/ShopSettingsView";
+import ProductPhotosView from "@/components/admin/ProductPhotosView";
+import CouponsView from "@/components/admin/CouponsView";
 
-export type Role = "sales" | "accountant" | "admin";
+export type Role = "sales" | "accountant" | "admin" | "staff" | "shipper";
 
 // Tạm ẩn các nav ngoài phạm vi yêu cầu hiện tại (chỉ giữ Tổng quan/Quản lý
 // hàng hóa/Đơn hàng — sau này thêm Tin nhắn) — đổi cờ tương ứng thành true
@@ -43,6 +47,8 @@ const ROLE_LABEL: Record<Role, string> = {
   sales: "Sales",
   accountant: "Kế toán",
   admin: "Admin",
+  staff: "Nhân viên",
+  shipper: "Shipper",
 };
 
 // Chỉ dùng TanStack Table để quản lý ĐỘ RỘNG (kéo giãn) từng cột của bảng
@@ -579,12 +585,24 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
     });
   }, []);
 
-  // Additive on purpose: lets a user pick all of one category's products,
-  // switch the category filter, then "chọn tất cả đang hiện" again to add the
-  // next category on top — building up one combined selection (e.g. for a
-  // multi-category báo giá) instead of each click replacing the last one.
-  function selectAllVisible() {
-    setSelected((prev) => new Set([...prev, ...visible.map((p) => p.id)]));
+  // Ô tick "chọn tất cả" ở header bảng thay cho nút cũ — bấm khi chưa chọn
+  // đủ hết `visible` sẽ CHỌN THÊM toàn bộ (giữ đúng hành vi cộng dồn cũ: lọc
+  // theo nhóm A, tick hết, đổi bộ lọc sang nhóm B, tick tiếp — vẫn cộng dồn
+  // được lựa chọn nhiều nhóm cho báo giá thay vì mỗi lần tick lại thay hẳn
+  // lựa chọn trước); bấm khi đã chọn đủ hết `visible` sẽ BỎ CHỌN đúng những
+  // dòng đang hiện đó (không đụng tới lựa chọn ở nhóm khác không hiện ra).
+  const allVisibleSelected = visible.length > 0 && visible.every((p) => selected.has(p.id));
+  const someVisibleSelected = visible.some((p) => selected.has(p.id));
+  function toggleSelectAllVisible() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        for (const p of visible) next.delete(p.id);
+      } else {
+        for (const p of visible) next.add(p.id);
+      }
+      return next;
+    });
   }
 
   async function doExport(kind: "misa" | "word" | "misa-update" | "vertical") {
@@ -921,13 +939,19 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
         onToggleMobileNav={() => setMobileNavOpen((v) => !v)}
       />
       <main className="main">
+        <div className="topbar">
+          <NotificationBell userId={userId} onNavigate={setActiveView} />
+          <div className="topbar-avatar" title={displayName}>
+            {(displayName.trim()[0] ?? "?").toUpperCase()}
+          </div>
+        </div>
+        <div className="main-content">
         {activeView === "hanghoa" && (
     <div className="app app-full table-page">
       <header className="app-header">
         <div className="app-header-title-group">
           <div className="app-header-title">
             <h1>Quản lý giá sản phẩm — Tiệm Trà Bánh</h1>
-            <NotificationBell userId={userId} onNavigate={setActiveView} />
           </div>
           <p className="app-header-meta app-header-meta-accent">
             {products.length} sản phẩm · {monthlyStats.newThisMonth} mới · {priceChangesThisMonth} đổi giá (tháng {monthlyStats.monthLabel})
@@ -1056,9 +1080,6 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
               { key: "draft", label: `Chưa hoàn chỉnh (${draftInFilter})`, active: tab === "draft", onClick: () => setTab("draft") },
             ]}
           />
-          <button className="btn btn-neutral" onClick={selectAllVisible}>
-            Chọn tất cả đang hiện
-          </button>
           {selected.size > 0 && (
             <button className="btn btn-danger" onClick={() => setSelected(new Set())}>
               Bỏ chọn
@@ -1189,7 +1210,17 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
             </colgroup>
             <thead>
               <tr>
-                <th className="col-check"></th>
+                <th className="col-check">
+                  <input
+                    type="checkbox"
+                    aria-label="Chọn tất cả đang hiện"
+                    checked={allVisibleSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someVisibleSelected && !allVisibleSelected;
+                    }}
+                    onChange={toggleSelectAllVisible}
+                  />
+                </th>
                 <th className="col-name" style={{ left: nameColumnStickyLeft }}>
                   Tên hàng hóa
                   {renderResizeHandle("ten_hang_hoa")}
@@ -1391,8 +1422,12 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
       )}
     </div>
         )}
-        {activeView === "tongquan" && <OverviewView products={products} onNavigate={setActiveView} />}
+        {activeView === "tongquan" && <OverviewView products={products} displayName={displayName} onNavigate={setActiveView} />}
         {activeView === "donhang" && <OrdersView userId={userId} />}
+        {activeView === "khachhang" && <CustomersView />}
+        {activeView === "caidat" && role === "admin" && <ShopSettingsView userId={userId} />}
+        {activeView === "anhsanpham" && role !== "staff" && <ProductPhotosView products={products} />}
+        {activeView === "khuyenmai" && <CouponsView />}
         {activeView === "tonkho" && <InventoryView />}
         {activeView === "baocao" && <DashboardView products={products} pendingCount={pendingIds.size} />}
         {activeView === "duyetgia" && (
@@ -1408,6 +1443,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
         )}
         {activeView === "users" && role === "admin" && <UserManagementView currentUserId={userId} />}
         {activeView === "activitylog" && <ActivityLogView role={role} />}
+        </div>
       </main>
     </div>
   );
@@ -1510,7 +1546,7 @@ const ProductRow = memo(function ProductRow({
             value={p.ten_hoa_don}
             onSave={(v) => onUpdateField(p, "ten_hoa_don", v)}
             saving={isSaving}
-            disabled={role === "sales"}
+            disabled={role === "sales" || role === "staff"}
             clickToEdit
           />
         </td>
@@ -1534,11 +1570,17 @@ const ProductRow = memo(function ProductRow({
           value={pendingRequest?.proposed_gia_ban != null ? pendingRequest.proposed_gia_ban : p.gia_ban}
           onSave={(v) => onProposePrice(p, "gia_ban", v)}
           saving={isSaving}
+          disabled={role === "staff"}
         />
       </td>
       {!compactView && (
         <td className="num" data-label="Giá Hộp" data-col-id="gia_hop">
-          <PriceInput value={p.gia_hop} onSave={(v) => onUpdateField(p, "gia_hop", v === "" ? null : Number(v.replace(/[^\d]/g, "")))} saving={isSaving} />
+          <PriceInput
+            value={p.gia_hop}
+            onSave={(v) => onUpdateField(p, "gia_hop", v === "" ? null : Number(v.replace(/[^\d]/g, "")))}
+            saving={isSaving}
+            disabled={role === "staff"}
+          />
         </td>
       )}
       <td className="num" data-label="Giá thùng" data-col-id="gia_thung">
@@ -1546,6 +1588,7 @@ const ProductRow = memo(function ProductRow({
           value={pendingRequest?.proposed_gia_thung != null ? pendingRequest.proposed_gia_thung : p.gia_thung}
           onSave={(v) => onProposePrice(p, "gia_thung", v)}
           saving={isSaving}
+          disabled={role === "staff"}
         />
       </td>
       {!compactView && (
@@ -1708,6 +1751,7 @@ function Sidebar({
       </div>
       {mobileNavOpen && <div className="sidebar-backdrop" onClick={onToggleMobileNav} />}
       <div className="nav">
+        <div className="nav-label">Menu</div>
         <button className={`nav-item${activeView === "tongquan" ? " active" : ""}`} onClick={() => onChange("tongquan")}>
           <HomeIcon />
           Tổng quan
@@ -1716,10 +1760,33 @@ function Sidebar({
           <TagIcon />
           Quản lý hàng hóa
         </button>
+        {role !== "staff" && (
+          <button className={`nav-item${activeView === "anhsanpham" ? " active" : ""}`} onClick={() => onChange("anhsanpham")}>
+            <PhotoIcon />
+            Ảnh sản phẩm
+          </button>
+        )}
         <button className={`nav-item${activeView === "donhang" ? " active" : ""}`} onClick={() => onChange("donhang")}>
           <ReceiptIcon />
           Đơn hàng
         </button>
+        <button className={`nav-item${activeView === "khachhang" ? " active" : ""}`} onClick={() => onChange("khachhang")}>
+          <UsersIcon />
+          Khách hàng
+        </button>
+        {role === "admin" && (
+          <>
+            <div className="nav-label">Quản trị</div>
+            <button className={`nav-item${activeView === "khuyenmai" ? " active" : ""}`} onClick={() => onChange("khuyenmai")}>
+              <TagPercentIcon />
+              Mã khuyến mãi
+            </button>
+            <button className={`nav-item${activeView === "caidat" ? " active" : ""}`} onClick={() => onChange("caidat")}>
+              <SettingsIcon />
+              Cài đặt cửa hàng
+            </button>
+          </>
+        )}
         {/* Ẩn các mục ngoài phạm vi yêu cầu hiện tại (Tổng quan/Sản phẩm/Đơn
             hàng/Tin nhắn) — không xoá code/dữ liệu, chỉ ẩn khỏi nav. Đổi cờ
             tương ứng thành true để hiện lại khi cần, cùng pattern
@@ -2550,7 +2617,7 @@ function UserManagementView({ currentUserId }: { currentUserId: string }) {
           </Field>
           <Field label="Vai trò">
             <select value={newRole} onChange={(e) => setNewRole(e.target.value as Role)}>
-              {(["sales", "accountant", "admin"] as Role[]).map((r) => (
+              {(["sales", "accountant", "admin", "staff", "shipper"] as Role[]).map((r) => (
                 <option key={r} value={r}>
                   {ROLE_LABEL[r]}
                 </option>
@@ -2623,7 +2690,7 @@ function UserManagementView({ currentUserId }: { currentUserId: string }) {
                           onChange={(e) => changeRole(p, e.target.value as Role)}
                         >
                           {!p.role && <option value="">Chưa cấp quyền</option>}
-                          {(["sales", "accountant", "admin"] as Role[]).map((r) => (
+                          {(["sales", "accountant", "admin", "staff", "shipper"] as Role[]).map((r) => (
                             <option key={r} value={r}>
                               {ROLE_LABEL[r]}
                             </option>
@@ -3101,10 +3168,12 @@ function PriceInput({
   value,
   onSave,
   saving,
+  disabled,
 }: {
   value: number | null;
   onSave: (v: string) => void;
   saving: boolean;
+  disabled?: boolean;
 }) {
   const [local, setLocal] = useState(value?.toString() ?? "");
   const [focused, setFocused] = useState(false);
@@ -3117,7 +3186,7 @@ function PriceInput({
       // Shown formatted ("113.000") while at rest, raw digits while being
       // typed — formatting mid-edit would fight the cursor position.
       value={focused ? local : value?.toLocaleString("vi-VN") ?? ""}
-      disabled={saving}
+      disabled={saving || disabled}
       onFocus={() => {
         setFocused(true);
         setLocal(value?.toString() ?? "");
@@ -4096,6 +4165,33 @@ function HomeIcon() {
       <path d="m3 11 9-8 9 8" />
       <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
       <path d="M9 21v-6h6v6" />
+    </svg>
+  );
+}
+function TagPercentIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L3 13v-3a2 2 0 0 1 2-2h4l7.59 7.59a2 2 0 0 1 0 2.82Z" />
+      <path d="m9 8-4 8" />
+      <circle cx="6.5" cy="9.5" r="0.75" fill="currentColor" />
+      <circle cx="10.5" cy="14.5" r="0.75" fill="currentColor" />
+    </svg>
+  );
+}
+function PhotoIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="2" />
+      <path d="m21 16-5.5-5.5L5 21" />
+    </svg>
+  );
+}
+function SettingsIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
     </svg>
   );
 }

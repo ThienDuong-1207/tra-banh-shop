@@ -6,9 +6,11 @@ import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { formatVnd } from "@/lib/products";
 import { getCategoryImage } from "@/lib/categoryImages";
+import { supabase } from "@/lib/supabaseClient";
+import { validateCoupon } from "@/lib/coupons";
 import { ArrowLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon, ShieldCheckIcon, TrashIcon } from "@/components/icons";
 import { createOrder } from "@/app/(site)/thanh-toan/actions";
-import type { CartItem } from "@/lib/types";
+import type { CartItem, Coupon } from "@/lib/types";
 
 type PaymentMethod = "chuyen_khoan" | "cod";
 
@@ -18,6 +20,8 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("chuyen_khoan");
   const [promoCode, setPromoCode] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
+  const [checkingPromo, setCheckingPromo] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
   if (items.length === 0) {
     return (
@@ -34,12 +38,38 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
     );
   }
 
-  // Mã khuyến mãi mới chỉ dựng UI — chưa có bảng mã thật nên bất kỳ mã nào
-  // nhập vào đều báo không hợp lệ, không giả vờ trừ tiền. Sẵn sàng nối vào
-  // hệ thống mã thật sau này mà không cần đổi giao diện.
-  const handleApplyPromo = () => {
-    setPromoError(promoCode.trim() ? "Mã không hợp lệ." : "Vui lòng nhập mã khuyến mãi.");
-  };
+  // Kiểm tra mã ở đây chỉ để XEM TRƯỚC (UX) — nguồn sự thật thật sự là
+  // createOrder (server action) tính lại từ đầu, không tin số/mã client
+  // gửi lên (đúng nguyên tắc đã áp dụng cho giá sản phẩm). Dùng chung
+  // validateCoupon với server để 2 nơi không lệch logic.
+  async function handleApplyPromo() {
+    const code = promoCode.trim();
+    if (!code) {
+      setPromoError("Vui lòng nhập mã khuyến mãi.");
+      return;
+    }
+    setCheckingPromo(true);
+    setPromoError(null);
+    const { data, error } = await supabase.from("coupons").select("*").ilike("code", code).maybeSingle();
+    setCheckingPromo(false);
+    if (error || !data) {
+      setPromoError("Mã không hợp lệ.");
+      setAppliedCoupon(null);
+      return;
+    }
+    const coupon = data as Coupon;
+    const result = validateCoupon(coupon, totalAmount);
+    if (!result.valid) {
+      setPromoError(result.reason);
+      setAppliedCoupon(null);
+      return;
+    }
+    setAppliedCoupon(coupon);
+  }
+
+  const discountAmount = appliedCoupon ? validateCoupon(appliedCoupon, totalAmount) : null;
+  const discount = discountAmount?.valid ? discountAmount.discountAmount : 0;
+  const finalTotal = totalAmount - discount;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -72,6 +102,7 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
       >
         <input type="hidden" name="items" value={JSON.stringify(items)} />
         <input type="hidden" name="payment_method" value={paymentMethod} />
+        <input type="hidden" name="promo_code" value={appliedCoupon?.code ?? ""} />
 
         <div className="flex flex-col gap-6 lg:col-span-3">
           {/* Thông tin giao hàng */}
@@ -227,27 +258,46 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
             </div>
           )}
 
-          {/* Mã khuyến mãi — chưa có hệ thống mã thật, xem ghi chú
-              handleApplyPromo. */}
+          {/* Mã khuyến mãi — xem trước qua validateCoupon dùng chung với
+              server, nguồn sự thật vẫn là createOrder tính lại. */}
           <div className="mt-4">
-            <div className="flex gap-2">
-              <input
-                value={promoCode}
-                onChange={(e) => {
-                  setPromoCode(e.target.value);
-                  setPromoError(null);
-                }}
-                placeholder="Mã khuyến mãi"
-                className="w-full rounded-full border border-black/10 bg-white px-4 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
-              <button
-                type="button"
-                onClick={handleApplyPromo}
-                className="shrink-0 rounded-full bg-surface-alt px-5 py-2 text-sm font-semibold text-ink transition hover:bg-primary hover:text-cream"
-              >
-                Áp dụng
-              </button>
-            </div>
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between rounded-full bg-cta-soft px-4 py-2 text-sm font-medium text-ink">
+                <span>
+                  Đã áp dụng <strong>{appliedCoupon.code}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedCoupon(null);
+                    setPromoCode("");
+                  }}
+                  className="text-xs font-semibold text-muted hover:text-primary"
+                >
+                  Bỏ mã
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  value={promoCode}
+                  onChange={(e) => {
+                    setPromoCode(e.target.value);
+                    setPromoError(null);
+                  }}
+                  placeholder="Mã khuyến mãi"
+                  className="w-full rounded-full border border-black/10 bg-white px-4 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyPromo}
+                  disabled={checkingPromo}
+                  className="shrink-0 rounded-full bg-surface-alt px-5 py-2 text-sm font-semibold text-ink transition hover:bg-primary hover:text-cream disabled:opacity-60"
+                >
+                  {checkingPromo ? "Đang kiểm tra..." : "Áp dụng"}
+                </button>
+              </div>
+            )}
             {promoError && <p className="mt-1.5 text-xs text-primary">{promoError}</p>}
           </div>
 
@@ -258,6 +308,12 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
               <span>Tạm tính</span>
               <span className="text-ink">{formatVnd(totalAmount)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-muted">
+                <span>Giảm giá ({appliedCoupon?.code})</span>
+                <span className="text-primary">-{formatVnd(discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-muted">
               <span>Phí giao hàng</span>
               <span className="text-ink">0đ (đang cập nhật)</span>
@@ -270,7 +326,7 @@ export default function CheckoutForm({ errorMessage }: { errorMessage: string | 
 
           <div className="mt-3 flex justify-between border-t border-black/10 pt-4 text-lg font-bold text-ink">
             <span>Tổng cộng</span>
-            <span className="text-primary">{formatVnd(totalAmount)}</span>
+            <span className="text-primary">{formatVnd(finalTotal)}</span>
           </div>
 
           <button

@@ -6,6 +6,8 @@ import { formatVnd, formatDate } from "@/lib/admin/format";
 import type { Order, OrderItem, OrderStatus, PaymentMethod } from "@/lib/admin/types";
 import Segmented from "@/components/admin/Segmented";
 
+type HistoryRow = { id: string; status: OrderStatus; changed_at: string; changed_by_profile: { display_name: string | null } | null };
+
 const STATUS_ORDER: OrderStatus[] = ["cho_thanh_toan", "da_thanh_toan", "dang_xu_ly", "dang_giao", "hoan_thanh", "huy"];
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
@@ -43,12 +45,65 @@ function StatusBadge({ status }: { status: OrderStatus }) {
   );
 }
 
+// Luồng xử lý bình thường của 1 đơn — "huy" (huỷ) không nằm trong luồng này
+// vì có thể xảy ra từ bất kỳ bước nào, hiện riêng thành 1 trạng thái cuối
+// thay vì ép vào 1 vị trí cố định trên thanh tiến trình.
+const ACTIVE_FLOW: OrderStatus[] = ["cho_thanh_toan", "da_thanh_toan", "dang_xu_ly", "dang_giao", "hoan_thanh"];
+
+function StatusStepper({ status }: { status: OrderStatus }) {
+  if (status === "huy") {
+    return (
+      <div className="status-stepper">
+        <StatusBadge status="huy" />
+      </div>
+    );
+  }
+  const currentIndex = ACTIVE_FLOW.indexOf(status);
+  return (
+    <div className="status-stepper">
+      {ACTIVE_FLOW.map((s, i) => (
+        <div key={s} className={`status-step${i < currentIndex ? " done" : ""}${i === currentIndex ? " current" : ""}`}>
+          {i < ACTIVE_FLOW.length - 1 && <div className={`status-step-line${i < currentIndex ? " done" : ""}`} />}
+          <div className="status-step-dot">{i < currentIndex ? "✓" : i + 1}</div>
+          <div className="status-step-label">{STATUS_LABEL[s]}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Dòng thời gian trạng thái — dữ liệu THẬT từ order_status_history (ghi lại
+// mỗi lần đổi trạng thái từ khi tính năng này ra mắt). Đơn cũ hơn tính năng
+// này sẽ không có dòng nào ở giữa — cố tình KHÔNG suy diễn/bịa thêm bước.
+function Timeline({ history }: { history: HistoryRow[] }) {
+  if (history.length === 0) return null;
+  return (
+    <div className="timeline">
+      {history.map((h, i) => (
+        <div key={h.id} className={`timeline-row${i === history.length - 1 ? " current" : ""}`}>
+          {i < history.length - 1 && <div className="timeline-line" />}
+          <div className="timeline-dot" />
+          <div className="timeline-body">
+            <div className="timeline-status">{STATUS_LABEL[h.status]}</div>
+            <div className="timeline-meta">
+              {formatDate(h.changed_at)}
+              {h.changed_by_profile?.display_name ? ` · ${h.changed_by_profile.display_name}` : ""}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function OrdersView({ userId }: { userId: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [detailItems, setDetailItems] = useState<OrderItem[]>([]);
+  const [detailHistory, setDetailHistory] = useState<HistoryRow[]>([]);
+  const [shipperName, setShipperName] = useState<string | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [nextStatus, setNextStatus] = useState<OrderStatus>("cho_thanh_toan");
   const [saving, setSaving] = useState(false);
@@ -115,9 +170,23 @@ export default function OrdersView({ userId }: { userId: string }) {
     setDetailOrder(order);
     setNextStatus(order.status);
     setDetailItems([]);
+    setDetailHistory([]);
+    setShipperName(null);
     setDetailLoading(true);
-    const { data, error } = await supabase.from("order_items").select("*").eq("order_id", order.id);
-    if (!error) setDetailItems((data as OrderItem[]) ?? []);
+    const [itemsRes, historyRes] = await Promise.all([
+      supabase.from("order_items").select("*").eq("order_id", order.id),
+      supabase
+        .from("order_status_history")
+        .select("id, status, changed_at, changed_by_profile:profiles(display_name)")
+        .eq("order_id", order.id)
+        .order("changed_at", { ascending: true }),
+    ]);
+    if (!itemsRes.error) setDetailItems((itemsRes.data as OrderItem[]) ?? []);
+    if (!historyRes.error) setDetailHistory((historyRes.data as unknown as HistoryRow[]) ?? []);
+    if (order.shipper_id) {
+      const { data } = await supabase.from("profiles").select("display_name").eq("id", order.shipper_id).maybeSingle();
+      setShipperName(data?.display_name ?? null);
+    }
     setDetailLoading(false);
   }
 
@@ -133,12 +202,32 @@ export default function OrdersView({ userId }: { userId: string }) {
       patch.confirmed_by = userId;
     }
     const { data, error } = await supabase.from("orders").update(patch).eq("id", detailOrder.id).select().single();
-    setSaving(false);
     if (error) {
+      setSaving(false);
       alert("Cập nhật đơn hàng thất bại: " + error.message);
       return;
     }
     const updated = data as Order;
+    // Ghi lại lịch sử THẬT — không chặn UI nếu ghi log lỗi (đơn đã đổi
+    // trạng thái thành công rồi, mất 1 dòng lịch sử không nên huỷ thao tác
+    // chính), chỉ log ra console.
+    const { error: historyError } = await supabase
+      .from("order_status_history")
+      .insert({ order_id: updated.id, status: updated.status, changed_by: userId });
+    if (historyError) console.error("saveStatus insert order_status_history:", historyError.message);
+    else {
+      const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle();
+      setDetailHistory((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          status: updated.status,
+          changed_at: new Date().toISOString(),
+          changed_by_profile: { display_name: profile?.display_name ?? null },
+        },
+      ]);
+    }
+    setSaving(false);
     setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
     setDetailOrder(updated);
   }
@@ -244,13 +333,23 @@ export default function OrdersView({ userId }: { userId: string }) {
               {detailOrder.customer_name} · {detailOrder.customer_phone}
             </p>
 
+            <StatusStepper status={detailOrder.status} />
+
             <div className="field-group">
               {detailOrder.customer_address && <p style={{ margin: 0 }}>Địa chỉ: {detailOrder.customer_address}</p>}
               {detailOrder.note && <p style={{ margin: 0 }}>Ghi chú: {detailOrder.note}</p>}
               <p style={{ margin: 0 }}>Thanh toán: {PAYMENT_LABEL[detailOrder.payment_method]}</p>
               <p style={{ margin: 0 }}>Đặt lúc: {formatDate(detailOrder.created_at)}</p>
               {detailOrder.confirmed_at && <p style={{ margin: 0 }}>Xác nhận lúc: {formatDate(detailOrder.confirmed_at)}</p>}
+              {detailOrder.shipper_id && <p style={{ margin: 0 }}>Shipper: {shipperName ?? "Đang tải..."}</p>}
             </div>
+
+            {detailHistory.length > 0 && (
+              <div className="field-group">
+                <h3>Dòng thời gian</h3>
+                <Timeline history={detailHistory} />
+              </div>
+            )}
 
             <div className="table-card" style={{ marginTop: 10 }}>
               <div className="table-scroll">

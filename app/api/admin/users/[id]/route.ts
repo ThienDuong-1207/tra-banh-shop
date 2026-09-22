@@ -5,7 +5,7 @@ import { logActivity } from "@/lib/admin/activityLog";
 
 export const runtime = "nodejs";
 
-const VALID_ROLES: Role[] = ["sales", "accountant", "admin"];
+const VALID_ROLES: Role[] = ["sales", "accountant", "admin", "staff", "shipper"];
 
 // Admin đổi vai trò cho 1 tài khoản đã tồn tại (Google hoặc username/mật
 // khẩu) — role trước đây chỉ gán được lúc tạo tài khoản.

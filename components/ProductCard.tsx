@@ -6,7 +6,12 @@ import type { PublicProduct } from "@/lib/types";
 import AddToCartButton from "@/components/AddToCartButton";
 
 export default function ProductCard({ product, priority = false }: { product: PublicProduct; priority?: boolean }) {
-  const image = getCategoryImage(product.category_sheet, product.ten_hang_hoa);
+  // Ưu tiên ảnh thật riêng SKU (product.photo_url, admin tải qua tab "Ảnh
+  // sản phẩm") khi có — fallback về ảnh chất liệu chung theo danh mục khi
+  // chưa có ảnh thật, đúng tinh thần "chất liệu thật khi có thể" (PRODUCT.md).
+  const image = product.photo_url
+    ? { url: product.photo_url, alt: product.ten_hang_hoa }
+    : getCategoryImage(product.category_sheet, product.ten_hang_hoa);
   const hasThung = product.gia_thung != null && !!product.quy_cach;
 
   return (
