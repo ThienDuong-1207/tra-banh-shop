@@ -17,10 +17,13 @@ export default async function Page() {
 
   if (profile?.must_change_password) redirect("/admin/set-password");
 
-  // Shipper dùng trang riêng, tối giản, tối ưu điện thoại — không vào được
-  // khung admin đầy đủ (bảng sản phẩm/giá không liên quan tới công việc,
-  // RLS cũng đã chặn ở tầng dữ liệu, đây chỉ là điều hướng đúng chỗ).
+  // Mỗi role chỉ được điều hướng về đúng trang chức năng của mình — shipper
+  // dùng trang riêng tối giản/tối ưu điện thoại, staff/sales dùng khung rút
+  // gọn /admin/sale (Quản lý hàng hóa/Đơn hàng/Khách hàng). RLS cũng đã chặn
+  // ở tầng dữ liệu cho cả 2 role này, đây chỉ là điều hướng đúng chỗ. Admin
+  // và Kế toán (chưa có trang riêng) vẫn ở lại khung đầy đủ này.
   if (profile?.role === "shipper") redirect("/admin/shipper");
+  if (profile?.role === "staff" || profile?.role === "sales") redirect("/admin/sale");
 
   if (!profile?.role) {
     return (

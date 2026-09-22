@@ -10,7 +10,6 @@ import {
   PriceHistoryEntry,
   Profile,
   ActivityLogEntry,
-  Notification,
   CATEGORY_ORDER,
 } from "@/lib/admin/types";
 import { ACTION_LABELS } from "@/lib/admin/activityLabels";
@@ -18,7 +17,8 @@ import { formatVnd, formatDate, relativeTimeVi, downloadBlob } from "@/lib/admin
 import PasswordChecklist from "@/components/admin/PasswordChecklist";
 import Segmented from "@/components/admin/Segmented";
 import Field from "@/components/admin/Field";
-import { TrashIcon } from "@/components/admin/icons";
+import { TrashIcon, MenuIcon, TagIcon, UsersIcon, ReceiptIcon } from "@/components/admin/icons";
+import NotificationBell from "@/components/admin/NotificationBell";
 import OrdersView from "@/components/admin/OrdersView";
 import OverviewView from "@/components/admin/OverviewView";
 import CustomersView from "@/components/admin/CustomersView";
@@ -157,7 +157,7 @@ export default function HomeClient({ displayName, role, userId }: { displayName:
       />
       <main className="main">
         <div className="topbar">
-          <NotificationBell userId={userId} onNavigate={setActiveView} />
+          <NotificationBell userId={userId} onNavigate={(v) => setActiveView(v as View)} />
           <div className="topbar-avatar" title={displayName}>
             {(displayName.trim()[0] ?? "?").toUpperCase()}
           </div>
@@ -303,94 +303,6 @@ function Sidebar({
         </button>
       </div>
     </nav>
-  );
-}
-
-function NotificationBell({ userId, onNavigate }: { userId: string; onNavigate: (v: View) => void }) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [open, setOpen] = useState(false);
-  const unreadCount = notifications.filter((n) => !n.read_at).length;
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      const { data } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("recipient_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(30);
-      if (!cancelled) setNotifications((data as Notification[]) ?? []);
-    }
-    load();
-
-    const channel = supabase
-      .channel(`notifications:${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `recipient_id=eq.${userId}` },
-        (payload) => {
-          setNotifications((prev) => [payload.new as Notification, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      cancelled = true;
-      supabase.removeChannel(channel);
-    };
-  }, [userId]);
-
-  async function markRead(n: Notification) {
-    if (!n.read_at) {
-      setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read_at: new Date().toISOString() } : x)));
-      await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("id", n.id);
-    }
-    setOpen(false);
-    if (n.link_view) onNavigate(n.link_view as View);
-  }
-
-  async function markAllRead() {
-    const now = new Date().toISOString();
-    setNotifications((prev) => prev.map((n) => (n.read_at ? n : { ...n, read_at: now })));
-    await supabase.from("notifications").update({ read_at: now }).eq("recipient_id", userId).is("read_at", null);
-  }
-
-  return (
-    <div className="notification-bell">
-      <button className="notification-bell-trigger" onClick={() => setOpen((v) => !v)} aria-label="Thông báo">
-        <BellIcon />
-        {unreadCount > 0 && <span className="pill pill-danger badge notification-badge">{unreadCount}</span>}
-      </button>
-      {open && (
-        <>
-          <div className="notification-backdrop" onClick={() => setOpen(false)} />
-          <div className="notification-panel">
-            <div className="notification-panel-head">
-              <span>Thông báo</span>
-              {unreadCount > 0 && (
-                <button className="btn btn-quiet" onClick={markAllRead}>
-                  Đánh dấu tất cả đã đọc
-                </button>
-              )}
-            </div>
-            <div className="notification-list">
-              {notifications.length === 0 && <div className="notification-empty">Chưa có thông báo nào.</div>}
-              {notifications.map((n) => (
-                <button
-                  key={n.id}
-                  className={`notification-item${n.read_at ? "" : " unread"}`}
-                  onClick={() => markRead(n)}
-                >
-                  <div className="notification-message">{n.message}</div>
-                  <div className="notification-time">{relativeTimeVi(n.created_at)}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
   );
 }
 
@@ -1612,34 +1524,6 @@ function InventoryView() {
   );
 }
 
-function MenuIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 6h18" />
-      <path d="M3 12h18" />
-      <path d="M3 18h18" />
-    </svg>
-  );
-}
-function TagIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L3 13v-3a2 2 0 0 1 2-2h4l7.59 7.59a2 2 0 0 1 0 2.82Z" />
-      <circle cx="7.5" cy="9.5" r="1" />
-      <path d="M13 21 21.03 12.97" />
-    </svg>
-  );
-}
-function UsersIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  );
-}
 function LogIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -1647,14 +1531,6 @@ function LogIcon() {
       <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z" />
       <path d="M9 13h6" />
       <path d="M9 17h6" />
-    </svg>
-  );
-}
-function BellIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </svg>
   );
 }
@@ -1682,16 +1558,6 @@ function SettingsIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
-    </svg>
-  );
-}
-function ReceiptIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z" />
-      <path d="M9 8h6" />
-      <path d="M9 12h6" />
-      <path d="M9 16h4" />
     </svg>
   );
 }
