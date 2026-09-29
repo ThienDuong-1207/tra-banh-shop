@@ -968,3 +968,9 @@ label.field input:disabled { opacity: 0.6; }
 }
 .shipper-card-payment.cod { background: var(--warm-wash); color: var(--warm-ink); }
 .shipper-action-btn { width: 100%; margin-top: 8px; padding: 12px; font-size: var(--text-body-sm); }
+.shipper-route { margin-bottom: 18px; }
+.shipper-route-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 6px 2px 10px; font-size: var(--text-body-sm); font-weight: 650; color: var(--ink);
+}
+.shipper-route-head .btn { flex-shrink: 0; }

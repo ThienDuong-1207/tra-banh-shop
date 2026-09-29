@@ -337,6 +337,11 @@ export default function OrdersView({ userId }: { userId: string }) {
 
             <div className="field-group">
               {detailOrder.customer_address && <p style={{ margin: 0 }}>Địa chỉ: {detailOrder.customer_address}</p>}
+              {detailOrder.geocoded_ward && (
+                <p style={{ margin: 0, color: "var(--muted)", fontSize: 12.5 }}>
+                  Khu vực ước lượng: {detailOrder.geocoded_ward} (để gom tuyến giao hàng, có thể lệch thực tế vài km)
+                </p>
+              )}
               {detailOrder.note && <p style={{ margin: 0 }}>Ghi chú: {detailOrder.note}</p>}
               <p style={{ margin: 0 }}>Thanh toán: {PAYMENT_LABEL[detailOrder.payment_method]}</p>
               <p style={{ margin: 0 }}>Đặt lúc: {formatDate(detailOrder.created_at)}</p>

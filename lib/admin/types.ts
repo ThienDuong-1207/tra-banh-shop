@@ -159,6 +159,11 @@ export type Order = {
   confirmed_at: string | null;
   confirmed_by: string | null;
   shipper_id: string | null;
+  // Toạ độ ƯỚC LƯỢNG (tâm phường/xã) — xem supabase/migrations/008_order_geo.sql
+  // + lib/admin/geocodeAddress.ts. NULL nếu chưa geocode hoặc không khớp được.
+  lat: number | null;
+  lng: number | null;
+  geocoded_ward: string | null;
 };
 
 // Ghi lại THẬT mỗi lần đổi trạng thái đơn — xem
