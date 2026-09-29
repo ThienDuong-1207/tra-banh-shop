@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/admin/supabaseClient";
 import {
   View,
@@ -234,18 +235,26 @@ function Sidebar({
           <HomeIcon />
           Tổng quan
         </button>
-        <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => onChange("hanghoa")}>
-          <TagIcon />
-          Quản lý hàng hóa
-        </button>
-        <button className={`nav-item${activeView === "donhang" ? " active" : ""}`} onClick={() => onChange("donhang")}>
-          <ReceiptIcon />
-          Đơn hàng
-        </button>
-        <button className={`nav-item${activeView === "khachhang" ? " active" : ""}`} onClick={() => onChange("khachhang")}>
-          <UsersIcon />
-          Khách hàng
-        </button>
+        {/* Admin không thao tác trực tiếp hàng hóa/đơn hàng/khách hàng ở đây
+            nữa — dùng "Trang nhân viên" bên dưới để sang đúng trang chức năng
+            (/admin/sale) khi cần. Kế toán chưa có trang riêng nên vẫn giữ
+            nguyên 3 mục này để không mất chức năng đang dùng. */}
+        {role !== "admin" && (
+          <>
+            <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => onChange("hanghoa")}>
+              <TagIcon />
+              Quản lý hàng hóa
+            </button>
+            <button className={`nav-item${activeView === "donhang" ? " active" : ""}`} onClick={() => onChange("donhang")}>
+              <ReceiptIcon />
+              Đơn hàng
+            </button>
+            <button className={`nav-item${activeView === "khachhang" ? " active" : ""}`} onClick={() => onChange("khachhang")}>
+              <UsersIcon />
+              Khách hàng
+            </button>
+          </>
+        )}
         {role === "admin" && (
           <>
             <div className="nav-label">Quản trị</div>
@@ -257,6 +266,19 @@ function Sidebar({
               <SettingsIcon />
               Cài đặt cửa hàng
             </button>
+          </>
+        )}
+        {role === "admin" && (
+          <>
+            <div className="nav-label">Trang nhân viên</div>
+            <Link href="/admin/sale" className="nav-item">
+              <TagIcon />
+              Bán hàng (Sales)
+            </Link>
+            <Link href="/admin/shipper" className="nav-item">
+              <TruckIcon />
+              Giao hàng (Shipper)
+            </Link>
           </>
         )}
         {/* Ẩn các mục ngoài phạm vi yêu cầu hiện tại (Tổng quan/Sản phẩm/Đơn
@@ -1540,6 +1562,16 @@ function HomeIcon() {
       <path d="m3 11 9-8 9 8" />
       <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
       <path d="M9 21v-6h6v6" />
+    </svg>
+  );
+}
+function TruckIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 3h13v13H1z" />
+      <path d="M14 8h4l3 3v5h-7V8Z" />
+      <circle cx="6" cy="18.5" r="1.7" />
+      <circle cx="17" cy="18.5" r="1.7" />
     </svg>
   );
 }

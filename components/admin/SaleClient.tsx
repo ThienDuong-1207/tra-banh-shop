@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/admin/supabaseClient";
 import type { Role } from "@/lib/admin/types";
-import { MenuIcon, TagIcon, ReceiptIcon, UsersIcon, ChatIcon } from "@/components/admin/icons";
+import { MenuIcon, TagIcon, ReceiptIcon, UsersIcon, ChatIcon, ArrowLeftIcon } from "@/components/admin/icons";
 import NotificationBell from "@/components/admin/NotificationBell";
 import ProductsView from "@/components/admin/ProductsView";
 import OrdersView from "@/components/admin/OrdersView";
@@ -29,6 +30,12 @@ const ROLE_LABEL: Record<Role, string> = {
 // mobile-only như shipper) và tái sử dụng nguyên khối `ProductsView`/
 // `OrdersView`/`CustomersView` đã tách ra ở app/(admin)/admin/HomeClient.tsx —
 // không copy code.
+//
+// Admin cũng được phép ghé trang này (qua nav "Trang nhân viên" ở
+// HomeClient.tsx Sidebar, hoặc gõ thẳng URL — page.tsx đã cho phép role
+// admin đi qua) để dùng thử chức năng của Sales — khi đó `role` truyền vào
+// là "admin" (không phải "staff"/"sales" thật), và sidebar hiện thêm nút
+// "Quay lại trang Admin" ở đầu nav.
 export default function SaleClient({ displayName, role, userId }: { displayName: string; role: Role; userId: string }) {
   const [activeView, setActiveView] = useState<SaleView>("hanghoa");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -61,6 +68,12 @@ export default function SaleClient({ displayName, role, userId }: { displayName:
         </div>
         {mobileNavOpen && <div className="sidebar-backdrop" onClick={() => setMobileNavOpen(false)} />}
         <div className="nav">
+          {role === "admin" && (
+            <Link href="/admin" className="nav-item">
+              <ArrowLeftIcon />
+              Quay lại trang Admin
+            </Link>
+          )}
           <div className="nav-label">Menu</div>
           <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => go("hanghoa")}>
             <TagIcon />

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/admin/supabaseClient";
 import { formatVnd, formatDate } from "@/lib/admin/format";
-import type { Order, PaymentMethod } from "@/lib/admin/types";
+import type { Order, PaymentMethod, Role } from "@/lib/admin/types";
 
 const PAYMENT_LABEL: Record<PaymentMethod, string> = {
   chuyen_khoan: "Đã chuyển khoản (VietQR)",
@@ -15,8 +16,10 @@ const PAYMENT_LABEL: Record<PaymentMethod, string> = {
 // (supabase/migrations/007a/007b_shipper_and_status_history.sql) đã tự giới hạn
 // query dưới đây chỉ trả về: đơn "Đang xử lý" chưa ai nhận + đơn đã là của
 // chính shipper này — không cần lọc thêm gì ở phía client cho phần bảo mật,
-// chỉ tách hiển thị thành 2 danh sách cho rõ.
-export default function ShipperClient({ displayName, userId }: { displayName: string; userId: string }) {
+// chỉ tách hiển thị thành 2 danh sách cho rõ. Admin xem trang này (chính sách
+// RLS của admin vốn đã thấy MỌI đơn) thì query trả về nhiều hơn, nhưng 2 bộ
+// lọc `available`/`mine` bên dưới vẫn tự thu hẹp đúng ý nghĩa hiển thị.
+export default function ShipperClient({ displayName, userId, role }: { displayName: string; userId: string; role: Role }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -101,9 +104,16 @@ export default function ShipperClient({ displayName, userId }: { displayName: st
           <div className="shipper-header-title">Xin chào, {displayName}</div>
           <div className="shipper-header-sub">Giao hàng — Trà &amp; Bánh</div>
         </div>
-        <button className="btn btn-quiet" onClick={signOut}>
-          Đăng xuất
-        </button>
+        <div className="shipper-header-actions">
+          {role === "admin" && (
+            <Link className="btn btn-quiet" href="/admin">
+              Quay lại trang Admin
+            </Link>
+          )}
+          <button className="btn btn-quiet" onClick={signOut}>
+            Đăng xuất
+          </button>
+        </div>
       </header>
 
       {loading ? (

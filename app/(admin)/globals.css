@@ -948,6 +948,7 @@ label.field input:disabled { opacity: 0.6; }
 .shipper-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0 18px; }
 .shipper-header-title { font-size: 17px; font-weight: 700; }
 .shipper-header-sub { font-size: var(--text-meta); color: var(--muted); margin-top: 2px; }
+.shipper-header-actions { display: flex; align-items: center; gap: 8px; }
 .shipper-section { margin-bottom: 26px; }
 .shipper-section h2 { font-size: var(--text-body-sm); font-weight: 650; margin: 0 0 10px; }
 .shipper-card {
