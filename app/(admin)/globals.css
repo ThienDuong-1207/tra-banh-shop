@@ -968,7 +968,8 @@ label.field input:disabled { opacity: 0.6; }
   border-radius: 999px; background: var(--success-wash); color: var(--success-ink); margin-top: 2px;
 }
 .shipper-card-payment.cod { background: var(--warm-wash); color: var(--warm-ink); }
-.shipper-action-btn { width: 100%; margin-top: 8px; padding: 12px; font-size: var(--text-body-sm); }
+.shipper-card-actions { display: flex; gap: 8px; margin-top: 8px; }
+.shipper-action-btn, .shipper-secondary-btn { flex: 1; padding: 12px; font-size: var(--text-body-sm); }
 .shipper-route { margin-bottom: 18px; }
 .shipper-route-head {
   display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;

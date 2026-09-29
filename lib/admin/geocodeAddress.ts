@@ -87,7 +87,16 @@ export type WardMatch = { province: string; ward: string; lat: number; lng: numb
 // vực, cùng nguyên tắc "không bịa dữ liệu" của dự án). Order không khớp được
 // đơn giản là chưa có toạ độ, không tham gia gom tuyến, không hiện sai lệch.
 export function matchAddressToWard(address: string): WardMatch | null {
-  const norm = normalizeVi(address);
+  // Bỏ đoạn ĐẦU TIÊN (số nhà + tên đường) trước dấu phẩy khỏi việc khớp — tên
+  // đường ở Việt Nam rất hay trùng chữ với tên 1 tỉnh/phường ở nơi khác (ví
+  // dụ đường "Điện Biên Phủ" phổ biến khắp cả nước, trùng luôn tên 1 phường
+  // thật ở tỉnh Điện Biên) — chỉ khớp trên phần "phường/xã, quận/huyện,
+  // tỉnh/thành" phía sau dấu phẩy đầu để tránh khớp nhầm theo tên đường. Địa
+  // chỉ không có dấu phẩy nào thì đành giữ nguyên cả chuỗi (không có tín hiệu
+  // nào để tách).
+  const segments = address.split(",").map((s) => s.trim()).filter(Boolean);
+  const searchSegments = segments.length > 1 ? segments.slice(1) : segments;
+  const norm = normalizeVi(searchSegments.join(" "));
   if (!norm) return null;
 
   const province = findProvince(norm);

@@ -85,9 +85,19 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => refresh())
       .subscribe();
 
+    // Điện thoại shipper thường bị khoá màn hình/chuyển sang app Bản đồ giữa
+    // các lượt giao — trình duyệt di động có thể ngắt kết nối realtime khi
+    // chạy nền. Tải lại ngay khi quay lại app thay vì chỉ trông chờ realtime,
+    // tránh hiện danh sách cũ (đơn tưởng còn nhưng đã bị nhận/giao xong).
+    function onVisible() {
+      if (document.visibilityState === "visible") refresh();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+
     return () => {
       cancelled = true;
       supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [userId]);
 
@@ -139,6 +149,29 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
       return;
     }
     await supabase.from("order_status_history").insert({ order_id: order.id, status: "dang_giao", changed_by: userId });
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as Order) : o)));
+  }
+
+  // Trả lại đơn đã nhận nhầm — đơn quay về "Có thể nhận" cho shipper khác
+  // (kể cả chính mình) nhận lại. Race-safe cùng kiểu claimOnRow: chỉ trả
+  // được đơn ĐANG thật sự là của mình (WHERE shipper_id = userId), tránh
+  // trường hợp lỡ bấm 2 lần hoặc đơn đã đổi tay.
+  async function releaseOrder(order: Order) {
+    if (!confirm(`Trả lại đơn ${order.order_code}? Đơn sẽ quay lại danh sách "Có thể nhận" cho shipper khác.`)) return;
+    setBusyId(order.id);
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status: "dang_xu_ly", shipper_id: null })
+      .eq("id", order.id)
+      .eq("shipper_id", userId)
+      .select()
+      .maybeSingle();
+    setBusyId(null);
+    if (error || !data) {
+      alert("Trả đơn thất bại, thử lại nhé.");
+      return;
+    }
+    await supabase.from("order_status_history").insert({ order_id: order.id, status: "dang_xu_ly", changed_by: userId });
     setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as Order) : o)));
   }
 
@@ -237,7 +270,15 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
                 </div>
               ) : (
                 mineOrdered.map((o) => (
-                  <OrderCard key={o.id} order={o} actionLabel="Đã giao xong" busy={busyId === o.id} onAction={() => markDelivered(o)} />
+                  <OrderCard
+                    key={o.id}
+                    order={o}
+                    actionLabel="Đã giao xong"
+                    busy={busyId === o.id}
+                    onAction={() => markDelivered(o)}
+                    secondaryLabel="Trả đơn"
+                    onSecondaryAction={() => releaseOrder(o)}
+                  />
                 ))
               )}
             </section>
@@ -259,17 +300,23 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
                           </span>
                           <span className={`shipper-route-chevron${expanded ? " open" : ""}`}>⌄</span>
                         </button>
-                        <button
-                          className="btn btn-primary btn-sm shipper-route-claim"
-                          disabled={claimingRoute === i}
-                          onClick={() => claimRoute(cluster, i)}
-                        >
-                          {claimingRoute === i ? "Đang nhận..." : `Nhận cả tuyến (${cluster.length})`}
-                        </button>
-                        {expanded &&
-                          cluster.map((o) => (
-                            <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
-                          ))}
+                        {expanded && (
+                          <>
+                            {cluster.map((o) => (
+                              <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
+                            ))}
+                            {/* Đặt nút nhận gộp SAU khi đã thấy hết đơn trong tuyến —
+                                không cho nhận "mù" cả cụm trước khi mở ra xem từng đơn
+                                (địa chỉ/số tiền/thanh toán) bên trong. */}
+                            <button
+                              className="btn btn-primary btn-sm shipper-route-claim"
+                              disabled={claimingRoute === i}
+                              onClick={() => claimRoute(cluster, i)}
+                            >
+                              {claimingRoute === i ? "Đang nhận..." : `Nhận cả tuyến (${cluster.length})`}
+                            </button>
+                          </>
+                        )}
                       </div>
                     );
                   })}
@@ -296,11 +343,15 @@ function OrderCard({
   actionLabel,
   busy,
   onAction,
+  secondaryLabel,
+  onSecondaryAction,
 }: {
   order: Order;
   actionLabel: string;
   busy: boolean;
   onAction: () => void;
+  secondaryLabel?: string;
+  onSecondaryAction?: () => void;
 }) {
   return (
     <div className="shipper-card">
@@ -327,9 +378,16 @@ function OrderCard({
         {PAYMENT_LABEL[order.payment_method]}
       </div>
       <div className="shipper-card-row shipper-card-time">Đặt lúc {formatDate(order.created_at)}</div>
-      <button className="btn btn-primary shipper-action-btn" disabled={busy} onClick={onAction}>
-        {busy ? "Đang xử lý..." : actionLabel}
-      </button>
+      <div className="shipper-card-actions">
+        {onSecondaryAction && (
+          <button className="btn btn-quiet shipper-secondary-btn" disabled={busy} onClick={onSecondaryAction}>
+            {secondaryLabel}
+          </button>
+        )}
+        <button className="btn btn-primary shipper-action-btn" disabled={busy} onClick={onAction}>
+          {busy ? "Đang xử lý..." : actionLabel}
+        </button>
+      </div>
     </div>
   );
 }
