@@ -6,6 +6,7 @@ import { supabase } from "@/lib/admin/supabaseClient";
 import { formatVnd, formatDate } from "@/lib/admin/format";
 import { clusterByDistance, orderByNearestNeighbor, DEFAULT_CLUSTER_RADIUS_KM } from "@/lib/admin/routeClustering";
 import Segmented from "@/components/admin/Segmented";
+import { PhoneIcon, MapPinIcon } from "@/components/admin/icons";
 import type { Order, PaymentMethod, Role } from "@/lib/admin/types";
 
 const PAYMENT_LABEL: Record<PaymentMethod, string> = {
@@ -361,7 +362,7 @@ function OrderCard({
       </div>
       <div className="shipper-card-row">{order.customer_name}</div>
       <a className="shipper-card-row shipper-card-phone" href={`tel:${order.customer_phone}`}>
-        📞 {order.customer_phone}
+        <PhoneIcon /> {order.customer_phone}
       </a>
       {order.customer_address && (
         <a
@@ -370,7 +371,7 @@ function OrderCard({
           target="_blank"
           rel="noopener noreferrer"
         >
-          📍 {order.customer_address}
+          <MapPinIcon /> {order.customer_address}
         </a>
       )}
       {order.note && <div className="shipper-card-row shipper-card-note">Ghi chú: {order.note}</div>}

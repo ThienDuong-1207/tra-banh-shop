@@ -959,10 +959,15 @@ label.field input:disabled { opacity: 0.6; }
 .shipper-card-code { font-size: var(--text-body-sm); }
 .shipper-card-total { font-size: 16px; color: var(--primary-ink); }
 .shipper-card-row { font-size: var(--text-body-sm); color: var(--ink); }
-.shipper-card-phone, .shipper-card-address { color: var(--primary-ink); text-decoration: none; font-weight: 600; }
+.shipper-card-phone, .shipper-card-address {
+  display: inline-flex; align-items: center; gap: 5px; color: var(--primary-ink); text-decoration: none; font-weight: 600;
+}
+.shipper-card-phone svg, .shipper-card-address svg { flex-shrink: 0; }
 .shipper-card-address { font-weight: 500; }
 .shipper-card-note { color: var(--muted); font-style: italic; }
-.shipper-card-time { color: var(--faint); font-size: var(--text-meta); }
+/* --faint không đủ 4.5:1 trên nền trắng cho text thật (giờ đặt đơn) — đây
+   không phải chi tiết trang trí, dùng --muted để đạt WCAG AA. */
+.shipper-card-time { color: var(--muted); font-size: var(--text-meta); }
 .shipper-card-payment {
   display: inline-block; width: fit-content; font-size: var(--text-meta); font-weight: 650; padding: 3px 10px;
   border-radius: 999px; background: var(--success-wash); color: var(--success-ink); margin-top: 2px;
