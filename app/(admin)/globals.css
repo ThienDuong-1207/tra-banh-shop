@@ -959,7 +959,8 @@ label.field input:disabled { opacity: 0.6; }
 .shipper-card-code { font-size: var(--text-body-sm); }
 .shipper-card-total { font-size: 16px; color: var(--primary-ink); }
 .shipper-card-row { font-size: var(--text-body-sm); color: var(--ink); }
-.shipper-card-phone { color: var(--primary-ink); text-decoration: none; font-weight: 600; }
+.shipper-card-phone, .shipper-card-address { color: var(--primary-ink); text-decoration: none; font-weight: 600; }
+.shipper-card-address { font-weight: 500; }
 .shipper-card-note { color: var(--muted); font-style: italic; }
 .shipper-card-time { color: var(--faint); font-size: var(--text-meta); }
 .shipper-card-payment {
@@ -970,7 +971,15 @@ label.field input:disabled { opacity: 0.6; }
 .shipper-action-btn { width: 100%; margin-top: 8px; padding: 12px; font-size: var(--text-body-sm); }
 .shipper-route { margin-bottom: 18px; }
 .shipper-route-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 6px 2px 10px; font-size: var(--text-body-sm); font-weight: 650; color: var(--ink);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  padding: 10px 2px; font-size: var(--text-body-sm); font-weight: 650; color: var(--ink);
+  background: none; border: none; border-radius: var(--radius-sm); cursor: pointer; text-align: left;
+  transition: background-color 150ms ease-out;
 }
-.shipper-route-head .btn { flex-shrink: 0; }
+.shipper-route-head:hover { background: var(--surface-sunken); }
+.shipper-route-head:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.shipper-route-head-static { cursor: default; }
+.shipper-route-head-static:hover { background: none; }
+.shipper-route-chevron { color: var(--faint); font-size: 18px; line-height: 1; transition: transform 200ms ease-out; }
+.shipper-route-chevron.open { transform: rotate(180deg); }
+.shipper-route-claim { width: 100%; margin-bottom: 10px; }

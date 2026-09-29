@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/admin/supabaseClient";
 import { formatVnd, formatDate } from "@/lib/admin/format";
-import { clusterByDistance, DEFAULT_CLUSTER_RADIUS_KM } from "@/lib/admin/routeClustering";
+import { clusterByDistance, orderByNearestNeighbor, DEFAULT_CLUSTER_RADIUS_KM } from "@/lib/admin/routeClustering";
+import Segmented from "@/components/admin/Segmented";
 import type { Order, PaymentMethod, Role } from "@/lib/admin/types";
 
 const PAYMENT_LABEL: Record<PaymentMethod, string> = {
@@ -16,22 +17,45 @@ function hasCoords(o: Order): o is Order & { lat: number; lng: number } {
   return o.lat != null && o.lng != null;
 }
 
+function mapsUrl(address: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
 // Trang riêng cho shipper — tối giản, tối ưu điện thoại, KHÔNG dùng chung
 // khung admin đầy đủ (không lộ bảng sản phẩm/giá không liên quan). RLS
 // (supabase/migrations/007a/007b_shipper_and_status_history.sql) đã tự giới hạn
 // query dưới đây chỉ trả về: đơn "Đang xử lý" chưa ai nhận + đơn đã là của
 // chính shipper này — không cần lọc thêm gì ở phía client cho phần bảo mật,
-// chỉ tách hiển thị thành 2 danh sách cho rõ. Admin xem trang này (chính sách
-// RLS của admin vốn đã thấy MỌI đơn) thì query trả về nhiều hơn, nhưng 2 bộ
-// lọc `available`/`mine` bên dưới vẫn tự thu hẹp đúng ý nghĩa hiển thị.
+// chỉ tách hiển thị thành 2 tab cho rõ. Admin xem trang này (chính sách RLS
+// của admin vốn đã thấy MỌI đơn) thì query trả về nhiều hơn, nhưng 2 bộ lọc
+// `available`/`mine` bên dưới vẫn tự thu hẹp đúng ý nghĩa hiển thị.
 export default function ShipperClient({ displayName, userId, role }: { displayName: string; userId: string; role: Role }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [claimingRoute, setClaimingRoute] = useState<number | null>(null);
+  const [tab, setTab] = useState<"mine" | "available">("mine");
+  const [expandedRoutes, setExpandedRoutes] = useState<Set<number>>(new Set());
+  const [deliveredToday, setDeliveredToday] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+
+    // Đếm THẬT số đơn đã giao hôm nay từ order_status_history (mốc thời gian
+    // đáng tin — không suy ra từ orders.created_at vì đó là lúc TẠO đơn, có
+    // thể tạo hôm qua nhưng giao hôm nay, hoặc ngược lại chưa giao xong).
+    async function loadDeliveredToday() {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count } = await supabase
+        .from("order_status_history")
+        .select("id", { count: "exact", head: true })
+        .eq("changed_by", userId)
+        .eq("status", "hoan_thanh")
+        .gte("changed_at", todayStart.toISOString());
+      if (!cancelled) setDeliveredToday(count ?? 0);
+    }
+
     async function refresh() {
       // Geocode "nền" các đơn chưa có toạ độ trước khi tải lại danh sách —
       // xem app/api/admin/orders/geocode-pending/route.ts. Gọi mỗi lần tải
@@ -49,6 +73,7 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
         if (!error) setOrders((data as Order[]) ?? []);
         setLoading(false);
       }
+      loadDeliveredToday();
     }
     refresh();
 
@@ -64,16 +89,19 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
       cancelled = true;
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [userId]);
 
   const available = orders.filter((o) => o.status === "dang_xu_ly" && !o.shipper_id);
   const mine = orders.filter((o) => o.shipper_id === userId && o.status === "dang_giao");
 
+  // Sắp đơn ĐANG GIAO theo "gần nhất kế tiếp" — trả lời đúng câu hỏi thật
+  // "giao đơn nào trước", thay vì theo thứ tự nhận (xem lib/admin/routeClustering.ts).
+  const mineOrdered = useMemo(() => orderByNearestNeighbor(mine), [mine]);
+
   // Gom các đơn "sẵn sàng nhận" ĐÃ có toạ độ thành từng tuyến theo khoảng
-  // cách thật (xem lib/admin/routeClustering.ts) — chỉ cụm ≥2 đơn mới tính
-  // là 1 "Tuyến" có nút nhận gộp; cụm lẻ 1 đơn + đơn chưa geocode được gộp
-  // chung vào danh sách "Đơn lẻ" phía dưới, vẫn nhận được bình thường từng
-  // đơn một.
+  // cách thật — chỉ cụm ≥2 đơn mới tính là 1 "Tuyến" có nút nhận gộp; cụm lẻ
+  // 1 đơn + đơn chưa geocode được gộp chung vào danh sách "Đơn lẻ" phía
+  // dưới, vẫn nhận được bình thường từng đơn một.
   const { routes, singles } = useMemo(() => {
     const geocoded = available.filter(hasCoords);
     const notGeocoded = available.filter((o) => !hasCoords(o));
@@ -83,6 +111,15 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
       singles: [...clusters.filter((c) => c.length === 1).flat(), ...notGeocoded],
     };
   }, [available]);
+
+  function toggleRoute(index: number) {
+    setExpandedRoutes((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
 
   async function claimOrder(order: Order) {
     setBusyId(order.id);
@@ -160,7 +197,9 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
       <header className="shipper-header">
         <div>
           <div className="shipper-header-title">Xin chào, {displayName}</div>
-          <div className="shipper-header-sub">Giao hàng — Trà &amp; Bánh</div>
+          <div className="shipper-header-sub">
+            Giao hàng — Trà &amp; Bánh{deliveredToday > 0 && ` · Đã giao ${deliveredToday} đơn hôm nay`}
+          </div>
         </div>
         <div className="shipper-header-actions">
           {role === "admin" && (
@@ -178,53 +217,74 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
         <div className="loading-state">Đang tải...</div>
       ) : (
         <>
-          <section className="shipper-section">
-            <h2>Đơn của tôi ({mine.length})</h2>
-            {mine.length === 0 ? (
-              <div className="empty-state">Bạn chưa nhận đơn nào đang giao.</div>
-            ) : (
-              mine.map((o) => (
-                <OrderCard key={o.id} order={o} actionLabel="Đã giao xong" busy={busyId === o.id} onAction={() => markDelivered(o)} />
-              ))
-            )}
-          </section>
+          <Segmented
+            style={{ marginBottom: 16 }}
+            items={[
+              { key: "mine", label: `Đang giao (${mine.length})`, active: tab === "mine", onClick: () => setTab("mine") },
+              { key: "available", label: `Có thể nhận (${available.length})`, active: tab === "available", onClick: () => setTab("available") },
+            ]}
+          />
 
-          <section className="shipper-section">
-            <h2>Đơn sẵn sàng nhận ({available.length})</h2>
-            {available.length === 0 ? (
-              <div className="empty-state">Chưa có đơn nào đang chờ giao.</div>
-            ) : (
-              <>
-                {routes.map((cluster, i) => (
-                  <div className="shipper-route" key={`route-${i}`}>
-                    <div className="shipper-route-head">
-                      <span>
-                        Tuyến {i + 1} — {cluster.length} đơn (trong bán kính ~{DEFAULT_CLUSTER_RADIUS_KM}km)
-                      </span>
-                      <button
-                        className="btn btn-primary btn-sm"
-                        disabled={claimingRoute === i}
-                        onClick={() => claimRoute(cluster, i)}
-                      >
-                        {claimingRoute === i ? "Đang nhận..." : `Nhận cả tuyến (${cluster.length})`}
-                      </button>
+          {tab === "mine" && (
+            <section className="shipper-section">
+              {mineOrdered.length === 0 ? (
+                <div className="empty-state">
+                  Bạn chưa nhận đơn nào đang giao.
+                  <br />
+                  <button className="btn btn-quiet" style={{ marginTop: 10 }} onClick={() => setTab("available")}>
+                    Xem đơn có thể nhận →
+                  </button>
+                </div>
+              ) : (
+                mineOrdered.map((o) => (
+                  <OrderCard key={o.id} order={o} actionLabel="Đã giao xong" busy={busyId === o.id} onAction={() => markDelivered(o)} />
+                ))
+              )}
+            </section>
+          )}
+
+          {tab === "available" && (
+            <section className="shipper-section">
+              {available.length === 0 ? (
+                <div className="empty-state">Chưa có đơn nào đang chờ giao.</div>
+              ) : (
+                <>
+                  {routes.map((cluster, i) => {
+                    const expanded = expandedRoutes.has(i);
+                    return (
+                      <div className="shipper-route" key={`route-${i}`}>
+                        <button className="shipper-route-head" onClick={() => toggleRoute(i)} aria-expanded={expanded}>
+                          <span>
+                            Tuyến {i + 1} — {cluster.length} đơn (trong bán kính ~{DEFAULT_CLUSTER_RADIUS_KM}km)
+                          </span>
+                          <span className={`shipper-route-chevron${expanded ? " open" : ""}`}>⌄</span>
+                        </button>
+                        <button
+                          className="btn btn-primary btn-sm shipper-route-claim"
+                          disabled={claimingRoute === i}
+                          onClick={() => claimRoute(cluster, i)}
+                        >
+                          {claimingRoute === i ? "Đang nhận..." : `Nhận cả tuyến (${cluster.length})`}
+                        </button>
+                        {expanded &&
+                          cluster.map((o) => (
+                            <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
+                          ))}
+                      </div>
+                    );
+                  })}
+                  {singles.length > 0 && (
+                    <div className="shipper-route">
+                      {routes.length > 0 && <div className="shipper-route-head shipper-route-head-static">Đơn lẻ ({singles.length})</div>}
+                      {singles.map((o) => (
+                        <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
+                      ))}
                     </div>
-                    {cluster.map((o) => (
-                      <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
-                    ))}
-                  </div>
-                ))}
-                {singles.length > 0 && (
-                  <div className="shipper-route">
-                    {routes.length > 0 && <div className="shipper-route-head">Đơn lẻ ({singles.length})</div>}
-                    {singles.map((o) => (
-                      <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </section>
+                  )}
+                </>
+              )}
+            </section>
+          )}
         </>
       )}
     </div>
@@ -252,7 +312,16 @@ function OrderCard({
       <a className="shipper-card-row shipper-card-phone" href={`tel:${order.customer_phone}`}>
         📞 {order.customer_phone}
       </a>
-      {order.customer_address && <div className="shipper-card-row">{order.customer_address}</div>}
+      {order.customer_address && (
+        <a
+          className="shipper-card-row shipper-card-address"
+          href={mapsUrl(order.customer_address)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📍 {order.customer_address}
+        </a>
+      )}
       {order.note && <div className="shipper-card-row shipper-card-note">Ghi chú: {order.note}</div>}
       <div className={`shipper-card-payment${order.payment_method === "cod" ? " cod" : ""}`}>
         {PAYMENT_LABEL[order.payment_method]}

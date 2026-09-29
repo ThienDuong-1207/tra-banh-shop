@@ -36,3 +36,34 @@ export function clusterByDistance<T extends { lat: number; lng: number }>(
   }
   return clusters;
 }
+
+// Sắp lại thứ tự đơn ĐÃ NHẬN theo "đơn gần nhất kế tiếp" (nearest-neighbor
+// tham lam) — trả lời đúng câu hỏi thật của shipper "giao đơn nào trước" khi
+// đang cầm nhiều đơn, thay vì hiện theo thứ tự nhận. Đơn chưa có toạ độ (chưa
+// geocode được) xếp cuối, không tham gia sắp xếp — không suy diễn vị trí.
+export function orderByNearestNeighbor<T extends { lat: number | null; lng: number | null }>(items: T[]): T[] {
+  const withCoords: (T & { lat: number; lng: number })[] = [];
+  const withoutCoords: T[] = [];
+  for (const it of items) {
+    if (it.lat != null && it.lng != null) withCoords.push(it as T & { lat: number; lng: number });
+    else withoutCoords.push(it);
+  }
+  if (withCoords.length <= 1) return [...withCoords, ...withoutCoords];
+
+  const remaining = [...withCoords];
+  const ordered = [remaining.shift()!];
+  while (remaining.length > 0) {
+    const last = ordered[ordered.length - 1];
+    let bestIndex = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const d = haversineDistanceKm(last.lat, last.lng, remaining[i].lat, remaining[i].lng);
+      if (d < bestDist) {
+        bestDist = d;
+        bestIndex = i;
+      }
+    }
+    ordered.push(remaining.splice(bestIndex, 1)[0]);
+  }
+  return [...ordered, ...withoutCoords];
+}
