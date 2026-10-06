@@ -5,8 +5,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/admin/supabaseClient";
 import { formatVnd, formatDate } from "@/lib/admin/format";
 import { clusterByDistance, orderByNearestNeighbor, DEFAULT_CLUSTER_RADIUS_KM } from "@/lib/admin/routeClustering";
-import Segmented from "@/components/admin/Segmented";
-import { PhoneIcon, MapPinIcon } from "@/components/admin/icons";
+import NotificationBell from "@/components/admin/NotificationBell";
+import { PhoneIcon, MapPinIcon, ReceiptIcon, TagIcon, ArrowLeftIcon } from "@/components/admin/icons";
 import type { Order, PaymentMethod, Role } from "@/lib/admin/types";
 
 const PAYMENT_LABEL: Record<PaymentMethod, string> = {
@@ -226,115 +226,143 @@ export default function ShipperClient({ displayName, userId, role }: { displayNa
     window.location.assign("/admin/login");
   }
 
+  const todayDone = deliveredToday > 0 ? ` · Đã giao ${deliveredToday} đơn hôm nay` : "";
+
   return (
-    <div className="shipper-shell">
-      <header className="shipper-header">
-        <div>
-          <div className="shipper-header-title">Xin chào, {displayName}</div>
-          <div className="shipper-header-sub">
-            Giao hàng — Trà &amp; Bánh{deliveredToday > 0 && ` · Đã giao ${deliveredToday} đơn hôm nay`}
-          </div>
+    <div className="shell shipper-shell">
+      <nav className="sidebar shipper-sidebar">
+        <div className="brand">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="brand-logo" src="/templates/logo.png" alt="Trà & Bánh" />
+          <div className="brand-text-under">Giao hàng</div>
         </div>
-        <div className="shipper-header-actions">
+        <div className="nav">
+          <div className="nav-label">Đơn hàng</div>
+          <button className={`nav-item${tab === "mine" ? " active" : ""}`} onClick={() => setTab("mine")}>
+            <ReceiptIcon />
+            Đang giao
+            <span className="pill pill-primary badge">{mine.length}</span>
+          </button>
+          <button className={`nav-item${tab === "available" ? " active" : ""}`} onClick={() => setTab("available")}>
+            <TagIcon />
+            Có thể nhận
+            <span className="pill pill-warm badge">{available.length}</span>
+          </button>
           {role === "admin" && (
-            <Link className="btn btn-quiet" href="/admin">
+            <Link href="/admin" className="nav-item">
+              <ArrowLeftIcon />
               Quay lại trang Admin
             </Link>
           )}
-          <button className="btn btn-quiet" onClick={signOut}>
+        </div>
+        <div className="sidebar-foot sidebar-account">
+          <div className="sidebar-account-name">Xin chào, {displayName}</div>
+          <div className="sidebar-account-role">
+            Shipper{todayDone}
+          </div>
+          <button className="btn btn-quiet sidebar-signout" onClick={signOut}>
             Đăng xuất
           </button>
         </div>
-      </header>
+      </nav>
 
-      {loading ? (
-        <div className="loading-state">Đang tải...</div>
-      ) : (
-        <>
-          <Segmented
-            style={{ marginBottom: 16 }}
-            items={[
-              { key: "mine", label: `Đang giao (${mine.length})`, active: tab === "mine", onClick: () => setTab("mine") },
-              { key: "available", label: `Có thể nhận (${available.length})`, active: tab === "available", onClick: () => setTab("available") },
-            ]}
-          />
-
-          {tab === "mine" && (
-            <section className="shipper-section">
-              {mineOrdered.length === 0 ? (
-                <div className="empty-state">
-                  Bạn chưa nhận đơn nào đang giao.
-                  <br />
-                  <button className="btn btn-quiet" style={{ marginTop: 10 }} onClick={() => setTab("available")}>
-                    Xem đơn có thể nhận →
-                  </button>
-                </div>
-              ) : (
-                mineOrdered.map((o) => (
-                  <OrderCard
-                    key={o.id}
-                    order={o}
-                    actionLabel="Đã giao xong"
-                    busy={busyId === o.id}
-                    onAction={() => markDelivered(o)}
-                    secondaryLabel="Trả đơn"
-                    onSecondaryAction={() => releaseOrder(o)}
-                  />
-                ))
-              )}
-            </section>
-          )}
-
-          {tab === "available" && (
-            <section className="shipper-section">
-              {available.length === 0 ? (
-                <div className="empty-state">Chưa có đơn nào đang chờ giao.</div>
-              ) : (
-                <>
-                  {routes.map((cluster, i) => {
-                    const expanded = expandedRoutes.has(i);
-                    return (
-                      <div className="shipper-route" key={`route-${i}`}>
-                        <button className="shipper-route-head" onClick={() => toggleRoute(i)} aria-expanded={expanded}>
-                          <span>
-                            Tuyến {i + 1} — {cluster.length} đơn (trong bán kính ~{DEFAULT_CLUSTER_RADIUS_KM}km)
-                          </span>
-                          <span className={`shipper-route-chevron${expanded ? " open" : ""}`}>⌄</span>
-                        </button>
-                        {expanded && (
-                          <>
-                            {cluster.map((o) => (
-                              <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
-                            ))}
-                            {/* Đặt nút nhận gộp SAU khi đã thấy hết đơn trong tuyến —
-                                không cho nhận "mù" cả cụm trước khi mở ra xem từng đơn
-                                (địa chỉ/số tiền/thanh toán) bên trong. */}
-                            <button
-                              className="btn btn-primary btn-sm shipper-route-claim"
-                              disabled={claimingRoute === i}
-                              onClick={() => claimRoute(cluster, i)}
-                            >
-                              {claimingRoute === i ? "Đang nhận..." : `Nhận cả tuyến (${cluster.length})`}
-                            </button>
-                          </>
-                        )}
+      <main className="main">
+        <div className="topbar">
+          <NotificationBell userId={userId} onNavigate={() => setTab("mine")} />
+          <div className="topbar-avatar" title={displayName}>
+            {(displayName.trim()[0] ?? "?").toUpperCase()}
+          </div>
+        </div>
+        <div className="main-content">
+          <div className="app shipper-app">
+            {loading ? (
+              <div className="loading-state">Đang tải...</div>
+            ) : tab === "mine" ? (
+              <section className="shipper-section">
+                {mineOrdered.length === 0 ? (
+                  <div className="empty-state">
+                    Bạn chưa nhận đơn nào đang giao.
+                    <br />
+                    <button className="btn btn-quiet" style={{ marginTop: 10 }} onClick={() => setTab("available")}>
+                      Xem đơn có thể nhận →
+                    </button>
+                  </div>
+                ) : (
+                  mineOrdered.map((o) => (
+                    <OrderCard
+                      key={o.id}
+                      order={o}
+                      actionLabel="Đã giao xong"
+                      busy={busyId === o.id}
+                      onAction={() => markDelivered(o)}
+                      secondaryLabel="Trả đơn"
+                      onSecondaryAction={() => releaseOrder(o)}
+                    />
+                  ))
+                )}
+              </section>
+            ) : (
+              <section className="shipper-section">
+                {available.length === 0 ? (
+                  <div className="empty-state">Chưa có đơn nào đang chờ giao.</div>
+                ) : (
+                  <>
+                    {routes.map((cluster, i) => {
+                      const expanded = expandedRoutes.has(i);
+                      return (
+                        <div className="shipper-route" key={`route-${i}`}>
+                          <button className="shipper-route-head" onClick={() => toggleRoute(i)} aria-expanded={expanded}>
+                            <span>
+                              Tuyến {i + 1} — {cluster.length} đơn (trong bán kính ~{DEFAULT_CLUSTER_RADIUS_KM}km)
+                            </span>
+                            <span className={`shipper-route-chevron${expanded ? " open" : ""}`}>⌄</span>
+                          </button>
+                          {expanded && (
+                            <>
+                              {cluster.map((o) => (
+                                <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
+                              ))}
+                              {/* Đặt nút nhận gộp SAU khi đã thấy hết đơn trong tuyến —
+                                  không cho nhận "mù" cả cụm trước khi mở ra xem từng đơn
+                                  (địa chỉ/số tiền/thanh toán) bên trong. */}
+                              <button
+                                className="btn btn-primary btn-sm shipper-route-claim"
+                                disabled={claimingRoute === i}
+                                onClick={() => claimRoute(cluster, i)}
+                              >
+                                {claimingRoute === i ? "Đang nhận..." : `Nhận cả tuyến (${cluster.length})`}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {singles.length > 0 && (
+                      <div className="shipper-route shipper-route-wide">
+                        {routes.length > 0 && <div className="shipper-route-head shipper-route-head-static">Đơn lẻ ({singles.length})</div>}
+                        <div className="shipper-cards">
+                          {singles.map((o) => (
+                            <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
+                          ))}
+                        </div>
                       </div>
-                    );
-                  })}
-                  {singles.length > 0 && (
-                    <div className="shipper-route">
-                      {routes.length > 0 && <div className="shipper-route-head shipper-route-head-static">Đơn lẻ ({singles.length})</div>}
-                      {singles.map((o) => (
-                        <OrderCard key={o.id} order={o} actionLabel="Nhận đơn" busy={busyId === o.id} onAction={() => claimOrder(o)} />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </section>
-          )}
-        </>
-      )}
+                    )}
+                  </>
+                )}
+              </section>
+            )}
+          </div>
+        </div>
+      </main>
+
+      <nav className="shipper-tabbar">
+        <button className={tab === "mine" ? "active" : ""} onClick={() => setTab("mine")}>
+          Đang giao <span className="shipper-tab-count">{mine.length}</span>
+        </button>
+        <button className={tab === "available" ? "active" : ""} onClick={() => setTab("available")}>
+          Có thể nhận <span className="shipper-tab-count">{available.length}</span>
+        </button>
+      </nav>
     </div>
   );
 }

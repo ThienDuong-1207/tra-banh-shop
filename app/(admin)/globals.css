@@ -944,12 +944,32 @@ label.field input:disabled { opacity: 0.6; }
 /* ---- Trang Shipper (/admin/shipper) — tối giản, mobile-first, KHÔNG dùng
    .shell/.sidebar/.main của khung admin đầy đủ. Cột đơn max 480px căn giữa,
    thoải mái đọc trên điện thoại lẫn desktop. ---- */
-.shipper-shell { max-width: 480px; margin: 0 auto; padding: 16px 16px 60px; min-height: 100vh; }
-.shipper-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0 18px; }
-.shipper-header-title { font-size: 17px; font-weight: 700; }
-.shipper-header-sub { font-size: var(--text-meta); color: var(--muted); margin-top: 2px; }
-.shipper-header-actions { display: flex; align-items: center; gap: 8px; }
+.shipper-shell .main-content .app { max-width: none; }
 .shipper-section { margin-bottom: 26px; }
+.shipper-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 0 12px; }
+.shipper-section > .empty-state { grid-column: 1 / -1; }
+@media (min-width: 861px) {
+  .shipper-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 0 14px; align-items: start; }
+  .shipper-section > .shipper-card { margin-bottom: 14px; }
+  .shipper-route-wide { grid-column: 1 / -1; }
+  .shipper-route-wide .shipper-card { margin-bottom: 0; }
+}
+.shipper-tabbar { display: none; }
+@media (max-width: 860px) {
+  .shipper-shell .sidebar { display: none; }
+  .shipper-app { padding-bottom: 96px; }
+  .shipper-tabbar {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; gap: 6px;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border);
+  }
+  .shipper-tabbar button {
+    flex: 1; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: none; background: none; border-radius: var(--radius-sm); cursor: pointer;
+    font-size: var(--text-body-sm); font-weight: 600; color: var(--muted);
+  }
+  .shipper-tabbar button.active { color: var(--primary-ink); background: var(--primary-wash); }
+  .shipper-tab-count { font-weight: 650; }
+}
 .shipper-section h2 { font-size: var(--text-body-sm); font-weight: 650; margin: 0 0 10px; }
 .shipper-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
