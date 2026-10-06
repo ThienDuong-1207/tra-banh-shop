@@ -254,6 +254,36 @@ export default function ProductsView({ role }: { role: Role }) {
   // category/brand/search filters, instead of showing a raw whole-catalog
   // count that doesn't match what the tab actually shows once other filters
   // are active.
+  // Ô thương hiệu chỉ liệt kê thương hiệu CÓ sản phẩm trong nhóm đang chọn
+  // (lấy từ chính products, không từ bảng brands) — đổi nhóm thì danh sách này
+  // đổi theo, xem changeCategory bên dưới.
+  const brandOptionsFor = useCallback(
+    (cat: string): { name: string; count: number }[] => {
+      const counts = new Map<string, number>();
+      for (const p of products) {
+        if (cat === CATEGORY_ALL_EXCEPT_TOOLS && p.category_sheet === TOOLS_CATEGORY_SHEET) continue;
+        else if (cat !== "Tất cả" && cat !== CATEGORY_ALL_EXCEPT_TOOLS && p.category_sheet !== cat) continue;
+        const name = p.brand?.name;
+        if (!name) continue;
+        counts.set(name, (counts.get(name) ?? 0) + 1);
+      }
+      return [...counts.entries()]
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => a.name.localeCompare(b.name, "vi"));
+    },
+    [products]
+  );
+  const brandOptions = useMemo(() => brandOptionsFor(category), [brandOptionsFor, category]);
+
+  // Đổi nhóm mà thương hiệu đang chọn không còn trong nhóm mới thì đặt lại
+  // "Tất cả" — tránh bảng rỗng vô nghĩa.
+  function changeCategory(next: string) {
+    setCategory(next);
+    if (brandFilter !== "Tất cả" && !brandOptionsFor(next).some((b) => b.name === brandFilter)) {
+      setBrandFilter("Tất cả");
+    }
+  }
+
   const filteredByCriteria = useMemo(() => {
     let list = products;
     if (category === CATEGORY_ALL_EXCEPT_TOOLS) list = list.filter((p) => p.category_sheet !== TOOLS_CATEGORY_SHEET);
@@ -483,7 +513,7 @@ export default function ProductsView({ role }: { role: Role }) {
     setPhotoUploadingId(p.id);
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${p.id}/${crypto.randomUUID()}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("product-photos").upload(path, file, { upsert: true });
+    const { error: uploadError } = await supabase.storage.from("product-photos").upload(path, file);
     if (uploadError) {
       alert("Tải ảnh thất bại: " + uploadError.message);
       setPhotoUploadingId(null);
@@ -913,7 +943,7 @@ export default function ProductsView({ role }: { role: Role }) {
           <SearchIcon />
           <input placeholder="Tìm theo tên / mã / mã vạch..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
         </div>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select value={category} onChange={(e) => changeCategory(e.target.value)}>
           <option>Tất cả</option>
           <option>{CATEGORY_ALL_EXCEPT_TOOLS}</option>
           {CATEGORY_ORDER.map((c) => (
@@ -921,9 +951,11 @@ export default function ProductsView({ role }: { role: Role }) {
           ))}
         </select>
         <select value={brandFilter} onChange={(e) => setBrandFilter(e.target.value)}>
-          <option>Tất cả</option>
-          {brandNames.map((b) => (
-            <option key={b}>{b}</option>
+          <option value="Tất cả">Tất cả</option>
+          {brandOptions.map((b) => (
+            <option key={b.name} value={b.name}>
+              {b.name} ({b.count})
+            </option>
           ))}
         </select>
         <label className={`toggle-pill${missingOnly ? " active" : ""}`}>
