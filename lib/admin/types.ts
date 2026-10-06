@@ -1,6 +1,6 @@
 // Tách ra đây (thay vì khai báo cục bộ trong HomeClient.tsx) vì
 // components/admin/ProductsView.tsx cũng cần kiểu này.
-export type Role = "sales" | "accountant" | "admin" | "staff" | "shipper";
+export type Role = "accountant" | "admin" | "staff" | "shipper";
 
 // Danh sách view của HomeClient.tsx — tách ra đây (thay vì khai báo cục bộ
 // trong HomeClient.tsx) vì OverviewView cần kiểu này cho prop `onNavigate`.
@@ -107,7 +107,7 @@ export type Profile = {
   username: string | null;
   email: string | null;
   display_name: string | null;
-  role: "sales" | "accountant" | "admin" | "staff" | "shipper" | null;
+  role: "accountant" | "admin" | "staff" | "shipper" | null;
   must_change_password: boolean;
   created_at: string;
 };

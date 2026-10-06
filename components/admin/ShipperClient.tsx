@@ -30,12 +30,22 @@ function mapsUrl(address: string): string {
 // chỉ tách hiển thị thành 2 tab cho rõ. Admin xem trang này (chính sách RLS
 // của admin vốn đã thấy MỌI đơn) thì query trả về nhiều hơn, nhưng 2 bộ lọc
 // `available`/`mine` bên dưới vẫn tự thu hẹp đúng ý nghĩa hiển thị.
-export default function ShipperClient({ displayName, userId, role }: { displayName: string; userId: string; role: Role }) {
+export default function ShipperClient({
+  displayName,
+  userId,
+  role,
+  initialTab = "mine",
+}: {
+  displayName: string;
+  userId: string;
+  role: Role;
+  initialTab?: "mine" | "available";
+}) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [claimingRoute, setClaimingRoute] = useState<number | null>(null);
-  const [tab, setTab] = useState<"mine" | "available">("mine");
+  const [tab, setTab] = useState<"mine" | "available">(initialTab);
   const [expandedRoutes, setExpandedRoutes] = useState<Set<number>>(new Set());
   const [deliveredToday, setDeliveredToday] = useState(0);
 

@@ -1317,7 +1317,7 @@ export default function ProductsView({ role }: { role: Role }) {
               </tr>
             </thead>
             <tbody>
-              {tab === "all" && (role === "sales" || role === "admin") && (
+              {tab === "all" && (role === "staff" || role === "admin") && (
                 <NewProductRow
                   role={role}
                   compactView={compactView}
@@ -1465,7 +1465,7 @@ const ProductRow = memo(function ProductRow({
 }: ProductRowProps) {
   const className = [isPending ? "is-pending" : "", extraClassName ?? ""].filter(Boolean).join(" ");
   const isAdmin = role === "admin";
-  const canEditPhoto = role === "sales" || role === "accountant" || role === "admin";
+  const canEditPhoto = role === "staff" || role === "accountant" || role === "admin";
   const photoInputId = `photo-upload-${p.id}`;
 
   function selectBrand(newValue: string) {
@@ -1568,7 +1568,7 @@ const ProductRow = memo(function ProductRow({
             value={p.ten_hoa_don}
             onSave={(v) => onUpdateField(p, "ten_hoa_don", v)}
             saving={isSaving}
-            disabled={role === "sales" || role === "staff"}
+            disabled={role === "staff"}
             clickToEdit
           />
         </td>
@@ -2201,7 +2201,7 @@ function NewProductRow({
   const [brandCustom, setBrandCustom] = useState(false);
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
-  const isSales = role === "sales";
+  const isSales = role === "staff";
   const canSubmit = isSales ? form.ten_hang_hoa.trim() !== "" : form.ma_noi_bo.trim() !== "" && form.ten_hang_hoa.trim() !== "";
 
   function set<K extends keyof FormState>(key: K, value: string) {

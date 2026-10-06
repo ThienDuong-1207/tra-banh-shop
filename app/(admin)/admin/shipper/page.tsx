@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/admin/supabaseServerClient";
 import ShipperClient from "@/components/admin/ShipperClient";
 
-export default async function ShipperPage() {
+export default async function ShipperPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab } = await searchParams;
   const supabase = await createServerSupabase();
   const {
     data: { user },
@@ -23,5 +24,5 @@ export default async function ShipperPage() {
   // lại.
   if (profile?.role !== "shipper" && profile?.role !== "admin") redirect("/admin");
 
-  return <ShipperClient displayName={profile.display_name || user.email || ""} userId={user.id} role={profile.role} />;
+  return <ShipperClient displayName={profile.display_name || user.email || ""} userId={user.id} role={profile.role} initialTab={tab === "available" ? "available" : "mine"} />;
 }

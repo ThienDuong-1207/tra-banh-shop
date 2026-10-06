@@ -36,10 +36,8 @@ const SHOW_INVENTORY_NAV = false;
 const SHOW_PRICE_APPROVAL_NAV = false;
 const SHOW_ACTIVITY_LOG_NAV = false;
 const SHOW_REPORTS_NAV = false;
-const SHOW_USERS_NAV = false;
 
 const ROLE_LABEL: Record<Role, string> = {
-  sales: "Sales",
   accountant: "Kế toán",
   admin: "Admin",
   staff: "Nhân viên",
@@ -230,17 +228,13 @@ function Sidebar({
       </div>
       {mobileNavOpen && <div className="sidebar-backdrop" onClick={onToggleMobileNav} />}
       <div className="nav">
-        <div className="nav-label">Menu</div>
         <button className={`nav-item${activeView === "tongquan" ? " active" : ""}`} onClick={() => onChange("tongquan")}>
           <HomeIcon />
           Tổng quan
         </button>
-        {/* Admin không thao tác trực tiếp hàng hóa/đơn hàng/khách hàng ở đây
-            nữa — dùng "Trang nhân viên" bên dưới để sang đúng trang chức năng
-            (/admin/sale) khi cần. Kế toán chưa có trang riêng nên vẫn giữ
-            nguyên 3 mục này để không mất chức năng đang dùng. */}
-        {role !== "admin" && (
+        {(role === "admin" || role === "accountant") && (
           <>
+            <div className="nav-label">NHÂN VIÊN</div>
             <button className={`nav-item${activeView === "hanghoa" ? " active" : ""}`} onClick={() => onChange("hanghoa")}>
               <TagIcon />
               Quản lý hàng hóa
@@ -257,7 +251,24 @@ function Sidebar({
         )}
         {role === "admin" && (
           <>
-            <div className="nav-label">Quản trị</div>
+            <div className="nav-label">SHIPPER</div>
+            <Link href="/admin/shipper?tab=available" className="nav-item">
+              <TruckIcon />
+              Nhận đơn
+            </Link>
+            <Link href="/admin/shipper?tab=mine" className="nav-item">
+              <TruckIcon />
+              Đơn giao
+            </Link>
+          </>
+        )}
+        {role === "admin" && (
+          <>
+            <div className="nav-label">ADMIN</div>
+            <button className={`nav-item${activeView === "users" ? " active" : ""}`} onClick={() => onChange("users")}>
+              <UsersIcon />
+              Quản lý người dùng
+            </button>
             <button className={`nav-item${activeView === "khuyenmai" ? " active" : ""}`} onClick={() => onChange("khuyenmai")}>
               <TagPercentIcon />
               Mã khuyến mãi
@@ -268,23 +279,9 @@ function Sidebar({
             </button>
           </>
         )}
-        {role === "admin" && (
-          <>
-            <div className="nav-label">Trang nhân viên</div>
-            <Link href="/admin/sale" className="nav-item">
-              <TagIcon />
-              Bán hàng (Sales)
-            </Link>
-            <Link href="/admin/shipper" className="nav-item">
-              <TruckIcon />
-              Giao hàng (Shipper)
-            </Link>
-          </>
-        )}
-        {/* Ẩn các mục ngoài phạm vi yêu cầu hiện tại (Tổng quan/Sản phẩm/Đơn
-            hàng/Tin nhắn) — không xoá code/dữ liệu, chỉ ẩn khỏi nav. Đổi cờ
-            tương ứng thành true để hiện lại khi cần, cùng pattern
-            SHOW_INVENTORY_NAV đã có sẵn. */}
+        {/* Ẩn các mục ngoài phạm vi hiện tại (Chờ duyệt giá, Nhật ký, Báo cáo,
+            Tồn kho) — không xoá code, đổi cờ tương ứng thành true để hiện lại.
+            Điểm danh tạm ẩn: chưa xây, không đưa vào nav. */}
         {SHOW_PRICE_APPROVAL_NAV && (
           <button className={`nav-item${activeView === "duyetgia" ? " active" : ""}`} onClick={() => onChange("duyetgia")}>
             <TagIcon />
@@ -302,12 +299,6 @@ function Sidebar({
           <button className={`nav-item${activeView === "baocao" ? " active" : ""}`} onClick={() => onChange("baocao")}>
             <ChartIcon />
             Báo cáo
-          </button>
-        )}
-        {SHOW_USERS_NAV && role === "admin" && (
-          <button className={`nav-item${activeView === "users" ? " active" : ""}`} onClick={() => onChange("users")}>
-            <UsersIcon />
-            Quản lý người dùng
           </button>
         )}
         {SHOW_INVENTORY_NAV && (
@@ -898,7 +889,7 @@ function UserManagementView({ currentUserId }: { currentUserId: string }) {
 
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [newRole, setNewRole] = useState<Role>("sales");
+  const [newRole, setNewRole] = useState<Role>("staff");
   const [tempPassword, setTempPassword] = useState("");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -936,7 +927,7 @@ function UserManagementView({ currentUserId }: { currentUserId: string }) {
       setUsername("");
       setDisplayName("");
       setTempPassword("");
-      setNewRole("sales");
+      setNewRole("staff");
       await loadProfiles();
     } catch (e: any) {
       setCreateError(e.message);
@@ -1023,7 +1014,7 @@ function UserManagementView({ currentUserId }: { currentUserId: string }) {
           </Field>
           <Field label="Vai trò">
             <select value={newRole} onChange={(e) => setNewRole(e.target.value as Role)}>
-              {(["sales", "accountant", "admin", "staff", "shipper"] as Role[]).map((r) => (
+              {(["accountant", "admin", "staff", "shipper"] as Role[]).map((r) => (
                 <option key={r} value={r}>
                   {ROLE_LABEL[r]}
                 </option>
@@ -1096,7 +1087,7 @@ function UserManagementView({ currentUserId }: { currentUserId: string }) {
                           onChange={(e) => changeRole(p, e.target.value as Role)}
                         >
                           {!p.role && <option value="">Chưa cấp quyền</option>}
-                          {(["sales", "accountant", "admin", "staff", "shipper"] as Role[]).map((r) => (
+                          {(["accountant", "admin", "staff", "shipper"] as Role[]).map((r) => (
                             <option key={r} value={r}>
                               {ROLE_LABEL[r]}
                             </option>

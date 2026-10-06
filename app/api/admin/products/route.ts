@@ -18,7 +18,7 @@ function randomDraftCode() {
 export async function POST(req: NextRequest) {
   const current = await getCurrentUserRole();
   if (!current) return NextResponse.json({ error: "Chưa đăng nhập hoặc chưa được cấp quyền" }, { status: 401 });
-  if (current.role !== "sales" && current.role !== "admin") {
+  if (current.role !== "staff" && current.role !== "admin") {
     return NextResponse.json({ error: "Bạn không có quyền thêm sản phẩm" }, { status: 403 });
   }
 
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const { brand, ...fields } = (await req.json()) as ProductInput;
     const supabase = supabaseAdmin();
 
-    if (current.role === "sales") {
+    if (current.role === "staff") {
       if (!fields.ten_hang_hoa || !fields.category_sheet) {
         return NextResponse.json({ error: "Thiếu tên hàng hóa / nhóm hàng" }, { status: 400 });
       }

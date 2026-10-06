@@ -13,7 +13,6 @@ import CustomersView from "@/components/admin/CustomersView";
 type SaleView = "hanghoa" | "donhang" | "khachhang";
 
 const ROLE_LABEL: Record<Role, string> = {
-  sales: "Sales",
   accountant: "Kế toán",
   admin: "Admin",
   staff: "Nhân viên",
@@ -34,7 +33,7 @@ const ROLE_LABEL: Record<Role, string> = {
 // Admin cũng được phép ghé trang này (qua nav "Trang nhân viên" ở
 // HomeClient.tsx Sidebar, hoặc gõ thẳng URL — page.tsx đã cho phép role
 // admin đi qua) để dùng thử chức năng của Sales — khi đó `role` truyền vào
-// là "admin" (không phải "staff"/"sales" thật), và sidebar hiện thêm nút
+// là "admin" (không phải "staff" thật), và sidebar hiện thêm nút
 // "Quay lại trang Admin" ở đầu nav.
 export default function SaleClient({ displayName, role, userId }: { displayName: string; role: Role; userId: string }) {
   const [activeView, setActiveView] = useState<SaleView>("hanghoa");

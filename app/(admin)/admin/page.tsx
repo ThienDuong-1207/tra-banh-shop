@@ -23,7 +23,7 @@ export default async function Page() {
   // ở tầng dữ liệu cho cả 2 role này, đây chỉ là điều hướng đúng chỗ. Admin
   // và Kế toán (chưa có trang riêng) vẫn ở lại khung đầy đủ này.
   if (profile?.role === "shipper") redirect("/admin/shipper");
-  if (profile?.role === "staff" || profile?.role === "sales") redirect("/admin/sale");
+  if (profile?.role === "staff") redirect("/admin/sale");
 
   if (!profile?.role) {
     return (

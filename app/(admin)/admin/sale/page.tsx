@@ -21,7 +21,7 @@ export default async function SalePage() {
   // có nút "Quay lại trang Admin" trong SaleClient. Role khác (kể cả chưa cấp
   // quyền) về đúng khung admin thường, trang đó tự xử lý các trường hợp còn
   // lại (chưa cấp quyền, shipper...).
-  if (profile?.role !== "staff" && profile?.role !== "sales" && profile?.role !== "admin") redirect("/admin");
+  if (profile?.role !== "staff" && profile?.role !== "admin") redirect("/admin");
 
   return <SaleClient displayName={profile.display_name || user.email || ""} role={profile.role} userId={user.id} />;
 }
